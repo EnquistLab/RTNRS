@@ -1,13 +1,23 @@
 Package: TNRS
-Title: What the Package Does (One Line, Title Case)
+Title: Taxonomic Name Resolution Service
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+    c(
+            person("Brian", "Maitner", email = "bmaitner@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2118-9880")),
+            person("Brad", "Boyle", email = "bboyle@email.arizona.edu", role = c("aut"))
+            )
+Description: The package provides access to the Taxonomic Name Resolution Service through R.  The user supplies plant taxonomic names and the package returns resolved taxonomic names along with information on decisions.  Optionally, the package can also be used to parse taxonomic names.  
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports: 
+        jsonlite,
+        RCurl
+Suggests:
+        knitr,
+        rmarkdown,
+        testthat,
+        devtools,
+        BIEN
+VignetteBuilder: knitr
+RoxygenNote: 6.1.1
