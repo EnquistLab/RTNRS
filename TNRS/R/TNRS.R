@@ -1,7 +1,7 @@
 #'Resolve (plant) taxonomic names
 #'
 #'TNRS taxonomically resolved plant taxonomic names.
-#' @param taxonomic_names 
+#' @param taxonomic_names Taxonomic names to be resolved (or parsed)
 #' @param sources Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi
 #' @param classification Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
@@ -10,8 +10,11 @@
 #' @export
 #' @examples \dontrun{
 #' fulldata <- 
-#' read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv", header=FALSE)
-#'fulldata$V2 <-gsub(pattern = "'",replacement = "",x = fulldata$V2) #Currently we have an issue with cultivars, so this is a workaround
+#' read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv",
+#'  header=FALSE)
+#'fulldata$V2 <-
+#'gsub(pattern = "'",replacement = "",x = fulldata$V2) 
+#'#Currently we have an issue with cultivars, so this is a workaround
 #'
 #'results <- TNRS(taxonomic_names = fulldata)
 #'   

@@ -8,7 +8,7 @@ TNRS(taxonomic_names, sources = "tpl,gcc,ildis,tropicos,usda",
   classification = "tropicos", mode = "resolve")
 }
 \arguments{
-\item{taxonomic_names}{}
+\item{taxonomic_names}{Taxonomic names to be resolved (or parsed)}
 
 \item{sources}{Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi}
 
@@ -25,8 +25,11 @@ TNRS taxonomically resolved plant taxonomic names.
 \examples{
 \dontrun{
 fulldata <- 
-read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv", header=FALSE)
-fulldata$V2 <-gsub(pattern = "'",replacement = "",x = fulldata$V2) #Currently we have an issue with cultivars, so this is a workaround
+read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv",
+ header=FALSE)
+fulldata$V2 <-
+gsub(pattern = "'",replacement = "",x = fulldata$V2) 
+#Currently we have an issue with cultivars, so this is a workaround
 
 results <- TNRS(taxonomic_names = fulldata)
   
