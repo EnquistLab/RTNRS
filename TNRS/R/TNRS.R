@@ -1,7 +1,7 @@
 #'Resolve (plant) taxonomic names
 #'
 #'TNRS taxonomically resolved plant taxonomic names.
-#' @param taxonomic_names Taxonomic names to be resolved (or parsed)
+#' @param taxonomic_names Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  
 #' @param sources Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi
 #' @param classification Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
