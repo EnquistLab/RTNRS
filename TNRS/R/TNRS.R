@@ -2,7 +2,9 @@
 #'
 #'TNRS taxonomically resolved plant taxonomic names.
 #' @param taxonomic_names 
-#' @param sources
+#' @param sources Taxonomic sources to use, as a character string. Default is "tpl,gcc,ildis,tropicos,usda"
+#' @param classification Family classification to use. Default is "tropicos".
+#' @param mode Character.  Options include "resolve" and "parse". Default option is "resolve"
 #' @return Dataframe containing TNRS results.
 #' @import RCurl jsonlite
 #' @export
