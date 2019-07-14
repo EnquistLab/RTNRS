@@ -17,7 +17,7 @@
 #'gsub(pattern = "'",replacement = "",x = fulldata$V2) 
 #'#Currently we have an issue with cultivars, so this is a workaround
 #'
-#'results <- TNRS(taxonomic_names = fulldata)
+#'results <- .TNRS_base(taxonomic_names = fulldata)
 #'   
 #' # Inspect the results
 #' head(results, 10)
