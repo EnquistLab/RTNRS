@@ -1,7 +1,7 @@
-#'Resolve (plant) taxonomic names
+#'Resolve plant taxonomic names
 #'
-#'TNRS taxonomically resolved plant taxonomic names.
-#' @param taxonomic_names Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  
+#'Resolve plant taxonomic names.
+#' @param taxonomic_names Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.  
 #' @param sources Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi
 #' @param classification Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
@@ -23,48 +23,97 @@
 #' }
 #' 
 TNRS <- function(taxonomic_names,
-                 sources = "tpl,gcc,ildis,tropicos,usda",
-                 classification = "tropicos",
-                 mode = "resolve"
-                 ){
+                      sources = "tpl,gcc,ildis,tropicos,usda",
+                      classification = "tropicos",
+                      mode = "resolve"
+){
   
-  # URL for GNRS API
-  url = "https://tnrsapidev.xyz/tnrs_api.php"
+  #If taxonomic names are supplied as a character string, make them into a data.frame
   
-  # Convert the data to JSON
-  data_json <- jsonlite::toJSON(unname(taxonomic_names))
+  if(class(taxonomic_names)=="character"){
+    taxonomic_names <- as.data.frame(cbind(1:length(taxonomic_names),taxonomic_names))
+  }
   
-  # Convert the options to data frame and then JSON
-  opts <- data.frame(c(sources),c(classification), c(mode))
-  names(opts) <- c("sources", "class", "mode")
-  opts_json <- jsonlite::toJSON(opts)
-  opts_json <- gsub('\\[','',opts_json)
-  opts_json <- gsub('\\]','',opts_json)
   
-  # Combine the options and data into single JSON object
-  input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
+  #Specify the limit of names for the TNRS
+  name_limit=1000
   
-  # Construct the request
-  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
   
-  # Send the API request
-  results_json <- RCurl::postForm(url, .opts=list(postfields= input_json, httpheader=headers))
-
-  #clean json results to prevent encoding issues
+  # If there are less than the max number of names allowable, send them to the base package 
+        if(nrow(taxonomic_names)<=name_limit){
+          
+          return(.TNRS_base(taxonomic_names = taxonomic_names, sources = sources, classification = classification, mode = mode))
+          
+        }#
   
-
-  # Convert JSON file to a data frame
-  results <- jsonlite::fromJSON(results_json)
-
-  #Clean up results
-
-  results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
-  results<-as.data.frame(results,stringsAsFactors = F) #convert to data.frame
-  colnames(results) <- as.character(results[1,]) #add column names
-  results <- results[-1,] #remove first row (which contained column names)
-  rownames(results) <- NULL	# Reset row numbers
+  # If there are more than the max number of records, divide them into chunks and process the chunks 
+  
+  
+  
+  if(nrow(taxonomic_names)>name_limit){
+  
+    nchunks <- ceiling(nrow(taxonomic_names)/name_limit)  
+    
+    
+    for(i in 1:nchunks){
+    
+      #Use the first batch of results to set up the output file
+      if(i==1){
+            results_i <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+                           sources = sources,
+                           classification = classification,
+                           mode = mode)
+                
+            results<-matrix(nrow = nrow(taxonomic_names),ncol = ncol(results_i))
+            results <- as.data.frame(results,stringsAsFactors = F)
+            colnames(results)<-colnames(results_i)
+            results[(((i-1)*name_limit)+1):(i*name_limit),]<-results_i
+            rm(results_i)
+        
+      }#for first batch
+      
+      
+      #For last batch
+      if(i==nchunks){
+        
+        
+        
+        results[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),] <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
+                                                                     sources = sources,
+                                                                     classification = classification,
+                                                                     mode = mode)
+        
+        
+          
+        
+        
+      }#last batch
+      
+      
+      #middle bits
+      if(i != nchunks & i != 1){
+      results[(((i-1)*name_limit)+1):(i*name_limit),] <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+                                                                   sources = sources,
+                                                                   classification = classification,
+                                                                   mode = mode)
+      
+      
+      
+      
+      
+      }#middle bits  
+      
+    }#i loop
+    
+    
+    
+    
+    
+  }#if more than 10k
+    
+  
   
   return(results)
   
-}
-  
+}#fx
+
