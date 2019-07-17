@@ -13,10 +13,6 @@
 #' fulldata <- 
 #' read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv",
 #'  header=FALSE)
-#'fulldata$V2 <-
-#'gsub(pattern = "'",replacement = "",x = fulldata$V2) 
-#'#Currently we have an issue with cultivars, so this is a workaround
-#'
 #'results <- .TNRS_base(taxonomic_names = fulldata)
 #'   
 #' # Inspect the results
@@ -24,10 +20,10 @@
 #' }
 #' 
 .TNRS_base <- function(taxonomic_names,
-                 sources = "tpl,gcc,ildis,tropicos,usda",
-                 classification = "tropicos",
-                 mode = "resolve"
-                 ){
+                       sources = "tpl,gcc,ildis,tropicos,usda",
+                       classification = "tropicos",
+                       mode = "resolve"
+){
   
   # URL for GNRS API
   url = "https://tnrsapidev.xyz/tnrs_api.php"
@@ -37,7 +33,7 @@
   if(class(taxonomic_names)=="character"){
     taxonomic_names <- as.data.frame(cbind(1:length(taxonomic_names),taxonomic_names))
   }
-    
+  
   
   # Convert the data to JSON
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
@@ -57,15 +53,15 @@
   
   # Send the API request
   results_json <- RCurl::postForm(url, .opts=list(postfields= input_json, httpheader=headers))
-
+  
   #clean json results to prevent encoding issues
   
-
+  
   # Convert JSON file to a data frame
   results <- jsonlite::fromJSON(results_json)
-
+  
   #Clean up results
-
+  
   results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
   results<-as.data.frame(results,stringsAsFactors = F) #convert to data.frame
   colnames(results) <- as.character(results[1,]) #add column names

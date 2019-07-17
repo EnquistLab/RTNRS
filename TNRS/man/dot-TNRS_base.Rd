@@ -30,10 +30,6 @@ This function is primarily used as an internal function of TNRS and can only han
 fulldata <- 
 read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv",
  header=FALSE)
-fulldata$V2 <-
-gsub(pattern = "'",replacement = "",x = fulldata$V2) 
-#Currently we have an issue with cultivars, so this is a workaround
-
 results <- .TNRS_base(taxonomic_names = fulldata)
   
 # Inspect the results
