@@ -5,6 +5,7 @@
 #' @param sources Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi
 #' @param classification Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
+#' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @return Dataframe containing TNRS results.
 #' @note This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names. 
 #' @import RCurl jsonlite
@@ -22,7 +23,8 @@
 .TNRS_base <- function(taxonomic_names,
                        sources = "tpl,gcc,ildis,tropicos,usda",
                        classification = "tropicos",
-                       mode = "resolve"
+                       mode = "resolve",
+                       matches = "best"
 ){
   
   # URL for GNRS API
@@ -39,8 +41,8 @@
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
   # Convert the options to data frame and then JSON
-  opts <- data.frame(c(sources),c(classification), c(mode))
-  names(opts) <- c("sources", "class", "mode")
+  opts <- data.frame(c(sources),c(classification), c(mode),c(matches))
+  names(opts) <- c("sources", "class", "mode","matches")
   opts_json <- jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)
   opts_json <- gsub('\\]','',opts_json)

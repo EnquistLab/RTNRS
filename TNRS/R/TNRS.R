@@ -5,6 +5,7 @@
 #' @param sources Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi
 #' @param classification Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
+#' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @return Dataframe containing TNRS results.
 #' @import RCurl jsonlite
 #' @export
@@ -23,7 +24,8 @@
 TNRS <- function(taxonomic_names,
                       sources = "tpl,gcc,ildis,tropicos,usda",
                       classification = "tropicos",
-                      mode = "resolve"
+                      mode = "resolve",
+                      matches = "best"
 ){
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
@@ -40,7 +42,7 @@ TNRS <- function(taxonomic_names,
   # If there are less than the max number of names allowable, send them to the base package 
         if(nrow(taxonomic_names)<=name_limit){
           
-          return(.TNRS_base(taxonomic_names = taxonomic_names, sources = sources, classification = classification, mode = mode))
+          return(.TNRS_base(taxonomic_names = taxonomic_names, sources = sources, classification = classification, mode = mode, matches = matches ))
           
         }#
   
