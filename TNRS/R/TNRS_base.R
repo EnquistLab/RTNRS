@@ -56,14 +56,12 @@
   # Send the API request
   results_json <- RCurl::postForm(url, .opts=list(postfields= input_json, httpheader=headers))
   
-  #clean json results to prevent encoding issues
-  
-  
   # Convert JSON file to a data frame
   results <- jsonlite::fromJSON(results_json)
+  results<-as.data.frame(results,stringsAsFactors = F) #convert to data.frame
+  results <- t(results)
   
   #Clean up results
-  
   results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
   results<-as.data.frame(results,stringsAsFactors = F) #convert to data.frame
   colnames(results) <- as.character(results[1,]) #add column names

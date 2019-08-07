@@ -5,7 +5,7 @@
 \title{Resolve plant taxonomic names}
 \usage{
 TNRS(taxonomic_names, sources = "tpl,gcc,ildis,tropicos,usda",
-  classification = "tropicos", mode = "resolve")
+  classification = "tropicos", mode = "resolve", matches = "best")
 }
 \arguments{
 \item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.}
@@ -15,6 +15,8 @@ TNRS(taxonomic_names, sources = "tpl,gcc,ildis,tropicos,usda",
 \item{classification}{Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.}
 
 \item{mode}{Character.  Options are "resolve" and "parse". Default option is "resolve"}
+
+\item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
 }
 \value{
 Dataframe containing TNRS results.
