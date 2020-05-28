@@ -4,8 +4,13 @@
 \alias{.TNRS_base}
 \title{Resolve a single batch of (plant) taxonomic names}
 \usage{
-.TNRS_base(taxonomic_names, sources = "tpl,gcc,ildis,tropicos,usda",
-  classification = "tropicos", mode = "resolve", matches = "best")
+.TNRS_base(
+  taxonomic_names,
+  sources = "tpl,gcc,ildis,tropicos,usda",
+  classification = "tropicos",
+  mode = "resolve",
+  matches = "best"
+)
 }
 \arguments{
 \item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.}

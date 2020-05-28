@@ -4,8 +4,13 @@
 \alias{TNRS}
 \title{Resolve plant taxonomic names}
 \usage{
-TNRS(taxonomic_names, sources = "tpl,gcc,ildis,tropicos,usda",
-  classification = "tropicos", mode = "resolve", matches = "best")
+TNRS(
+  taxonomic_names,
+  sources = "tpl,gcc,ildis,tropicos,usda",
+  classification = "tropicos",
+  mode = "resolve",
+  matches = "best"
+)
 }
 \arguments{
 \item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.}
