@@ -22,7 +22,7 @@
 #' }
 #' 
 TNRS <- function(taxonomic_names,
-                      sources = "tpl,gcc,ildis,tropicos,usda",
+                      sources = "tpl,tropicos,usda",
                       classification = "tropicos",
                       mode = "resolve",
                       matches = "best"
