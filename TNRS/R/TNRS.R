@@ -2,8 +2,8 @@
 #'
 #'Resolve plant taxonomic names.
 #' @param taxonomic_names Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.  
-#' @param sources Character. Taxonomic sources to use. Default is "tpl,gcc,ildis,tropicos,usda". Options include tpl,ildis,gcc,tropicos,usda,ncbi
-#' @param classification Character. Family classification to use. Options are tropicos and ncbi. Default is "tropicos", which is equivalent to APGIII.
+#' @param sources Character. Taxonomic sources to use. Default is "tpl,tropicos,usda". Options include tpl,tropicos,usda,ncbi
+#' @param classification Character. Family classification to use. Currently the only options is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @return Dataframe containing TNRS results.
@@ -59,7 +59,7 @@ TNRS <- function(taxonomic_names,
     
       #Use the first batch of results to set up the output file
       if(i==1){
-            results_i <- TNRS:::.TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+            results_i <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
                            sources = sources,
                            classification = classification,
                            mode = mode)
@@ -78,7 +78,7 @@ TNRS <- function(taxonomic_names,
         
         
         
-        results[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),] <- TNRS:::.TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
+        results[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),] <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
                                                                      sources = sources,
                                                                      classification = classification,
                                                                      mode = mode)
@@ -92,7 +92,7 @@ TNRS <- function(taxonomic_names,
       
       #middle bits
       if(i != nchunks & i != 1){
-      results[(((i-1)*name_limit)+1):(i*name_limit),] <- TNRS:::.TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+      results[(((i-1)*name_limit)+1):(i*name_limit),] <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
                                                                    sources = sources,
                                                                    classification = classification,
                                                                    mode = mode)
