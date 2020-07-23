@@ -28,7 +28,9 @@
 ){
   
   # URL for TNRS API
-  url = "https://tnrsapidev.xyz/tnrs_api.php"
+  #url = "https://tnrsapidev.xyz/tnrs_api.php"
+  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php"
+  
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
   
