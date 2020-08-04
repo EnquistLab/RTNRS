@@ -8,7 +8,8 @@
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @return Dataframe containing TNRS results.
 #' @note This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names. 
-#' @import RCurl jsonlite
+#' @import RCurl
+#' @importFrom jsonlite toJSON fromJSON
 #' @keywords Internal
 #' @examples \dontrun{
 #' fulldata <- 

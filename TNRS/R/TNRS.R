@@ -7,7 +7,6 @@
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @return Dataframe containing TNRS results.
-#' @import RCurl jsonlite
 #' @export
 #' @examples \dontrun{
 #' #First, pull some example data from the BIEN website
