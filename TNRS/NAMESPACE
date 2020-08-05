@@ -2,6 +2,7 @@
 
 export(TNRS)
 export(TNRS_citations)
+export(TNRS_metadata)
 export(TNRS_sources)
 export(TNRS_version)
 import(RCurl)
