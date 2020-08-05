@@ -1,0 +1,77 @@
+---
+title: "Taxonomic Names Resolution Service"
+author: "Brian Maitner"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Taxonomic Names Resolution Service}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## About the Taxonomic Name Resolution Service
+
+The Taxonomic Name Resolution Service (TNRS) is a tool for automated standardization of plant scientific names.
+
+The TNRS corrects spelling errors and alternative spellings to a standard list of names, and converts out of date names (synonyms) to the current accepted name. The TNRS can process many names at once, saving hours of tedious and error-prone manual name correction. For names that cannot be resolved automatically, the TNRS present a list of possibilities and provides tools for researching and selecting the preferred name.
+
+
+# Using the TNRS
+
+The TNRS takes as input either a vector of scientific names, or a data.frame containing two columns: row number and scientific name.
+
+```{r }
+library(TNRS)
+
+#First, we'll grab an example dataset containing two columnsL row number and scientific name.
+fulldata <- read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv", header=FALSE)
+
+head(fulldata$V2,n = 20) 
+
+#Note that there are a variety of formats represented here, sometimes including
+  # scientific name only
+  # genus only
+  # family and genus
+  # family, scientific name, and author
+
+results <- TNRS(taxonomic_names = fulldata)
+
+# Inspect the results
+head(results, 10)
+
+# The output includes information on the name submitted, the match score (how close the match is), the name matched, the status of the matched name, and the accepted name.
+
+```
+
+# TNRS metadata
+When using the TNRS, we ask that you cite both the TNRS itself and the data sources that are used by the TNRS.  The TNRS couldn't function without these data sources, and it is important to recognize the work of these data providers by citing their work. Users may also want to report metadata about the version of the TNRS they used in their analyses for the purposes of reproducibility. The function `TNRS_metadata` facilitates citations and version reporting by providing this information in an easily-used format.  This function returns:
+
+1. Bibtex-formatted citation information. This information can be optionally be written to a file specified by the "bibtex_file" argument.  
+2. Information about TNRS data sources
+3. TNRS version information
+
+
+```{r}
+
+metadata <- TNRS_metadata()
+
+#If you want to see the TNRS version information (e.g. to report in an manuscript):
+
+metadata$version
+
+#To see the sources that are used by the TNRS:
+
+metadata$sources
+
+#To get the citation information to paste into a reference manager (e.g. paperpile, zotero):
+
+writeLines(text = metadata$citations$citation)
+
+
+```

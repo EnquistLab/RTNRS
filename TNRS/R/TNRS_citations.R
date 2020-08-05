@@ -37,6 +37,9 @@ TNRS_citations <- function(){
   results <- jsonlite::fromJSON(results_json)
   results <- results$citations
   
+  results$citation <- gsub(pattern = "{{",replacement = "{",x = results$citation,fixed = T)
+  results$citation <- gsub(pattern = "}}",replacement = "}",x = results$citation,fixed = T)
+  
   return(results)
   
 }#TNRS citations

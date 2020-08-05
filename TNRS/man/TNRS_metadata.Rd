@@ -4,7 +4,10 @@
 \alias{TNRS_metadata}
 \title{Get TNRS metadata}
 \usage{
-TNRS_metadata()
+TNRS_metadata(bibtex_file = NULL)
+}
+\arguments{
+\item{bibtex_file}{Optional output file for writing bibtex citations.}
 }
 \value{
 List containing: (1) bibtex-formatted citation information, (2) information about TNRS data sources, and (3) TNRS version information.
