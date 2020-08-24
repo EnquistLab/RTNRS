@@ -45,16 +45,13 @@
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
   # Convert the options to data frame and then JSON
-    #opts <- data.frame(c(sources),c(classification), c(mode),c(matches))
-    #names(opts) <- c("sources", "class", "mode","matches")
-  
-  opts <- data.frame(c(sources),c(classification), c(mode))
-  names(opts) <- c("sources", "class", "mode")
-  
-  
-  opts_json <- jsonlite::toJSON(opts)
+  opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
+  names(opts) <- c("sources", "class", "mode", "matches")
+  opts_json <-  jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)
   opts_json <- gsub('\\]','',opts_json)
+  
+  
   
   # Combine the options and data into single JSON object
   input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
@@ -112,15 +109,11 @@
   #rownames(results) <- NULL	# Reset row numbers
   
   #Filter to only best, unless otherwise desired
-  if(mode == "resolve" & matches == "best"){
-    
-    results <- results[results$Overall_score_order==1, ]
-    results$match.score <- format(round(as.numeric(results$Overall_score),2), nsmall=2)
-    results <- results[ , c('Name_submitted', 'match.score', 'Name_matched', 'Taxonomic_status', 'Accepted_name')]
-    
-    
-    
-  }
+  #if(mode == "resolve" & matches == "best"){
+  #  results <- results[results$Overall_score_order==1, ]
+  #  results$match.score <- format(round(as.numeric(results$Overall_score),2), nsmall=2)
+  #  results <- results[ , c('Name_submitted', 'match.score', 'Name_matched', 'Taxonomic_status', 'Accepted_name')]
+  #}
   
   
   

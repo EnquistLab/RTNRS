@@ -58,16 +58,17 @@ TNRS <- function(taxonomic_names,
     
       #Use the first batch of results to set up the output file
       if(i==1){
-            results_i <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+            results <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
                            sources = sources,
                            classification = classification,
-                           mode = mode)
+                           mode = mode,
+                           matches=matches)
                 
-            results<-matrix(nrow = nrow(taxonomic_names),ncol = ncol(results_i))
-            results <- as.data.frame(results,stringsAsFactors = F)
-            colnames(results)<-colnames(results_i)
-            results[(((i-1)*name_limit)+1):(i*name_limit),]<-results_i
-            rm(results_i)
+            #results<-matrix(nrow = nrow(taxonomic_names),ncol = ncol(results_i))
+            #$results <- as.data.frame(results,stringsAsFactors = F)
+            #colnames(results)<-colnames(results_i)
+            #results[(((i-1)*name_limit)+1):(i*name_limit),]<-results_i
+            #rm(results_i)
         
       }#for first batch
       
@@ -77,10 +78,13 @@ TNRS <- function(taxonomic_names,
         
         
         
-        results[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),] <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
+        results <- rbind(results,
+                         .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
                                                                      sources = sources,
                                                                      classification = classification,
-                                                                     mode = mode)
+                                                                     mode = mode,
+                                                                     matches = matches)
+                        )
         
         
           
@@ -91,11 +95,14 @@ TNRS <- function(taxonomic_names,
       
       #middle bits
       if(i != nchunks & i != 1){
-      results[(((i-1)*name_limit)+1):(i*name_limit),] <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
-                                                                   sources = sources,
-                                                                   classification = classification,
-                                                                   mode = mode)
-      
+        results <- rbind(results,
+                .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+                                                                       sources = sources,
+                                                                       classification = classification,
+                                                                       mode = mode,
+                                                                       matches = matches)
+          )
+          
       
       
       
