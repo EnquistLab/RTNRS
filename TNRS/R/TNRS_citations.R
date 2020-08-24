@@ -15,7 +15,8 @@ TNRS_citations <- function(){
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php"
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php"
+  url = "https://tnrsapi.xyz/tnrs_api.php"
   
   opts <- data.frame(c(mode))
   names(opts) <- c("mode")

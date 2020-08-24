@@ -30,7 +30,8 @@
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php"
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php"
+  url = "https://tnrsapi.xyz/tnrs_api.php"
   
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
@@ -111,7 +112,7 @@
   #rownames(results) <- NULL	# Reset row numbers
   
   #Filter to only best, unless otherwise desired
-  if(matches == "best"){
+  if(mode == "resolve" & matches == "best"){
     
     results <- results[results$Overall_score_order==1, ]
     results$match.score <- format(round(as.numeric(results$Overall_score),2), nsmall=2)
