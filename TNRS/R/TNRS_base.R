@@ -30,9 +30,9 @@
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php"
-  url = "https://tnrsapi.xyz/tnrs_api.php"
-  
+  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
+  #url = "https://tnrsapi.xyz/tnrs_api.php" #production
+
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
   
@@ -41,17 +41,13 @@
   }
   
   
-  # Convert the data to JSON
-  data_json <- jsonlite::toJSON(unname(taxonomic_names))
-  
+
   # Convert the options to data frame and then JSON
   opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
   names(opts) <- c("sources", "class", "mode", "matches")
   opts_json <-  jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)
   opts_json <- gsub('\\]','',opts_json)
-  
-  
   
   # Combine the options and data into single JSON object
   input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
@@ -60,61 +56,10 @@
   headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
   
   # Send the API request
-  results_json <- RCurl::postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+  results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
   
-  # Convert JSON file to a data frame
-  results <- jsonlite::fromJSON(results_json)
-  
-  
-  if(class(results)=="matrix"){
-    
-    results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
-    results <- as.data.frame(results,stringsAsFactors = F) #convert to data.frame
-    
-    
-    #Clean up results
-    #results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
-    #results<-as.data.frame(results,stringsAsFactors = F) #convert to data.frame
-    colnames(results) <- as.character(results[1,]) #add column names
-    results <- results[-1,] #remove first row (which contained column names)
-    rownames(results) <- NULL	# Reset row numbers
-    #results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
-    
-    
-    
-    
-  }
-  
-  if(class(results)=="list"){
-    
-    print("results returned in odd format, check input data")
-    results <- as.data.frame(results,stringsAsFactors = F) #convert to data.frame
-    results <- t(results)  
-    results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
-    results <- as.data.frame(results,stringsAsFactors = F) #convert to data.frame
-    colnames(results) <- as.character(results[1,]) #add column names
-    results <- results[-1,] #remove first row (which contained column names)
-    rownames(results) <- NULL	# Reset row numbers
-    
-    
-    
-  }
-  
-
-  #Clean up results
-  #results<-gsub(pattern = '"',replacement = "",x = results) #remove quotation marks used by the API
-  #results<-as.data.frame(results,stringsAsFactors = F) #convert to data.frame
-  #colnames(results) <- as.character(results[1,]) #add column names
-  #results <- results[-1,] #remove first row (which contained column names)
-  #rownames(results) <- NULL	# Reset row numbers
-  
-  #Filter to only best, unless otherwise desired
-  #if(mode == "resolve" & matches == "best"){
-  #  results <- results[results$Overall_score_order==1, ]
-  #  results$match.score <- format(round(as.numeric(results$Overall_score),2), nsmall=2)
-  #  results <- results[ , c('Name_submitted', 'match.score', 'Name_matched', 'Taxonomic_status', 'Accepted_name')]
-  #}
-  
+  # Convert JSON results to a data frame
+  results <-  jsonlite::fromJSON(results_json) #Error here
   
   
   
