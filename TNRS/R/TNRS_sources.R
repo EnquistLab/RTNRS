@@ -19,6 +19,10 @@ TNRS_sources <- function(){
   # Set sources mode
   mode <- "sources"		
   
+  # Construct the request
+  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
+  
+  
   # Re-form the options json again
   opts <- data.frame(c(mode))
   names(opts) <- c("mode")

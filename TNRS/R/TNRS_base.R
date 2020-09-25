@@ -40,6 +40,7 @@
     taxonomic_names <- as.data.frame(cbind(1:length(taxonomic_names),taxonomic_names))
   }
   
+  data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
 
   # Convert the options to data frame and then JSON
