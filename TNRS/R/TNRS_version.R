@@ -13,8 +13,8 @@ TNRS_version <- function(){
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
-  #url = "https://tnrsapi.xyz/tnrs_api.php"
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
+  url = "https://tnrsapi.xyz/tnrs_api.php" #prod
   
   # All we need to do is reset option mode.
   # all other options will be ignored
@@ -32,7 +32,10 @@ TNRS_version <- function(){
   # No data needed
   input_json <- paste0('{"opts":', opts_json, '}' )
   
-  # Send the request again
+  # Construct the request
+  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
+  
+  # Send the request
   results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
   
   # Display the results

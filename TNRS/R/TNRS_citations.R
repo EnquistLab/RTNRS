@@ -15,8 +15,8 @@ TNRS_citations <- function(){
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
-  #url = "https://tnrsapi.xyz/tnrs_api.php"
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
+  url = "https://tnrsapi.xyz/tnrs_api.php" #production
   
   # Set citations mode
   mode <- "citations"		
@@ -31,7 +31,10 @@ TNRS_citations <- function(){
   # Make the options
   input_json <- paste0('{"opts":', opts_json, '}' )
   
-  # Send the request again
+  # Construct the request
+  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
+  
+  # Send the request
   results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
   
   # Display the results

@@ -30,8 +30,8 @@
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
-  #url = "https://tnrsapi.xyz/tnrs_api.php" #production
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
+  url = "https://tnrsapi.xyz/tnrs_api.php" #production
 
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
@@ -40,14 +40,17 @@
     taxonomic_names <- as.data.frame(cbind(1:length(taxonomic_names),taxonomic_names))
   }
   
+  # Convert the data to JSON
+  data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
-
   # Convert the options to data frame and then JSON
   opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
   names(opts) <- c("sources", "class", "mode", "matches")
   opts_json <-  jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)
   opts_json <- gsub('\\]','',opts_json)
+  
+  
   
   # Combine the options and data into single JSON object
   input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
