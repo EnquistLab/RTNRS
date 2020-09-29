@@ -16,9 +16,11 @@ TNRS_version <- function(){
   #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
   url = "https://tnrsapi.xyz/tnrs_api.php" #prod
   
-  # All we need to do is reset option mode.
-  # all other options will be ignored
+  # set option mode.
   mode <- "meta"		
+  
+  # Construct the request
+  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
   
   # Re-form the options json again
   # Note that only 'mode' is needed
