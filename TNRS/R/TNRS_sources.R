@@ -13,8 +13,8 @@ TNRS_sources <- function(){
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
-  url = "https://tnrsapi.xyz/tnrs_api.php" #production
+  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" #dev
+  #url = "https://tnrsapi.xyz/tnrs_api.php" #production
   
   # Set sources mode
   mode <- "sources"		
