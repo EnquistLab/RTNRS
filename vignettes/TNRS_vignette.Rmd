@@ -29,10 +29,14 @@ The TNRS takes as input either a vector of scientific names, or a data.frame con
 ```{r }
 library(TNRS)
 
-#First, we'll grab an example dataset containing two columnsL row number and scientific name.
-fulldata <- read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv", header=FALSE)
+#First, we'll grab an example dataset containing two columns: row number and scientific name.
+fulldata <- read.csv(system.file("extdata",
+                                 "tnrs_testfile.csv",
+                                 package = "TNRS",
+                                 mustWork = TRUE),
+                     stringsAsFactors = FALSE)
 
-head(fulldata$V2,n = 20) 
+head(fulldata,n = 20) 
 
 #Note that there are a variety of formats represented here, sometimes including
   # scientific name only
@@ -71,7 +75,7 @@ metadata$sources
 
 #To get the citation information to paste into a reference manager (e.g. paperpile, zotero):
 
-writeLines(text = metadata$citations$citation)
+ # writeLines(text = metadata$citations$citation)
 
 
 ```
