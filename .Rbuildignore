@@ -4,3 +4,6 @@
 ^Meta$
 ^cran-comments\.md$
 ^misc$
+^CRAN-RELEASE$
+^RTNRS.Rproj
+^old_builds$
