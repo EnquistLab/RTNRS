@@ -1,6 +1,6 @@
 ## Test environments
-* local R installation, R 3.6.3
-* ubuntu 16.04 (on travis-ci), R 3.6.3
+* local R installation, R 4.0.4
+* ubuntu 16.04 (on travis-ci), R 4.0.4
 * win-builder (devel)
 
 ## R CMD check results
@@ -10,5 +10,4 @@
 * This is a new release.
 
 ## Notes
-
-* The Fedora Linux checks produce an error.  This error is due to unavailability of the suggested package BIEN. My guess is that BIEN is unavailable due to its dependency on rgdal, as I've often encountered gdal related errors in the linux testing environments when submitting BIEN updates to CRAN.
+* The examples may take more than 5 seconds to run depending on internet speed and how busy the API is. The slowdown is on the API side, and not the R side of things.
