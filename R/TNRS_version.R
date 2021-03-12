@@ -5,7 +5,7 @@
 #' @import RCurl
 #' @importFrom jsonlite toJSON fromJSON
 #' @export
-#' @examples{
+#' @examples {
 #' TNRS_version_metadata <- TNRS_version()
 #' }
 #' 

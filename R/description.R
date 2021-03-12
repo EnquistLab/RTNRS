@@ -1,6 +1,6 @@
 #' TNRS: Tools for accessing the Taxonomic Name Resolution Service (TNRS).
 #'
-#' @description The Taxonomic Name Resolution Service (TNRS) R package provides access to the TNRS as well as other associated tools.
+#' @description Provides access to the Taxonomic Name Resolution Service (TNRS) as well as other associated tools.
 #' 
 #' @section Getting started:
 #' Type vignette("TNRS") to view the vignette, which contains useful information on the TNRS package.

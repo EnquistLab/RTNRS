@@ -33,11 +33,12 @@ Resolve a small batch of plant taxonomic names
 This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names.
 }
 \examples{
-\dontrun{
-fulldata <- 
-read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv",
- header=FALSE)
-results <- .TNRS_base(taxonomic_names = fulldata)
+{
+tnrs_testfile <- 
+read.csv(system.file("extdata", "tnrs_testfile.csv", package = "TNRS", mustWork = TRUE),
+stringsAsFactors = FALSE)
+
+results <- TNRS:::.TNRS_base(taxonomic_names = tnrs_testfile)
   
 # Inspect the results
 head(results, 10)

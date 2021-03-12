@@ -30,13 +30,12 @@ Dataframe containing TNRS results.
 Resolve plant taxonomic names.
 }
 \examples{
-\dontrun{
-#First, pull some example data from the BIEN website
-fulldata <- 
-read.csv("http://bien.nceas.ucsb.edu/bien/wp-content/uploads/2019/07/tnrs_testfile.csv",
- header=FALSE)
- 
-results <- TNRS(taxonomic_names = fulldata)
+{
+tnrs_testfile <- 
+read.csv(system.file("extdata", "tnrs_testfile.csv", package = "TNRS",
+                      mustWork = TRUE),
+         stringsAsFactors = FALSE)
+results <- TNRS(taxonomic_names = tnrs_testfile)
   
 # Inspect the results
 head(results, 10)
