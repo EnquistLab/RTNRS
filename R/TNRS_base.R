@@ -31,15 +31,15 @@
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
-  #url = "https://tnrsapi.xyz/tnrs_api.php" #production
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
+  url = "https://tnrsapi.xyz/tnrs_api.php" #production
 
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
   
   if(class(taxonomic_names)=="character"){
-    taxonomic_names <- as.data.frame(cbind(1:length(taxonomic_names),taxonomic_names))
-  }
+    taxonomic_names <- data.frame(ID = 1:length(taxonomic_names), taxonomic_names)
+    }
   
   # Convert the data to JSON
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
