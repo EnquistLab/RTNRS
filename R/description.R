@@ -1,6 +1,6 @@
 #' TNRS: Tools for accessing the Taxonomic Name Resolution Service (TNRS).
 #'
-#' @description Provides access to the Taxonomic Name Resolution Service (TNRS) as well as other associated tools.
+#' @description Provides access to the Taxonomic Name Resolution Service (TNRS) <https://tnrsapi.xyz/tnrs_api.php> as well as other associated tools. For more information on the TNRS, see <https://github.com/ojalaquellueva/tnrsapi>.
 #' 
 #' @section Getting started:
 #' Type vignette("TNRS") to view the vignette, which contains useful information on the TNRS package.

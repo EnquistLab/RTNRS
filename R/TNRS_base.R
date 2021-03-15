@@ -11,16 +11,6 @@
 #' @import RCurl
 #' @importFrom jsonlite toJSON fromJSON
 #' @keywords Internal
-#' @examples {
-#' tnrs_testfile <- 
-#' read.csv(system.file("extdata", "tnrs_testfile.csv", package = "TNRS", mustWork = TRUE),
-#' stringsAsFactors = FALSE)
-#'
-#' results <- TNRS:::.TNRS_base(taxonomic_names = tnrs_testfile)
-#'   
-#' # Inspect the results
-#' head(results, 10)
-#' }
 #' 
 .TNRS_base <- function(taxonomic_names,
                        sources = "tpl,tropicos,usda",

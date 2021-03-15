@@ -13,6 +13,10 @@
 #' read.csv(system.file("extdata", "tnrs_testfile.csv", package = "TNRS",
 #'                       mustWork = TRUE),
 #'          stringsAsFactors = FALSE)
+#'  
+#' #Take a subset of the testfile to speed up runtime                  
+#' tnrs_testfile <- tnrs_testfile[1:20,]
+#'  
 #' results <- TNRS(taxonomic_names = tnrs_testfile)
 #'   
 #' # Inspect the results

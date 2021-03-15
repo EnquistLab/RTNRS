@@ -11,3 +11,7 @@
 
 ## Notes
 * The examples may take more than 5 seconds to run depending on internet speed and how busy the API is. The slowdown is on the API side, and not the R side of things.
+
+* Per comments on the previous submission, I've removed the example from the documentation of an unexported function.
+
+* Per comments on the previous submissions, I've added links to the webservices and the underlying Github repository to the description field of the description file.
