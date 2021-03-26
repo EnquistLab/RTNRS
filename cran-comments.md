@@ -10,7 +10,7 @@
 * This is a new release.
 
 ## Notes
-* The examples may take more than 5 seconds to run depending on internet speed and how busy the API is. The slowdown is on the API side, and not the R side of things.
+* The examples may take more than 5 seconds to run depending on internet speed and how busy the API is. The slowdown is on the API side, and not the R side of things. To be safe, I've moved testing of examples to testing via testthat
 
 * Per comments on the previous submission, I've removed the example from the documentation of an unexported function.
 
