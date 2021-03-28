@@ -14,4 +14,4 @@
 
 * Per comments on the previous submission, I've removed the example from the documentation of an unexported function.
 
-* Per comments on the previous submissions, I've added links to the webservices and the underlying Github repository to the description field of the description file.
+* Per comments on the previous submissions, I've added a link to the webservice Github repository to the description field of the description file.
