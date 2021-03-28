@@ -4,7 +4,7 @@
 #'
 #' @format A data frame with 100 rows and 2 variables:
 #' \describe{
-#'   \item{ID}{Unique integer indentifying each row}
+#'   \item{ID}{Unique integer identifying each row}
 #'   \item{taxon}{Scientific name, possibly containing errors}
 #'   ...
 #' }
