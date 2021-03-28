@@ -4,11 +4,6 @@ context("tnrs citations")
 test_that("example works", {
 
   
-  tnrs_testfile <- 
-  read.csv(system.file("extdata", "tnrs_testfile.csv", package = "TNRS",
-                         mustWork = TRUE),
-            stringsAsFactors = FALSE)
-  
   results <- TNRS(taxonomic_names = tnrs_testfile)
   
   

@@ -30,11 +30,7 @@ The TNRS takes as input either a vector of scientific names, or a data.frame con
 library(TNRS)
 
 #First, we'll grab an example dataset containing two columns: row number and scientific name.
-fulldata <- read.csv(system.file("extdata",
-                                 "tnrs_testfile.csv",
-                                 package = "TNRS",
-                                 mustWork = TRUE),
-                     stringsAsFactors = FALSE)
+fulldata <- tnrs_testfile
 
 head(fulldata,n = 20) 
 
