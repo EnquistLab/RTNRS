@@ -1,0 +1,95 @@
+---
+title: "Taxonomic Names Resolution Service (Spanish)"
+author: "Paul Efren"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Taxonomic Names Resolution Service (Spanish)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Taxonomic Name Resolution Service - TNRS
+
+TNRS es una herramienta construida para la brindarnos ayuda en los procesos de estandarización y validación de forma automatizada de los nombres científicos de las plantas.
+
+TNRS facilita la corrección de los errores ortográficos, permite la validación de los mismos con una lista estándar y la resolución de sinonimias con el nombre aceptado actualmente. TNRS puede procesar muchos nombres a la vez, lo que ahorra horas de corrección manual de nombres, la cual es tediosa y esta propensa a errores. Para los nombres que no se pueden resolver automáticamente, TNRS presenta una lista de posibilidades y proporciona herramientas para investigar y seleccionar el nombre adecuado.
+
+
+## Usando TNRS
+
+TNRS toma como entrada un vector con los nombres científicos o un data.frame que contiene dos columnas: número de fila (ID) y nombre científico (taxon).
+
+
+```{r }
+library(TNRS)
+
+# Primero, tomaremos un conjunto de datos como ejemplo, esta tiene 
+# dos columnas: número de fila (ID) y nombre científico (taxon).
+
+fulldata <- tnrs_testfile
+
+head(fulldata,n = 20) 
+
+# Tenga en cuenta que en el ejemplo los nombres científicos se 
+# presentan bajo diferentes formatos, que a veces incluyen:
+   # Solo nombre científico
+   # Solo género
+   # Familia y género
+   # Familia, nombre científico y autor
+
+# La función a utilizar es `TNRS()`:
+
+results <- TNRS(taxonomic_names = fulldata)
+
+# Inspección de los resultados 
+
+head(results, 10)
+
+# El resultado es un data.frame que incluye la información referente 
+# a cada uno de los nombres ingresados, la valoración de la coincidencia
+# (similitud del nombre ingresado y el nombre coincidente), el nombre 
+# coincidente, el estado del nombre coincidente y el nombre aceptado.
+
+```
+
+## TNRS metadata
+
+El resultado es un data.frame que incluye la información referente a cada uno de los nombres ingresados, la valoración de la coincidencia (similitud del nombre ingresado y el nombre coincidente), el nombre coincidente, el estado del nombre coincidente y el nombre aceptado.
+Cuando utilice `TNRS`, le pedimos que cite tanto a `TNRS` como las fuentes de datos que se emplean en TNRS. TNRS no podría funcionar sin el soporte de estas fuentes de datos, y es importante reconocer el trabajo de estos colaboradores citando su trabajo. Los usuarios también pueden tener acceso a la versión de `TNRS` que emplean en sus análisis para propósitos de reproducibilidad. La función `TNRS_metadata` brindan acceso a las citas y la información de versiones en un formato de fácil uso. Esta función devuelve:
+
+1. Información de las citas bibliográficas en formato Bibtex. Esta información exportarse en un archivo, especificado un elemento de tipo carácter (nombre del archivo) en el argumento "bibtex_file" para añadir esta información a un software de gestión de referencias.
+
+2. Información sobre las fuentes de datos utilizadas por `TNRS`
+
+3. Información de la versión de desarrollo de `TNRS`
+
+
+
+```{r}
+
+metadata <- TNRS_metadata()
+
+# Si desea conocer la información de la versión TNRS que utilizas (por
+# ejemplo, para añadir la referencia en una publicación):
+
+metadata$version
+
+# Para conocer cuales son las fuentes que se utilizan en TNRS:
+
+metadata$sources
+
+# Para obtener la información de las referencias bibliográficas y 
+# añadirla  a un gestor de referencias (por ejemplo, Paperpile,
+# Zotero):
+
+ # writeLines(text = metadata$citations$citation)
+
+
+```
