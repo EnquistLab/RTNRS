@@ -9,21 +9,21 @@
 #' @examples {
 #' metadata <- TNRS_metadata()
 #' }
-#' 
+#'
 TNRS_metadata <- function(bibtex_file=NULL){
-  
+
   output <- list()
-    
+
   output[[1]] <- TNRS_citations()
   output[[2]] <-TNRS_sources()
   output[[3]] <-TNRS_version()
-    
-  names(output)<-c("citations","version","sources")
+
+  names(output)<-c("citations", "sources", "version")
 
   #Write the bibtex information if a file is specified
   if(!is.null(bibtex_file)){writeLines(text = output$citations$citation, con = bibtex_file)}
 
   return(output)
-  
+
 }
 
