@@ -1,10 +1,11 @@
 Package: TNRS
 Title: Taxonomic Name Resolution Service
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     c(
             person("Brian", "Maitner", email = "bmaitner@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2118-9880")),
-            person("Brad", "Boyle", email = "bboyle@email.arizona.edu", role = c("aut"))
+            person("Brad", "Boyle", email = "bboyle@email.arizona.edu", role = c("aut")),
+            person("Paul", "Efren", email = "paulefrens@gmail.com ", role = c("ctb"))
             )
 Description: Provides access to the Taxonomic Name Resolution Service <https://github.com/ojalaquellueva/tnrsapi> through R.  The user supplies plant taxonomic names and the package returns resolved taxonomic names along with information on decisions.  Optionally, the package can also be used to parse taxonomic names. 
 License: MIT + file LICENSE
