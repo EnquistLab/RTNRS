@@ -37,9 +37,13 @@ TNRS <- function(taxonomic_names,
   
   
   # If there are less than the max number of names allowable, send them to the base package 
-        if(nrow(taxonomic_names)<=name_limit){
+        if(nrow(taxonomic_names) <= name_limit){
           
-          return(.TNRS_base(taxonomic_names = taxonomic_names, sources = sources, classification = classification, mode = mode, matches = matches ))
+          return(.TNRS_base(taxonomic_names = taxonomic_names, 
+                            sources = sources,
+                            classification = classification,
+                            mode = mode,
+                            matches = matches ))
           
         }#
   

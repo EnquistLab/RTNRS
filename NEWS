@@ -7,6 +7,7 @@ TNRS 0.2.0
 
 ## Bug fixes
 * Fixed error in naming metadata elements
+* A server upgrade rendered RCurl incompatible with our api, so we switched to httr
 
 ===============
 TNRS 0.1.0

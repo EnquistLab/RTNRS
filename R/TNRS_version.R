@@ -2,7 +2,7 @@
 #'
 #'Return metadata about the current TNRS version
 #' @return Dataframe containing current TNRS version number, build date, and code version.
-#' @import RCurl
+#' @import httr
 #' @importFrom jsonlite toJSON fromJSON
 #' @export
 #' @examples {
@@ -34,14 +34,18 @@ TNRS_version <- function(){
   # No data needed
   input_json <- paste0('{"opts":', opts_json, '}' )
   
-  # Construct the request
-  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
+  # Send the API request
+  results_json <- POST(url = url,
+                       add_headers('Content-Type' = 'application/json'),
+                       add_headers('Accept' = 'application/json'),
+                       add_headers('charset' = 'UTF-8'),
+                       body = input_json,
+                       encode = "json")
   
-  # Send the request
-  results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+  # Convert JSON results to a data frame
+  results <- fromJSON(rawToChar(results_json$content)) 
+  #results <- as.data.frame(results)
   
-  # Display the results
-  results <- jsonlite::fromJSON(results_json)
   
   return(results)
   

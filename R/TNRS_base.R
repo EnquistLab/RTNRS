@@ -35,7 +35,7 @@
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
   # Convert the options to data frame and then JSON
-  opts <- data.frame(c(sources),c(class), c(mode), c(matches))
+  opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
   names(opts) <- c("sources", "class", "mode", "matches")
   opts_json <-  jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)

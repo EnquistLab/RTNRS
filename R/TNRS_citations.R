@@ -3,7 +3,7 @@
 #'Returns information needed to cite the TNRS
 #' @return Dataframe containing bibtex-formatted citation information
 #' @note This function provides citation information in bibtex format that can be used with reference manager software (e.g. Paperpile, Zotero). Please do remember to cite both the sources and the TNRS, as the TNRS couldn't exist without these sources!
-#' @import RCurl
+#' @import httr
 #' @importFrom jsonlite toJSON fromJSON 
 #' @export
 #' @examples {
@@ -32,14 +32,17 @@ TNRS_citations <- function(){
   # Make the options
   input_json <- paste0('{"opts":', opts_json, '}' )
   
-  # Construct the request
-  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
+  # Send the API request
+  results_json <- POST(url = url,
+                       add_headers('Content-Type' = 'application/json'),
+                       add_headers('Accept' = 'application/json'),
+                       add_headers('charset' = 'UTF-8'),
+                       body = input_json,
+                       encode = "json")
   
-  # Send the request
-  results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
-  
-  # Display the results
-  results <- jsonlite::fromJSON(results_json)
+  # Convert JSON results to a data frame
+  results <- fromJSON(rawToChar(results_json$content)) 
+  #results <- as.data.frame(results)
   results$citation <- gsub(pattern = "{{",replacement = "{",x = results$citation,fixed = T)
   results$citation <- gsub(pattern = "}}",replacement = "}",x = results$citation,fixed = T)
   
