@@ -8,7 +8,7 @@
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @return Dataframe containing TNRS results.
 #' @note This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names. 
-#' @import RCurl
+#' @import httr
 #' @importFrom jsonlite toJSON fromJSON
 #' @keywords Internal
 #' 
@@ -35,26 +35,26 @@
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
   # Convert the options to data frame and then JSON
-  opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
+  opts <- data.frame(c(sources),c(class), c(mode), c(matches))
   names(opts) <- c("sources", "class", "mode", "matches")
   opts_json <-  jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)
   opts_json <- gsub('\\]','',opts_json)
   
-  
-  
   # Combine the options and data into single JSON object
   input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
   
-  # Construct the request
-  headers <- list('Accept' = 'application/json', 'Content-Type' = 'application/json', 'charset' = 'UTF-8')
-  
   # Send the API request
-  results_json <- postForm(url, .opts=list(postfields= input_json, httpheader=headers))
+  results_json <- POST(url = url,
+                       add_headers('Content-Type' = 'application/json'),
+                       add_headers('Accept' = 'application/json'),
+                       add_headers('charset' = 'UTF-8'),
+                       body = input_json,
+                       encode = "json")
   
   # Convert JSON results to a data frame
-  results <-  jsonlite::fromJSON(results_json) #Error here
-  
+  results <- fromJSON(rawToChar(results_json$content)) 
+  #results <- as.data.frame(results)
   
   
   return(results)
