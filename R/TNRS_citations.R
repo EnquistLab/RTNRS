@@ -13,11 +13,10 @@
 TNRS_citations <- function(){
   
   # Check for internet access
-  if (!is.character(getURL("www.google.com"))) {
+  if (!check_internet()) {
     message("This function requires internet access, please check your connection.")
     return(invisible(NULL))
-  }
-  
+  }  
   
   mode = "citations"
   

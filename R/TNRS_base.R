@@ -22,11 +22,11 @@
 ){
   
   # Check for internet access
-  if (!is.character(getURL("www.google.com"))) {
+  if (!check_internet()) {
     message("This function requires internet access, please check your connection.")
     return(invisible(NULL))
   }
-  
+
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
   #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)

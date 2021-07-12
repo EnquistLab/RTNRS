@@ -28,11 +28,10 @@ TNRS <- function(taxonomic_names,
 ){
   
   # Check for internet access
-  if (!is.character(getURL("www.google.com"))) {
+  if (!check_internet()) {
     message("This function requires internet access, please check your connection.")
     return(invisible(NULL))
-  }
-  
+  }  
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
   

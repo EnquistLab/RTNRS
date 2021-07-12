@@ -82,3 +82,18 @@ test_that("parsing returns matches", {
   
 
 })
+
+
+test_that("changing accuracy changes results", {
+  
+  high <- TNRS(taxonomic_names = "Brad boyle", accuracy = 0.99, matches = "all")
+  low <- TNRS(taxonomic_names = "Brad boyle", accuracy = 0.01, matches = "all")
+  
+  expect_gt(object = nrow(low), expected = nrow(high))
+  
+
+  
+})
+
+
+

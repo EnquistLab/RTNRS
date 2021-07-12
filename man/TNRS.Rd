@@ -9,7 +9,8 @@ TNRS(
   sources = "tpl,tropicos,usda",
   classification = "tropicos",
   mode = "resolve",
-  matches = "best"
+  matches = "best",
+  accuracy = "NUll"
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ TNRS(
 \item{mode}{Character.  Options are "resolve" and "parse". Default option is "resolve"}
 
 \item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
+
+\item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned. If left NULL, the default threshold will be used.}
 }
 \value{
 Dataframe containing TNRS results.
