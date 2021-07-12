@@ -6,6 +6,7 @@
 #' @param classification Character. Family classification to use. Currently the only options is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
+#' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
 #' @return Dataframe containing TNRS results.
 #' @note This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names. 
 #' @import httr
@@ -16,8 +17,15 @@
                        sources = "tpl,tropicos,usda",
                        classification = "tropicos",
                        mode = "resolve",
-                       matches = "best"
+                       matches = "best",
+                       accuracy = NULL
 ){
+  
+  # Check for internet access
+  if (!is.character(getURL("www.google.com"))) {
+    message("This function requires internet access, please check your connection.")
+    return(invisible(NULL))
+  }
   
   # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
@@ -25,18 +33,36 @@
   url = "https://tnrsapi.xyz/tnrs_api.php" #production
 
   
-  #If taxonomic names are supplied as a character string, make them into a data.frame
+  # If taxonomic names are supplied as a character string, make them into a data.frame
   
   if(class(taxonomic_names)=="character"){
     taxonomic_names <- data.frame(ID = 1:length(taxonomic_names), taxonomic_names)
+  }
+  
+  #Check that accuracy makes sense
+
+  if(!class(accuracy) %in% c("NULL", "numeric")) {
+    stop("accuracy should be either numeric between 0 and 1, or NULL")
     }
+  
   
   # Convert the data to JSON
   data_json <- jsonlite::toJSON(unname(taxonomic_names))
   
   # Convert the options to data frame and then JSON
-  opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
-  names(opts) <- c("sources", "class", "mode", "matches")
+  
+  if (is.null(accuracy)) {
+    
+    opts <- data.frame(c(sources),c(classification), c(mode), c(matches))
+    names(opts) <- c("sources", "class", "mode", "matches")
+      
+  }else{
+    opts <- data.frame(c(sources),c(classification), c(mode), c(matches), c(accuracy))
+    names(opts) <- c("sources", "class", "mode", "matches", "acc")
+    
+    
+  }
+
   opts_json <-  jsonlite::toJSON(opts)
   opts_json <- gsub('\\[','',opts_json)
   opts_json <- gsub('\\]','',opts_json)

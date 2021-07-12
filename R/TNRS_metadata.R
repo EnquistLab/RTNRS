@@ -11,6 +11,13 @@
 #' }
 #'
 TNRS_metadata <- function(bibtex_file=NULL){
+  
+  # Check for internet access
+  if (!is.character(getURL("www.google.com"))) {
+    message("This function requires internet access, please check your connection.")
+    return(invisible(NULL))
+  }
+  
 
   output <- list()
 

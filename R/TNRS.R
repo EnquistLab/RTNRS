@@ -6,6 +6,7 @@
 #' @param classification Character. Family classification to use. Currently the only options is "tropicos", which is equivalent to APGIII.
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
+#' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned. If left NULL, the default threshold will be used.
 #' @return Dataframe containing TNRS results.
 #' @export
 #' @examples {
@@ -22,8 +23,16 @@ TNRS <- function(taxonomic_names,
                       sources = "tpl,tropicos,usda",
                       classification = "tropicos",
                       mode = "resolve",
-                      matches = "best"
+                      matches = "best",
+                      accuracy = "NUll"
 ){
+  
+  # Check for internet access
+  if (!is.character(getURL("www.google.com"))) {
+    message("This function requires internet access, please check your connection.")
+    return(invisible(NULL))
+  }
+  
   
   #If taxonomic names are supplied as a character string, make them into a data.frame
   
