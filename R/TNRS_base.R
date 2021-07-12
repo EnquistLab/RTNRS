@@ -71,12 +71,20 @@
   input_json <- paste0('{"opts":', opts_json, ',"data":', data_json, '}' )
   
   # Send the API request
-  results_json <- POST(url = url,
-                       add_headers('Content-Type' = 'application/json'),
-                       add_headers('Accept' = 'application/json'),
-                       add_headers('charset' = 'UTF-8'),
-                       body = input_json,
-                       encode = "json")
+  # Send the request in a "graceful failure" wrapper for CRAN compliance
+  tryCatch(expr = results_json <- POST(url = url,
+                                       add_headers('Content-Type' = 'application/json'),
+                                       add_headers('Accept' = 'application/json'),
+                                       add_headers('charset' = 'UTF-8'),
+                                       body = input_json,
+                                       encode = "json"),
+           error = function(e) {
+             message("There appears to be a problem reaching the API.") 
+             return(NULL)
+           })
+  
+  #Return NULL if API isn't working
+  if(is.null(results_json)){return(invisible(NULL))}
   
   # Convert JSON results to a data frame
   results <- fromJSON(rawToChar(results_json$content)) 
