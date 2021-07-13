@@ -16,8 +16,8 @@ TNRS_citations <- function(){
   if (!check_internet()) {
     message("This function requires internet access, please check your connection.")
     return(invisible(NULL))
-  }  
-  
+  }
+
   mode = "citations"
   
   # URL for TNRS API
@@ -48,12 +48,11 @@ TNRS_citations <- function(){
                                        body = input_json,
                                        encode = "json"),
            error = function(e) {
-             message("There appears to be a problem reaching the API.") 
-             return(NULL)
+             message("There appears to be a problem reaching the API.")
            })
   
   #Return NULL if API isn't working
-  if(is.null(results_json)){return(invisible(NULL))}
+  if(!exists("results_json")){return(invisible(NULL))}
   
   # Convert JSON results to a data frame
   results <- fromJSON(rawToChar(results_json$content)) 
