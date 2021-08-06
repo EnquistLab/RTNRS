@@ -3,6 +3,7 @@ context("tnrs base")
 
 test_that("example works", {
   
+  skip_if_offline(host = "r-project.org")
 
   results <- TNRS:::.TNRS_base(taxonomic_names = tnrs_testfile)
   

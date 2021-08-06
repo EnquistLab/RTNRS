@@ -6,19 +6,19 @@
 \usage{
 TNRS(
   taxonomic_names,
-  sources = "tpl,tropicos,usda",
+  sources = c("tropicos", "wcvp"),
   classification = "tropicos",
   mode = "resolve",
   matches = "best",
-  accuracy = "NUll"
+  accuracy = NULL
 )
 }
 \arguments{
 \item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.}
 
-\item{sources}{Character. Taxonomic sources to use. Default is "tpl,tropicos,usda". Options include tpl,tropicos,usda,ncbi}
+\item{sources}{Character vector. Taxonomic sources to use. Default is c("tropicos","wcvp"). Options include "tropicos", "usda", "wfo", and "wcvp".}
 
-\item{classification}{Character. Family classification to use. Currently the only options is "tropicos", which is equivalent to APGIII.}
+\item{classification}{Character. Family classification to use. Currently options include "tropicos" (the default), which is equivalent to APGIII, and "wfo".}
 
 \item{mode}{Character.  Options are "resolve" and "parse". Default option is "resolve"}
 
@@ -31,6 +31,9 @@ Dataframe containing TNRS results.
 }
 \description{
 Resolve plant taxonomic names.
+}
+\note{
+usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
 }
 \examples{
 {

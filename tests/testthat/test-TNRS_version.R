@@ -3,6 +3,8 @@ context("tnrs citations")
 
 test_that("example works", {
 
+  skip_if_offline(host = "r-project.org")
+  
   TNRS_version_metadata <- TNRS_version()
   
   expect_equal(object = class(TNRS_version_metadata), expected = "data.frame")

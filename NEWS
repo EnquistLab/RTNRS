@@ -4,11 +4,15 @@ TNRS 0.2.0
 
 ## NEW FEATURES
 * Added Spanish language vignette
+* Multiple sources now specified by character vector.
+* Updated taxonomic sources and classifications.
+* Added checks of inputs.
 
 ## Bug fixes
 * Fixed error in naming metadata elements
 * A server upgrade rendered RCurl incompatible with our api, so we switched to httr
 * Modified functions to fail gracefully if the internet or API are unavailabile
+* tests will now be skipped if offline
 
 ===============
 TNRS 0.1.0

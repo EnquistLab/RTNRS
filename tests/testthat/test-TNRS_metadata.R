@@ -2,7 +2,9 @@ context("tnrs citations")
 
 
 test_that("example works", {
-
+  
+  skip_if_offline(host = "r-project.org")
+  
   metadata <- TNRS_metadata()
   
   expect_equal(object = class(metadata), expected = "list")

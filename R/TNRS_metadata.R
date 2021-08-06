@@ -10,7 +10,7 @@
 #' metadata <- TNRS_metadata()
 #' }
 #'
-TNRS_metadata <- function(bibtex_file=NULL){
+TNRS_metadata <- function(bibtex_file = NULL){
   
   # Check for internet access
   if (!check_internet()) {
