@@ -4,7 +4,10 @@
 \alias{TNRS_citations}
 \title{Get citation information}
 \usage{
-TNRS_citations()
+TNRS_citations(...)
+}
+\arguments{
+\item{...}{Additional parameters passed to internal functions}
 }
 \value{
 Dataframe containing bibtex-formatted citation information
@@ -19,5 +22,4 @@ This function provides citation information in bibtex format that can be used wi
 {
 citation_info <- TNRS_citations()
 }
-
 }

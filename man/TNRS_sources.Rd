@@ -4,7 +4,10 @@
 \alias{TNRS_sources}
 \title{Get information on sources used by the TNRS}
 \usage{
-TNRS_sources()
+TNRS_sources(...)
+}
+\arguments{
+\item{...}{Additional parameters passed to internal functions}
 }
 \value{
 Dataframe containing information about the sources used in the current TNRS version.
