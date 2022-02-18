@@ -7,6 +7,7 @@
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
+#' @param ... Addiitnal parameters passed to internal functions
 #' @return Dataframe containing TNRS results.
 #' @note This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names. 
 #' @note usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.

@@ -26,6 +26,8 @@ TNRS_base(
 \item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
 
 \item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.}
+
+\item{...}{Addiitnal parameters passed to internal functions}
 }
 \value{
 Dataframe containing TNRS results.
