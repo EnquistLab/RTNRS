@@ -16,11 +16,11 @@ Imports:
         httr,
         rjson
 Suggests:
-        knitr,
-        rmarkdown,
-        testthat,
-        vcr,
-        devtools
+    knitr,
+    rmarkdown,
+    testthat,
+    vcr (>= 0.6.0),
+    devtools
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
 Depends: 
