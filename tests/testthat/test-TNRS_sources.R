@@ -3,11 +3,15 @@ context("tnrs citations")
 
 test_that("example works", {
 
-  skip_if_offline(host = "r-project.org")  
+  #skip_if_offline(host = "r-project.org")  
   
-  sources <- TNRS_sources()
   
-  expect_equal(object = class(sources), expected = "data.frame")
+  vcr::use_cassette("gnrs_sources",
+                    { sources <- TNRS_sources()})
+  
+  
+  #test below assume a data dictionary and will be skipped if one isn't returned
+  skip_if_not(class(sources) == "data.frame")
   expect_gt(object = nrow(sources),expected = 2)
 
     

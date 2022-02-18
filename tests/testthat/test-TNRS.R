@@ -3,11 +3,14 @@ context("tnrs citations")
 
 test_that("example works", {
   
-  skip_if_offline(host = "r-project.org")
+  #skip_if_offline(host = "r-project.org")
   
-  results <- TNRS(taxonomic_names = tnrs_testfile)
+  vcr::use_cassette("gnrs_example",
+                    { results <- TNRS(taxonomic_names = tnrs_testfile)})
   
-  expect_equal(object = class(results), expected = "data.frame")
+  
+  #test below assume a data dictionary and will be skipped if one isn't returned
+  skip_if_not(class(results) == "data.frame")
   expect_equal(object = nrow(results),expected = nrow(tnrs_testfile))
 
 })
@@ -15,11 +18,14 @@ test_that("example works", {
 
 test_that("character vector returns results", {
   
-  skip_if_offline(host = "r-project.org")
+  #skip_if_offline(host = "r-project.org")
   
-  results  <- TNRS(taxonomic_names = c("Acer rubrum", "Xanthium strumarium", "Abies alba"))
+  vcr::use_cassette("gnrs_character_vector",
+                    { results  <- TNRS(taxonomic_names = c("Acer rubrum", "Xanthium strumarium", "Abies alba"))})
   
-  expect_equal(object = class(results), expected = "data.frame")
+  
+  #test below assume a data dictionary and will be skipped if one isn't returned
+  skip_if_not(class(results) == "data.frame")
   expect_equal(object = nrow(results),expected = 3)
   
   
@@ -27,11 +33,15 @@ test_that("character vector returns results", {
   
 test_that("character returns results", {
   
-  skip_if_offline(host = "r-project.org")
+  #skip_if_offline(host = "r-project.org")
   
-  results  <- TNRS(taxonomic_names = c("Epidendrum boyleii"))
   
-  expect_equal(object = class(results), expected = "data.frame")
+  vcr::use_cassette("gnrs_character",
+                    { results  <- TNRS(taxonomic_names = c("Epidendrum boyleii"))})
+  
+  
+  #test below assume a data dictionary and will be skipped if one isn't returned
+  skip_if_not(class(results) == "data.frame")
   expect_equal(object = nrow(results),expected = 1)
   
   
@@ -40,26 +50,53 @@ test_that("character returns results", {
 
 test_that("all sources work", {
   
-  skip_if_offline(host = "r-project.org")
+  #skip_if_offline(host = "r-project.org")
   
-  species <- c("Epidenrum boyleii","Acer rubrum", "Xanthium strumarium", "Abies alba")
   
-  results  <- TNRS(taxonomic_names = species,sources = "wcvp")
+    
+    species <- c("Epidenrum boyleii","Acer rubrum", "Xanthium strumarium", "Abies alba")
+    
+  # WCVP  
+    
+    vcr::use_cassette("gnrs_wcvp",
+                      { results  <- TNRS(taxonomic_names = species,
+                                         sources = "wcvp")})
+
+    #test below assume a dataframe and will be skipped if one isn't returned
+    skip_if_not(class(results) == "data.frame")
+    expect_equal(object = nrow(results), expected = 4)
   
-  expect_equal(object = class(results), expected = "data.frame")
-  expect_equal(object = nrow(results),expected = 4)
+  # WFO
   
-  results  <- TNRS(taxonomic_names = species,sources = "wfo")
-  expect_equal(object = class(results), expected = "data.frame")
-  expect_equal(object = nrow(results),expected = 4)
+    vcr::use_cassette("gnrs_wfo",
+                      {   results  <- TNRS(taxonomic_names = species,
+                                           sources = "wfo")})
+
+    #test below assume a dataframe and will be skipped if one isn't returned
+    skip_if_not(class(results) == "data.frame")
+    expect_equal(object = nrow(results), expected = 4)
+
   
-  results  <- TNRS(taxonomic_names = species,sources = "usda")
-  expect_equal(object = class(results), expected = "data.frame")
-  expect_equal(object = nrow(results),expected = 4)
+  # USDA
   
-  results  <- TNRS(taxonomic_names = species,sources = "tropicos")
-  expect_equal(object = class(results), expected = "data.frame")
-  expect_equal(object = nrow(results),expected = 4)
+    vcr::use_cassette("gnrs_usda",
+                      {   results  <- TNRS(taxonomic_names = species,
+                                           sources = "usda")})
+
+    #test below assume a dataframe and will be skipped if one isn't returned
+    skip_if_not(class(results) == "data.frame")
+    expect_equal(object = nrow(results), expected = 4)
+    
+    
+  # USDA
+    
+    vcr::use_cassette("gnrs_tropicos",
+                      {     results  <- TNRS(taxonomic_names = species,
+                                             sources = "tropicos")})
+    
+    #test below assume a dataframe and will be skipped if one isn't returned
+    skip_if_not(class(results) == "data.frame")
+    expect_equal(object = nrow(results), expected = 4)
   
   
 })
@@ -67,6 +104,8 @@ test_that("all sources work", {
 test_that("bad sources throw a message and return null", {
   
   skip_if_offline(host = "r-project.org")
+  skip_on_cran()
+  
   
   expect_message(object = TNRS(taxonomic_names = "Optimus Prime",
                                sources = "Teletraan-1"))
@@ -80,27 +119,58 @@ test_that("bad sources throw a message and return null", {
 
 test_that("matches all returns more rows than best", {
   
-  skip_if_offline(host = "r-project.org")
   
-  all <- TNRS(taxonomic_names = "Epidendon boyleii",matches = "all")
-  best <- TNRS(taxonomic_names = "Epidendon boyleii",matches = "best")
+  #skip_if_offline(host = "r-project.org")
   
+  
+  vcr::use_cassette("gnrs_all",
+                    {       all <- TNRS(taxonomic_names = "Epidendon boyleii",
+                                        matches = "all")})
+  
+  vcr::use_cassette("gnrs_best",
+                    {       best <- TNRS(taxonomic_names = "Epidendon boyleii",
+                                         matches = "best")})
+  
+  #test below assume a dataframe and will be skipped if one isn't returned
+  skip_if_not(class(all) == "data.frame")
+  skip_if_not(class(best) == "data.frame")
+
   expect_gt(object = nrow(all),expected = nrow(best))
 
 })
 
 test_that("parsing returns matches", {
   
-  skip_if_offline(host = "r-project.org")
+  #skip_if_offline(host = "r-project.org")
   
-  parsed <- TNRS(taxonomic_names = "Epidentrum boyleii", mode = "parse")
-  resolved <- TNRS(taxonomic_names = "Epidentrum boyleii", mode = "resolve")
-
-  expect_gt(object = ncol(resolved),expected = ncol(parsed))
+  # Check that resolving names returns more names than matching
   
-  species <- c("Epidenrum boyleii","Acer rubrum", "Xanthium strumarium", "Abies alba")
-  parsed <- TNRS(taxonomic_names = species)
-  expect_equal(object = nrow(parsed),expected = length(species))
+    vcr::use_cassette("gnrs_parsed",
+                      {parsed <- TNRS(taxonomic_names = "Epidentrum boyleii",
+                                      mode = "parse")})
+    
+    vcr::use_cassette("gnrs_resolved",
+                      {resolved <- TNRS(taxonomic_names = "Epidentrum boyleii",
+                                        mode = "resolve")})
+    
+    skip_if_not(class(parsed) == "data.frame")
+    skip_if_not(class(resolved) == "data.frame")
+    
+  
+    expect_gt(object = ncol(resolved), expected = ncol(parsed))
+  
+  
+  # Check for matching number of names between supplied and parsed names
+    
+    species <- c("Epidenrum boyleii","Acer rubrum", "Xanthium strumarium", "Abies alba")
+    
+    vcr::use_cassette("gnrs_parsed_2",
+                      {parsed <- TNRS(taxonomic_names = species)})
+  
+    skip_if_not(class(parsed) == "data.frame")
+    
+    expect_equal(object = nrow(parsed),
+                 expected = length(species))
   
 
 })
@@ -108,10 +178,21 @@ test_that("parsing returns matches", {
 
 test_that("changing accuracy changes results", {
   
-  skip_if_offline(host = "r-project.org")
+  #skip_if_offline(host = "r-project.org")
   
-  high <- TNRS(taxonomic_names = "Brad boyle", accuracy = 0.99, matches = "all")
-  low <- TNRS(taxonomic_names = "Brad boyle", accuracy = 0.01, matches = "all")
+  vcr::use_cassette("gnrs_high",
+                    {high <- TNRS(taxonomic_names = "Brad boyle",
+                                  accuracy = 0.99,
+                                  matches = "all")})
+  
+  vcr::use_cassette("gnrs_low",
+                    {low <- TNRS(taxonomic_names = "Brad boyle",
+                                 accuracy = 0.01,
+                                 matches = "all")})
+  
+  skip_if_not(class(high) == "data.frame")
+  skip_if_not(class(low) == "data.frame")
+  
   
   expect_gt(object = nrow(low), expected = nrow(high))
 
