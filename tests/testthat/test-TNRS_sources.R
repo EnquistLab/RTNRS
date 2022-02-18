@@ -1,4 +1,4 @@
-context("tnrs citations")
+context("tnrs sources")
 
 
 test_that("example works", {
@@ -7,7 +7,7 @@ test_that("example works", {
   
   
   vcr::use_cassette("gnrs_sources",
-                    { sources <- TNRS_sources()})
+                    { sources <- TNRS_sources(url = url)})
   
   
   #test below assume a data dictionary and will be skipped if one isn't returned

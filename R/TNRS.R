@@ -7,6 +7,7 @@
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned. If left NULL, the default threshold will be used.
+#' @param ... Additional parameters passed to internal functions
 #' @return Dataframe containing TNRS results.
 #' @note usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
 #' @export
@@ -21,12 +22,13 @@
 #' }
 #' 
 TNRS <- function(taxonomic_names,
-                      sources = c("tropicos","wcvp"),
-                      classification = "tropicos",
-                      mode = "resolve",
-                      matches = "best",
-                      accuracy = NULL
-){
+                 sources = c("tropicos","wcvp"),
+                 classification = "tropicos",
+                 mode = "resolve",
+                 matches = "best",
+                 accuracy = NULL,
+                 ...
+                 ){
   
   # Check for internet access
   if (!check_internet()) {
@@ -83,7 +85,7 @@ TNRS <- function(taxonomic_names,
   # If there are less than the max number of names allowable, send them to the base package 
         if(nrow(taxonomic_names) <= name_limit){
           
-          return(.TNRS_base(taxonomic_names = taxonomic_names, 
+          return(TNRS_base(taxonomic_names = taxonomic_names, 
                             sources = sources,
                             classification = classification,
                             mode = mode,
@@ -105,7 +107,7 @@ TNRS <- function(taxonomic_names,
     
       #Use the first batch of results to set up the output file
       if(i==1){
-            results <- .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+            results <- TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
                            sources = sources,
                            classification = classification,
                            mode = mode,
@@ -127,7 +129,7 @@ TNRS <- function(taxonomic_names,
         
         
         results <- rbind(results,
-                         .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
+                         TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(nrow(taxonomic_names)),],
                                                                      sources = sources,
                                                                      classification = classification,
                                                                      mode = mode,
@@ -145,7 +147,7 @@ TNRS <- function(taxonomic_names,
       #middle bits
       if(i != nchunks & i != 1){
         results <- rbind(results,
-                .TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
+                TNRS_base(taxonomic_names = taxonomic_names[(((i-1)*name_limit)+1):(i*name_limit),],
                                                                        sources = sources,
                                                                        classification = classification,
                                                                        mode = mode,

@@ -7,7 +7,7 @@ test_that("example works", {
   
   
   vcr::use_cassette("gnrs_base",
-                    { results <- TNRS:::.TNRS_base(taxonomic_names = tnrs_testfile)})
+                    { results <- TNRS:::TNRS_base(taxonomic_names = tnrs_testfile, url = url)})
 
   #test below assume a data dictionary and will be skipped if one isn't returned
   skip_if_not(class(results) == "data.frame")

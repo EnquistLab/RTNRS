@@ -1,6 +1,6 @@
 Package: TNRS
 Title: Taxonomic Name Resolution Service
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: 
     c(
             person("Brian", "Maitner", email = "bmaitner@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2118-9880")),
@@ -21,6 +21,6 @@ Suggests:
         testthat,
         devtools
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Depends: 
     R (>= 2.10)

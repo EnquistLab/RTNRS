@@ -3,9 +3,9 @@
 
 # URL for TNRS API
   #url = "https://tnrsapidev.xyz/tnrs_api.php"
-  url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
+  #url = "http://vegbiendev.nceas.ucsb.edu:8975/tnrs_api.php" # Dev (vegbiendev)
   #url = http://vegbiendev.nceas.ucsb.edu:9975/tnrs_api.php #public development
-  #url = "https://tnrsapi.xyz/tnrs_api.php" #production
+  url = "https://tnrsapi.xyz/tnrs_api.php" #production
 
 #Bad URLs for testing
 

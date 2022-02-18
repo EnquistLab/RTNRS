@@ -1,4 +1,4 @@
-context("tnrs citations")
+context("tnrs main")
 
 
 test_that("example works", {
@@ -6,7 +6,7 @@ test_that("example works", {
   #skip_if_offline(host = "r-project.org")
   
   vcr::use_cassette("gnrs_example",
-                    { results <- TNRS(taxonomic_names = tnrs_testfile)})
+                    { results <- TNRS(taxonomic_names = tnrs_testfile, url = url)})
   
   
   #test below assume a data dictionary and will be skipped if one isn't returned
@@ -21,7 +21,8 @@ test_that("character vector returns results", {
   #skip_if_offline(host = "r-project.org")
   
   vcr::use_cassette("gnrs_character_vector",
-                    { results  <- TNRS(taxonomic_names = c("Acer rubrum", "Xanthium strumarium", "Abies alba"))})
+                    { results  <- TNRS(taxonomic_names = c("Acer rubrum", "Xanthium strumarium", "Abies alba"),
+                                       url = url)})
   
   
   #test below assume a data dictionary and will be skipped if one isn't returned
@@ -37,7 +38,8 @@ test_that("character returns results", {
   
   
   vcr::use_cassette("gnrs_character",
-                    { results  <- TNRS(taxonomic_names = c("Epidendrum boyleii"))})
+                    { results  <- TNRS(taxonomic_names = c("Epidendrum boyleii"),
+                                       url = url)})
   
   
   #test below assume a data dictionary and will be skipped if one isn't returned
@@ -60,7 +62,8 @@ test_that("all sources work", {
     
     vcr::use_cassette("gnrs_wcvp",
                       { results  <- TNRS(taxonomic_names = species,
-                                         sources = "wcvp")})
+                                         sources = "wcvp",
+                                         url = url)})
 
     #test below assume a dataframe and will be skipped if one isn't returned
     skip_if_not(class(results) == "data.frame")
@@ -70,7 +73,8 @@ test_that("all sources work", {
   
     vcr::use_cassette("gnrs_wfo",
                       {   results  <- TNRS(taxonomic_names = species,
-                                           sources = "wfo")})
+                                           sources = "wfo",
+                                           url = url)})
 
     #test below assume a dataframe and will be skipped if one isn't returned
     skip_if_not(class(results) == "data.frame")
@@ -81,7 +85,8 @@ test_that("all sources work", {
   
     vcr::use_cassette("gnrs_usda",
                       {   results  <- TNRS(taxonomic_names = species,
-                                           sources = "usda")})
+                                           sources = "usda",
+                                           url = url)})
 
     #test below assume a dataframe and will be skipped if one isn't returned
     skip_if_not(class(results) == "data.frame")
@@ -92,7 +97,8 @@ test_that("all sources work", {
     
     vcr::use_cassette("gnrs_tropicos",
                       {     results  <- TNRS(taxonomic_names = species,
-                                             sources = "tropicos")})
+                                             sources = "tropicos",
+                                             url = url)})
     
     #test below assume a dataframe and will be skipped if one isn't returned
     skip_if_not(class(results) == "data.frame")
@@ -108,10 +114,12 @@ test_that("bad sources throw a message and return null", {
   
   
   expect_message(object = TNRS(taxonomic_names = "Optimus Prime",
-                               sources = "Teletraan-1"))
+                               sources = "Teletraan-1",
+                               url = url))
   
   expect_null(object = suppressMessages(TNRS(taxonomic_names = "Optimus Prime",
-                                             sources = "Teletraan-1")))
+                                             sources = "Teletraan-1",
+                                             url = url)))
   
 
 })
@@ -125,11 +133,13 @@ test_that("matches all returns more rows than best", {
   
   vcr::use_cassette("gnrs_all",
                     {       all <- TNRS(taxonomic_names = "Epidendon boyleii",
-                                        matches = "all")})
+                                        matches = "all",
+                                        url = url)})
   
   vcr::use_cassette("gnrs_best",
                     {       best <- TNRS(taxonomic_names = "Epidendon boyleii",
-                                         matches = "best")})
+                                         matches = "best",
+                                         url = url)})
   
   #test below assume a dataframe and will be skipped if one isn't returned
   skip_if_not(class(all) == "data.frame")
@@ -147,11 +157,13 @@ test_that("parsing returns matches", {
   
     vcr::use_cassette("gnrs_parsed",
                       {parsed <- TNRS(taxonomic_names = "Epidentrum boyleii",
-                                      mode = "parse")})
+                                      mode = "parse",
+                                      url = url)})
     
     vcr::use_cassette("gnrs_resolved",
                       {resolved <- TNRS(taxonomic_names = "Epidentrum boyleii",
-                                        mode = "resolve")})
+                                        mode = "resolve",
+                                        url = url)})
     
     skip_if_not(class(parsed) == "data.frame")
     skip_if_not(class(resolved) == "data.frame")
@@ -165,7 +177,9 @@ test_that("parsing returns matches", {
     species <- c("Epidenrum boyleii","Acer rubrum", "Xanthium strumarium", "Abies alba")
     
     vcr::use_cassette("gnrs_parsed_2",
-                      {parsed <- TNRS(taxonomic_names = species)})
+                      {parsed <- TNRS(taxonomic_names = species,
+                                      mode = "parse",
+                                      url = url)})
   
     skip_if_not(class(parsed) == "data.frame")
     
@@ -183,12 +197,14 @@ test_that("changing accuracy changes results", {
   vcr::use_cassette("gnrs_high",
                     {high <- TNRS(taxonomic_names = "Brad boyle",
                                   accuracy = 0.99,
-                                  matches = "all")})
+                                  matches = "all",
+                                  url = url)})
   
   vcr::use_cassette("gnrs_low",
                     {low <- TNRS(taxonomic_names = "Brad boyle",
                                  accuracy = 0.01,
-                                 matches = "all")})
+                                 matches = "all",
+                                 url = url)})
   
   skip_if_not(class(high) == "data.frame")
   skip_if_not(class(low) == "data.frame")
