@@ -16,7 +16,7 @@ TNRS_version <- function(...){
     return(invisible(NULL))
   }
 
-  results <- TNRS_core(mode = "citations", ...)
+  results <- TNRS_core(mode = "meta", ...)
   
   return(results)
   
