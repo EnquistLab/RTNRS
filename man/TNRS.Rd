@@ -39,7 +39,7 @@ Resolve plant taxonomic names.
 usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
 }
 \examples{
-{
+\dontrun{
 #Take a subset of the testfile to speed up runtime                  
 tnrs_testfile <- tnrs_testfile[1:20,]
  

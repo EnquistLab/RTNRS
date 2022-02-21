@@ -1,4 +1,17 @@
 ===============
+TNRS 0.3.0
+===============
+
+## NEW FEATURES
+* Revised code to make maintanence and testing easier
+* Testing now makes use of the vcr package where possible
+* Added the option to specify a threshold for match scores
+
+## Bug Fixes
+* Package should no longer produce errors in the event of API connection issues (e.g. server problems).
+
+
+===============
 TNRS 0.2.0
 ===============
 
