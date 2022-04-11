@@ -10,6 +10,7 @@
 #' @param ... Additional parameters passed to internal functions
 #' @return Dataframe containing TNRS results.
 #' @note usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
+#' @note For queries of more than 1000 names, the function will automatically divide the query into batches of 1000 names and then run the batches one after the other.  Thus, for very large queries this may take some time.
 #' @export
 #' @examples \dontrun{
 #' #Take a subset of the testfile to speed up runtime                  
