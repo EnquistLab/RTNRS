@@ -45,7 +45,7 @@ TNRS <- function(taxonomic_names,
   
   
   #Specify the limit of names for the TNRS
-  name_limit <- 1000
+  name_limit <- 5000
   
   #Check that accuracy makes sense
   

@@ -37,6 +37,8 @@ Resolve plant taxonomic names.
 }
 \note{
 usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
+
+For queries of more than 1000 names, the function will automatically divide the query into batches of 1000 names and then run the batches one after the other.  Thus, for very large queries this may take some time.
 }
 \examples{
 \dontrun{
