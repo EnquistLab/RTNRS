@@ -5,6 +5,10 @@ TNRS 0.3.1
 ## NEW FEATURES
 * Added progress bar when downloading multiple  batches of records
 
+## Bug Fixes
+* Removed a few non-ascii character in the example file which were causing errors in vcr
+
+
 ===============
 TNRS 0.3.0
 ===============
