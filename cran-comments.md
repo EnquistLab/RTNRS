@@ -10,6 +10,4 @@
 0 errors √ | 0 warnings √ | 0 notes √
 
 ## Notes
-* Previous version on CRAN was archived when an API issue caused tests to produce errors
-* To address these issues, we've modified our functions so that API issues or connection issues result in a message and return NULL (invisibly).
-* We've also updated the packag to use vcr so that testing can be done offline.
+* This is a minor update to address problems caused by a recent change in R which exposed some character encoding bugs which impact vcr, which TNRS uses in testing. The problem seems to be caused by some non-ascii characters in an example file, so we've modified the example data to omit these non-ascii characters.
