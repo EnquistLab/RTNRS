@@ -27,7 +27,7 @@ TNRS_base(
 
 \item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.}
 
-\item{...}{Addiitnal parameters passed to internal functions}
+\item{...}{Additional parameters passed to internal functions}
 }
 \value{
 Dataframe containing TNRS results.

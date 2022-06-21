@@ -1,4 +1,11 @@
 ===============
+TNRS 0.3.1
+===============
+
+## NEW FEATURES
+* Added progress bar when downloading multiple  batches of records
+
+===============
 TNRS 0.3.0
 ===============
 

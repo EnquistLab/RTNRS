@@ -7,7 +7,7 @@
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
-#' @param ... Addiitnal parameters passed to internal functions
+#' @param ... Additional parameters passed to internal functions
 #' @return Dataframe containing TNRS results.
 #' @note This function is primarily used as an internal function of TNRS and can only handle relatively small batches of names. 
 #' @note usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
@@ -34,13 +34,14 @@ TNRS_base <- function(taxonomic_names,
 
   # If taxonomic names are supplied as a character string, make them into a data.frame
     
-    if(class(taxonomic_names)=="character"){
+    if(inherits(taxonomic_names,"character")){
       taxonomic_names <- data.frame(ID = 1:length(taxonomic_names), taxonomic_names)
     }
+  
 
   # Check that accuracy makes sense
 
-    if(!class(accuracy) %in% c("NULL", "numeric")) {
+    if(!inherits(x = accuracy,what = c("NULL", "numeric"))) {
       stop("accuracy should be either numeric between 0 and 1, or NULL")
     }
 
