@@ -1,0 +1,34 @@
+http_interactions:
+- request:
+    method: post
+    uri: https://tnrsapi.xyz/tnrs_api.php
+    body:
+      encoding: ''
+      string: '{"opts":{"sources":"tropicos,wcvp","class":"tropicos","mode":"resolve","matches":"best"},"data":[["1","Epidendrum
+        boyleii"]]}'
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      charset: UTF-8
+  response:
+    status:
+      status_code: 200
+      category: Success
+      reason: OK
+      message: 'Success: (200) OK'
+    headers:
+      date: Thu, 01 Dec 2022 21:26:03 GMT
+      server: Apache/2.4.29 (Ubuntu)
+      access-control-allow-origin: '*'
+      content-length: '1376'
+      content-type: application/json
+    body:
+      encoding: ''
+      file: no
+      string: '[{"ID":"1","Name_submitted":"Epidendrum boyleii","Overall_score":"0.9752518865735","Name_matched_id":"892491","Name_matched":"Epidendrum
+        boylei","Name_score":"0.9752518865735","Name_matched_rank":"species","Author_submitted":"","Author_matched":"","Author_score":"","Canonical_author":"H\u00c3\u00a1gsater
+        & Dodson","Name_matched_accepted_family":"Orchidaceae","Genus_submitted":"Epidendrum","Genus_matched":"Epidendrum","Genus_score":"1","Specific_epithet_submitted":"boyleii","Specific_epithet_matched":"boylei","Specific_epithet_score":"0.85714285714286","Family_submitted":"","Family_matched":"","Family_score":"","Infraspecific_rank":"","Infraspecific_epithet_matched":"","Infraspecific_epithet_score":"","Infraspecific_rank_2":"","Infraspecific_epithet_2_matched":"","Infraspecific_epithet_2_score":"","Annotations":"","Unmatched_terms":"","Name_matched_url":"http:\/\/www.tropicos.org\/Name\/50213635","Name_matched_lsid":"","Phonetic":"Y","Taxonomic_status":"Accepted","Accepted_name":"Epidendrum
+        boylei","Accepted_species":"Epidendrum boylei","Accepted_name_author":"H\u00c3\u00a1gsater
+        & Dodson","Accepted_name_id":"892491","Accepted_name_rank":"species","Accepted_name_url":"http:\/\/www.tropicos.org\/Name\/50213635","Accepted_name_lsid":"","Accepted_family":"Orchidaceae","Overall_score_order":"1","Highertaxa_score_order":"1","Source":"tropicos","Warnings":"0"}]'
+  recorded_at: 2022-12-01 21:26:03 GMT
+  recorded_with: vcr/1.2.0, webmockr/0.8.2

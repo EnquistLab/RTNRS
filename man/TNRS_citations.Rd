@@ -4,9 +4,11 @@
 \alias{TNRS_citations}
 \title{Get citation information}
 \usage{
-TNRS_citations(...)
+TNRS_citations(skip_internet_check = FALSE, ...)
 }
 \arguments{
+\item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
+
 \item{...}{Additional parameters passed to internal functions}
 }
 \value{

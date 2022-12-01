@@ -4,9 +4,11 @@
 \alias{TNRS_sources}
 \title{Get information on sources used by the TNRS}
 \usage{
-TNRS_sources(...)
+TNRS_sources(skip_internet_check = FALSE, ...)
 }
 \arguments{
+\item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
+
 \item{...}{Additional parameters passed to internal functions}
 }
 \value{

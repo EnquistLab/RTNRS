@@ -1,0 +1,30 @@
+http_interactions:
+- request:
+    method: post
+    uri: https://tnrsapi.xyz/tnrs_api.php
+    body:
+      encoding: ''
+      string: '{"opts":{"sources":"tropicos,wcvp","class":"tropicos","mode":"parse","matches":"best"},"data":[["1","Epidentrum
+        boyleii"]]}'
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      charset: UTF-8
+  response:
+    status:
+      status_code: 200
+      category: Success
+      reason: OK
+      message: 'Success: (200) OK'
+    headers:
+      date: Thu, 01 Dec 2022 21:26:11 GMT
+      server: Apache/2.4.29 (Ubuntu)
+      access-control-allow-origin: '*'
+      content-length: '268'
+      content-type: application/json
+    body:
+      encoding: ''
+      file: no
+      string: '[{"ID":"1","Name_submitted":"Epidentrum boyleii","Family":"","Genus":"Epidentrum","Specific_epithet":"boyleii","Infraspecific_rank":"","Infraspecific_epithet":"","Infraspecific_rank_2":"","Infraspecific_epithet_2":"","Author":"","Annotations":"","Unmatched_terms":""}]'
+  recorded_at: 2022-12-01 21:26:11 GMT
+  recorded_with: vcr/1.2.0, webmockr/0.8.2

@@ -4,10 +4,14 @@ TNRS 0.3.1
 
 ## NEW FEATURES
 * Added progress bar when downloading multiple  batches of records
+* Added an option to skip checks for internet when running functions
 
 ## Bug Fixes
 * Removed a few non-ascii character in the example file which were causing errors in vcr
+* Used new "skip_internet_check" option to fix bug with vcr when hitting the internet multiple times (once to check the connection, again to run the query)
 
+## Misc.
+* Ran styler to make the code a bit neater
 
 ===============
 TNRS 0.3.0

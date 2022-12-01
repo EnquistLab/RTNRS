@@ -11,6 +11,7 @@ TNRS_base(
   mode = "resolve",
   matches = "best",
   accuracy = NULL,
+  skip_internet_check = FALSE,
   ...
 )
 }
@@ -26,6 +27,8 @@ TNRS_base(
 \item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
 
 \item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.}
+
+\item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
 
 \item{...}{Additional parameters passed to internal functions}
 }

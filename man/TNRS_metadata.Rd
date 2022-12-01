@@ -4,10 +4,12 @@
 \alias{TNRS_metadata}
 \title{Get TNRS metadata}
 \usage{
-TNRS_metadata(bibtex_file = NULL)
+TNRS_metadata(bibtex_file = NULL, skip_internet_check = FALSE)
 }
 \arguments{
 \item{bibtex_file}{Optional output file for writing bibtex citations.}
+
+\item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
 }
 \value{
 List containing: (1) bibtex-formatted citation information, (2) information about TNRS data sources, and (3) TNRS version information.
