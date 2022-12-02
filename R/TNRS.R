@@ -33,6 +33,7 @@ TNRS <- function(taxonomic_names,
                  accuracy = NULL,
                  skip_internet_check = FALSE,
                  ...) {
+  
   # Check for internet access
   if (!skip_internet_check) {
     if (!check_internet()) {
