@@ -1,6 +1,6 @@
 Package: TNRS
 Title: Taxonomic Name Resolution Service
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: 
     c(
             person("Brian", "Maitner", email = "bmaitner@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2118-9880")),
