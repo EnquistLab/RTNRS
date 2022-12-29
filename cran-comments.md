@@ -11,6 +11,6 @@
 0 errors √ | 0 warnings √ | 0 notes √
 
 ## Notes
-* This is a minor update to address problems caused by a recent change in R which exposed some character encoding bugs which impact vcr, which TNRS uses in testing. The problem seems to be caused by some non-ascii characters in an example file, so we've modified the example data to omit these non-ascii characters.
+* Package was archived due to errors in testing caused by a change in R which exposed some character encoding bugs which impacted vcr, which TNRS uses in testing. The problem seems to be caused by some non-ascii characters in an example file, so we've modified the example data to omit these non-ascii characters.
 
 * The Windows server rhub build returns the note "Found the following files/directories: 'lastMiKTeXException'", which I'm ignoring per https://github.com/r-hub/rhub/issues/503
