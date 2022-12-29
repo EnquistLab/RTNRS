@@ -22,6 +22,6 @@ This function provides citation information in bibtex format that can be used wi
 }
 \examples{
 {
-citation_info <- TNRS_citations()
+  citation_info <- TNRS_citations()
 }
 }

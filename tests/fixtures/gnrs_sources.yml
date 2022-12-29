@@ -16,7 +16,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 01 Dec 2022 21:26:23 GMT
+      date: Thu, 29 Dec 2022 00:44:11 GMT
       server: Apache/2.4.29 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '3280'
@@ -53,5 +53,5 @@ http_interactions:
         Plants","sourceUrl":"https:\/\/plants.sc.egov.usda.gov\/java\/","description":"The
         PLANTS Database provides standardized information about the vascular plants,
         mosses, liverworts, hornworts, and lichens of the U.S. and its territories.","dataUrl":"http:\/\/plants.usda.gov\/adv_search.html","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2020\/10\/usda-plants-logo.gif","version":null,"sourceReleaseDate":null,"tnrsDateAccessed":"2020-04-25"}]'
-  recorded_at: 2022-12-01 21:26:22 GMT
+  recorded_at: 2022-12-29 00:44:11 GMT
   recorded_with: vcr/1.2.0, webmockr/0.8.2

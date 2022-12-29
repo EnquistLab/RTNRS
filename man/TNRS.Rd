@@ -42,14 +42,16 @@ Resolve plant taxonomic names.
 usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
 
 For queries of more than 5000 names, the function will automatically divide the query into batches of 5000 names and then run the batches one after the other. Thus, for very large queries this may take some time. When this is the case, a progress bar will be displayed.
+
+IMPORTANT: Note that parallelization of queries is automatically handled by the API, and so there is no need to further parallelize in R (in fact, doing so may actually slow things down!).
 }
 \examples{
 \dontrun{
-#Take a subset of the testfile to speed up runtime                  
-tnrs_testfile <- tnrs_testfile[1:20,]
- 
+# Take a subset of the testfile to speed up runtime
+tnrs_testfile <- tnrs_testfile[1:20, ]
+
 results <- TNRS(taxonomic_names = tnrs_testfile)
-  
+
 # Inspect the results
 head(results, 10)
 }

@@ -16,7 +16,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 01 Dec 2022 21:26:23 GMT
+      date: Thu, 29 Dec 2022 00:44:12 GMT
       server: Apache/2.4.29 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '88'
@@ -25,5 +25,5 @@ http_interactions:
       encoding: ''
       file: no
       string: '[{"db_version":"4.2","build_date":"2021-08-02","code_version":"5.0.3","api_version":""}]'
-  recorded_at: 2022-12-01 21:26:23 GMT
+  recorded_at: 2022-12-29 00:44:12 GMT
   recorded_with: vcr/1.2.0, webmockr/0.8.2

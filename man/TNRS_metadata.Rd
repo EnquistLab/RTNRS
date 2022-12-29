@@ -24,7 +24,7 @@ This function is a wrapper that returns the output of the functions TNRS_citatio
 }
 \examples{
 {
-metadata <- TNRS_metadata()
+  metadata <- TNRS_metadata()
 }
 
 }

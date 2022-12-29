@@ -16,7 +16,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 01 Dec 2022 21:26:21 GMT
+      date: Thu, 29 Dec 2022 00:44:10 GMT
       server: Apache/2.4.29 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '1816'
@@ -47,5 +47,5 @@ http_interactions:
         address = {Greensboro, NC, USA}, author = {{USDA, NRCS}}, publisher = {National
         Plant Data Team}, title = {The PLANTS Database}, url = {http:\/\/plants.usda.gov},
         note = {Accessed 25 April 2021} }"}]'
-  recorded_at: 2022-12-01 21:26:21 GMT
+  recorded_at: 2022-12-29 00:44:09 GMT
   recorded_with: vcr/1.2.0, webmockr/0.8.2

@@ -19,7 +19,7 @@ Return metadata about the current TNRS version
 }
 \examples{
 {
-TNRS_version_metadata <- TNRS_version()
+  TNRS_version_metadata <- TNRS_version()
 }
 
 }

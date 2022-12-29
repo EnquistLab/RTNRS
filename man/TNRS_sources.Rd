@@ -19,7 +19,7 @@ Return metadata about the current TNRS sources
 }
 \examples{
 {
-sources <- TNRS_sources()
+  sources <- TNRS_sources()
 }
 
 }

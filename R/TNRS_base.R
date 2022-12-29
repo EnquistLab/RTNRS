@@ -24,14 +24,13 @@ TNRS_base <- function(taxonomic_names,
                       accuracy = NULL,
                       skip_internet_check = FALSE,
                       ...) {
-  
   # Check for internet access
-    if (!skip_internet_check) {
-      if (!check_internet()) {
-        message("This function requires internet access, please check your connection.")
-        return(invisible(NULL))
-      }
+  if (!skip_internet_check) {
+    if (!check_internet()) {
+      message("This function requires internet access, please check your connection.")
+      return(invisible(NULL))
     }
+  }
 
   # If taxonomic names are supplied as a character string, make them into a data.frame
 
@@ -41,30 +40,30 @@ TNRS_base <- function(taxonomic_names,
 
 
   # Check that accuracy makes sense
-  
-    if (!inherits(x = accuracy, what = c("NULL", "numeric"))) {
-      stop("accuracy should be either numeric between 0 and 1, or NULL")
-    }
+
+  if (!inherits(x = accuracy, what = c("NULL", "numeric"))) {
+    stop("accuracy should be either numeric between 0 and 1, or NULL")
+  }
 
   # Convert the data to JSON
-    data_json <- jsonlite::toJSON(unname(taxonomic_names))
+  data_json <- jsonlite::toJSON(unname(taxonomic_names))
 
   # Send data to core function
-    results <- TNRS_core(
-      data_json = data_json,
-      sources = sources,
-      classification = classification,
-      mode = mode,
-      matches = matches,
-      accuracy = accuracy,
-      ...
-    )
-    
+  results <- TNRS_core(
+    data_json = data_json,
+    sources = sources,
+    classification = classification,
+    mode = mode,
+    matches = matches,
+    accuracy = accuracy,
+    ...
+  )
+
   # reformat score columns to numeric
-  
-    score_cols <- colnames(results)[grep(pattern = "_score$",x = colnames(results))]
-      
-    results[, score_cols] <- sapply(results[, score_cols], as.numeric)
+
+  score_cols <- colnames(results)[grep(pattern = "_score$", x = colnames(results))]
+
+  results[, score_cols] <- sapply(results[, score_cols], as.numeric)
 
   # Return results
   return(results)
