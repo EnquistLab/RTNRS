@@ -14,3 +14,6 @@
 * Package was archived due to errors in testing caused by a change in R which exposed some character encoding bugs which impacted vcr, which TNRS uses in testing. The problem seems to be caused by some non-ascii characters in an example file, so we've modified the example data to omit these non-ascii characters.
 
 * The Windows server rhub build returns the note "Found the following files/directories: 'lastMiKTeXException'", which I'm ignoring per https://github.com/r-hub/rhub/issues/503
+
+## Response to previous comments
+*Previous version caused a note on Debian, presumably due to a change in how the news file is rendered. I've updated the formatting in the news file to fix this.
