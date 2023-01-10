@@ -6,6 +6,7 @@
 
 ## Bug Fixes
 
+* Updated to fix a bug that occurs with TNRS_metadata if there are issues making API connections, but not internet connections
 
 ===============
 # TNRS 0.3.2

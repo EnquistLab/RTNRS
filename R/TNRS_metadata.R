@@ -12,26 +12,41 @@
 #' }
 #'
 TNRS_metadata <- function(bibtex_file = NULL, skip_internet_check = FALSE) {
+  
   # Check for internet access
-  if (!skip_internet_check) {
-    if (!check_internet()) {
-      message("This function requires internet access, please check your connection.")
-      return(invisible(NULL))
+    if (!skip_internet_check) {
+      if (!check_internet()) {
+        message("This function requires internet access, please check your connection.")
+        return(invisible(NULL))
+      }
     }
-  }
 
   output <- list()
 
-  output[[1]] <- TNRS_citations()
-  output[[2]] <- TNRS_sources()
-  output[[3]] <- TNRS_version()
+  output[[1]] <- TNRS_citations(skip_internet_check = skip_internet_check)
+  output[[2]] <- TNRS_sources(skip_internet_check = skip_internet_check)
+  output[[3]] <- TNRS_version(skip_internet_check = skip_internet_check)
+  
+  # If the internet API connection was successful, add names to the output
+  
+    if(length(output) == 3){
+      
+      names(output) <- c("citations", "sources", "version")  
+      
+      # Write the bibtex information if a file is specified
+      
+        if (!is.null(bibtex_file)) {
+          writeLines(text = output$citations$citation,
+                     con = bibtex_file)
+        }
+      
+      return(output)
+      
+    } # end if
 
-  names(output) <- c("citations", "sources", "version")
-
-  # Write the bibtex information if a file is specified
-  if (!is.null(bibtex_file)) {
-    writeLines(text = output$citations$citation, con = bibtex_file)
-  }
-
-  return(output)
+  
+  #If there was an issue connecting to the API, return NULL invisible
+    
+    return(invisible(NULL))
+  
 }

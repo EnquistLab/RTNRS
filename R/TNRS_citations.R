@@ -10,13 +10,15 @@
 #'   citation_info <- TNRS_citations()
 #' }
 TNRS_citations <- function(skip_internet_check = FALSE, ...) {
+  
   # Check for internet access
-  if (!skip_internet_check) {
-    if (!check_internet()) {
-      message("This function requires internet access, please check your connection.")
-      return(invisible(NULL))
+    if (!skip_internet_check) {
+      if (!check_internet()) {
+        message("This function requires internet access, please check your connection.")
+        return(invisible(NULL))
+      }
     }
-  }
+  
   results <- TNRS_core(mode = "citations", ...)
 
   results$citation <- gsub(pattern = "{{", replacement = "{", x = results$citation, fixed = T)
