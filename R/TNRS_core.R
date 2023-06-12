@@ -4,8 +4,8 @@
 #' @param url Server URL to use.  Defaults to the stable production version
 #' @param mode API mode to use.  One of "collaborators",
 #' @param data_json Either NULL (the default) or properly formatted json
-#' @param sources Character. Taxonomic sources to use. Default is c("tropicos","wcvp"). Options include "tropicos", "usda", "wfo", and "wcvp".
-#' @param classification Character. Family classification to use. Currently options include "tropicos" (the default), which is equivalent to APGIII, and "wfo".
+#' @param sources Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".
+#' @param classification Character. Family classification to use. Currently options include "wfo" (the default).
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
@@ -17,8 +17,8 @@
 TNRS_core <- function(url = "https://tnrsapi.xyz/tnrs_api.php",
                       mode = "resolve",
                       data_json = NULL,
-                      sources = c("tropicos", "wcvp"),
-                      classification = "tropicos",
+                      sources = c("wcvp", "wfo"),
+                      classification = "wfo",
                       matches = "best",
                       accuracy = NULL,
                       batches = NULL) {
