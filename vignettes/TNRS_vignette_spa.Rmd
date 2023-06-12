@@ -72,7 +72,6 @@ Cuando utilice `TNRS`, le pedimos que cite tanto a `TNRS` como las fuentes de da
 
 
 ```{r}
-
 metadata <- TNRS_metadata()
 
 # Si desea conocer la información de la versión TNRS que utilizas (por
