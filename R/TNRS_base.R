@@ -2,8 +2,8 @@
 #"
 #' Resolve a small batch of plant taxonomic names
 #' @param taxonomic_names Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.
-#' @param sources Character. Taxonomic sources to use. Default is c("tropicos","wcvp"). Options include "tropicos", "usda", "wfo", and "wcvp".
-#' @param classification Character. Family classification to use. Currently options include "tropicos" (the default), which is equivalent to APGIII, and "wfo".
+#' @param sources Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".
+#' @param classification Character. Family classification to use. Currently options include "wfo" (the default).
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
@@ -17,8 +17,8 @@
 #' @keywords Internal
 #'
 TNRS_base <- function(taxonomic_names,
-                      sources = c("tropicos", "wcvp"),
-                      classification = "tropicos",
+                      sources = c("wcvp", "wfo"),
+                      classification = "wfo",
                       mode = "resolve",
                       matches = "best",
                       accuracy = NULL,
