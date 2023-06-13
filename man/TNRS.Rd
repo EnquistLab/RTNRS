@@ -6,8 +6,8 @@
 \usage{
 TNRS(
   taxonomic_names,
-  sources = c("tropicos", "wcvp"),
-  classification = "tropicos",
+  sources = c("wcvp", "wfo"),
+  classification = "wfo",
   mode = "resolve",
   matches = "best",
   accuracy = NULL,
@@ -18,9 +18,9 @@ TNRS(
 \arguments{
 \item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.}
 
-\item{sources}{Character vector. Taxonomic sources to use. Default is c("tropicos","wcvp"). Options include "tropicos", "usda", "wfo", and "wcvp".}
+\item{sources}{Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".}
 
-\item{classification}{Character. Family classification to use. Currently options include "tropicos" (the default), which is equivalent to APGIII, and "wfo".}
+\item{classification}{Character. Family classification to use. Currently options include "wfo" (the default).}
 
 \item{mode}{Character.  Options are "resolve" and "parse". Default option is "resolve"}
 

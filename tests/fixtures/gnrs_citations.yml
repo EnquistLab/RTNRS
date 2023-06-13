@@ -4,7 +4,7 @@ http_interactions:
     uri: https://tnrsapi.xyz/tnrs_api.php
     body:
       encoding: ''
-      string: '{"opts":{"sources":"tropicos,wcvp","class":"tropicos","mode":"citations","matches":"best"}}'
+      string: '{"opts":{"sources":"wcvp,wfo","class":"wfo","mode":"citations","matches":"best"}}'
     headers:
       Content-Type: application/json
       Accept: application/json
@@ -16,10 +16,10 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 29 Dec 2022 00:44:10 GMT
+      date: Mon, 12 Jun 2023 18:44:52 GMT
       server: Apache/2.4.29 (Ubuntu)
       access-control-allow-origin: '*'
-      content-length: '1816'
+      content-length: '1815'
       content-type: application/json
     body:
       encoding: ''
@@ -38,7 +38,7 @@ http_interactions:
         {Accessed <date_of_access>} }"},{"source":"tropicos","citation":"@misc{tropicos,
         address = {St. Louis, USA}, author = {{Missouri Botanical Garden}}, publisher
         = {Missouri Botanical Garden}, title = {Tropicos}, url = {http:\/\/www.tropicos.org},
-        note = {Accessed 17 July 2021} }"},{"source":"wfo","citation":"@misc{wcvp,
+        note = {Accessed 17 July 2021} }"},{"source":"wfo","citation":"@misc{wfo,
         author = {{WFO}}, title = {World Flora Online}, url = {http:\/\/www.worldfloraonline.org\/},
         note = {Accessed 17 July 2021} }"},{"source":"wcvp","citation":"@misc{wcvp,
         address = {London, UK}, author = {{WCVP}}, publisher = {Royal Botanic Gardens,
@@ -47,5 +47,5 @@ http_interactions:
         address = {Greensboro, NC, USA}, author = {{USDA, NRCS}}, publisher = {National
         Plant Data Team}, title = {The PLANTS Database}, url = {http:\/\/plants.usda.gov},
         note = {Accessed 25 April 2021} }"}]'
-  recorded_at: 2022-12-29 00:44:09 GMT
-  recorded_with: vcr/1.2.0, webmockr/0.8.2
+  recorded_at: 2023-06-12 18:44:51 GMT
+  recorded_with: vcr/1.2.0, webmockr/0.9.0

@@ -8,8 +8,8 @@ TNRS_core(
   url = "https://tnrsapi.xyz/tnrs_api.php",
   mode = "resolve",
   data_json = NULL,
-  sources = c("tropicos", "wcvp"),
-  classification = "tropicos",
+  sources = c("wcvp", "wfo"),
+  classification = "wfo",
   matches = "best",
   accuracy = NULL,
   batches = NULL
@@ -22,9 +22,9 @@ TNRS_core(
 
 \item{data_json}{Either NULL (the default) or properly formatted json}
 
-\item{sources}{Character. Taxonomic sources to use. Default is c("tropicos","wcvp"). Options include "tropicos", "usda", "wfo", and "wcvp".}
+\item{sources}{Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".}
 
-\item{classification}{Character. Family classification to use. Currently options include "tropicos" (the default), which is equivalent to APGIII, and "wfo".}
+\item{classification}{Character. Family classification to use. Currently options include "wfo" (the default).}
 
 \item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
 
