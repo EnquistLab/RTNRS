@@ -57,8 +57,6 @@ test_that("character returns results", {
 test_that("all sources work", {
   # skip_if_offline(host = "r-project.org")
 
-
-
   species <- c("Epidenrum boyleii", "Acer rubrum", "Xanthium strumarium", "Abies alba")
 
   # WCVP
@@ -92,36 +90,37 @@ test_that("all sources work", {
   expect_equal(object = nrow(results), expected = 4)
 
 
-  # USDA
+  # USDA (we're removed USDA temporarily due to changes in their website)
 
-  vcr::use_cassette("tnrs_usda", {
-    results <- TNRS(
-      taxonomic_names = species,
-      sources = "usda",
-      url = url,
-      skip_internet_check = TRUE
-    )
-  })
+  # vcr::use_cassette("tnrs_usda", {
+  #   results <- TNRS(
+  #     taxonomic_names = species,
+  #     sources = "usda",
+  #     url = url,
+  #     skip_internet_check = TRUE
+  #   )
+  # })
 
-  # test below assume a dataframe and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
-  expect_equal(object = nrow(results), expected = 4)
+  # # test below assume a dataframe and will be skipped if one isn't returned
+  # skip_if_not(class(results) == "data.frame")
+  # expect_equal(object = nrow(results), expected = 4)
 
 
-  # USDA
+  # tropicos (has been removed, per MOBOTs recommendations)
 
-  vcr::use_cassette("tnrs_tropicos", {
-    results <- TNRS(
-      taxonomic_names = species,
-      sources = "tropicos",
-      url = url,
-      skip_internet_check = TRUE
-    )
-  })
-
-  # test below assume a dataframe and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
-  expect_equal(object = nrow(results), expected = 4)
+  # vcr::use_cassette("tnrs_tropicos", {
+  #   results <- TNRS(
+  #     taxonomic_names = species,
+  #     sources = "tropicos",
+  #     url = url,
+  #     skip_internet_check = TRUE
+  #   )
+  # })
+  # 
+  # # test below assume a dataframe and will be skipped if one isn't returned
+  # skip_if_not(class(results) == "data.frame")
+  # expect_equal(object = nrow(results), expected = 4)
+  
 })
 
 test_that("bad sources throw a message and return null", {
