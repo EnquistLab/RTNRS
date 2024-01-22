@@ -10,7 +10,6 @@
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
 #' @param batches NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented
-#' @param ... Additional parameters passed to internal functions
 #' @importFrom jsonlite toJSON
 #' @import httr
 #' @keywords internal
