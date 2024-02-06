@@ -7,7 +7,8 @@
 ## Bug Fixes
 
 * Updated tests per new API options
-* removed documentation for '...' from TNRS_core, as we aren't using this anymore. 
+* removed documentation for '...' from TNRS_core, as we aren't using this anymore.
+* Updating to reflect new sources
 
 
 

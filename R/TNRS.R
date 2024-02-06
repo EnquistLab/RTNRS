@@ -58,15 +58,15 @@ TNRS <- function(taxonomic_names,
   }
 
   # Check that sources are valid
-  if (!all(sources %in% c("tropicos", "usda", "wfo", "wcvp"))) {
-    message("Invalid source(s) specified. Current options are: tropicos, usda, wfo, wcvp ")
+  if (!all(sources %in% c("wfo", "wcvp", "cact"))) {
+    message("Invalid source(s) specified. Current options are: wfo, wcvp, cact ")
     return(invisible(NULL))
   }
 
 
   # Check that classification is valid
-  if (length(classification) != 1 | !classification %in% c("tropicos", "wfo")) {
-    message("Invalid classification specified. Current options are: tropicos, wfo ")
+  if (length(classification) != 1 | !classification %in% c("wfo")) {
+    message("Invalid classification specified. Current options are: wfo ")
     return(invisible(NULL))
   }
 
