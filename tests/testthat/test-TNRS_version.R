@@ -4,7 +4,7 @@ context("tnrs version")
 test_that("example works", {
   # skip_if_offline(host = "r-project.org")
 
-  vcr::use_cassette("gnrs_version", {
+  vcr::use_cassette("tnrs_version", {
     TNRS_version_metadata <- TNRS_version(
       url = url,
       skip_internet_check = TRUE

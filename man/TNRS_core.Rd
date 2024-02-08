@@ -31,8 +31,6 @@ TNRS_core(
 \item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.}
 
 \item{batches}{NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented}
-
-\item{...}{Additional parameters passed to internal functions}
 }
 \description{
 Internal function for handling accessing the API,data formatting, and errors

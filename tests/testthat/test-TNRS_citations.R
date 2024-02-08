@@ -5,7 +5,7 @@ test_that("example works", {
   # skip_if_offline(host = "r-project.org")
 
 
-  vcr::use_cassette("gnrs_citations", {
+  vcr::use_cassette("tnrs_citations", {
     citation_info <- TNRS_citations(
       url = url,
       skip_internet_check = TRUE
