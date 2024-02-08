@@ -116,11 +116,10 @@ test_that("all sources work", {
   #     skip_internet_check = TRUE
   #   )
   # })
-  # 
+  #
   # # test below assume a dataframe and will be skipped if one isn't returned
   # skip_if_not(class(results) == "data.frame")
   # expect_equal(object = nrow(results), expected = 4)
-  
 })
 
 test_that("bad sources throw a message and return null", {
