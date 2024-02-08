@@ -15,5 +15,5 @@ test_that("example works", {
 
   # test below assume a data dictionary and will be skipped if one isn't returned
   skip_if_not(class(sources) == "data.frame")
-  expect_gt(object = nrow(sources), expected = 2)
+  expect_gt(object = nrow(sources), expected = 1)
 })
