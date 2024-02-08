@@ -96,7 +96,8 @@ TNRS <- function(taxonomic_names,
       mode = mode,
       matches = matches,
       accuracy = accuracy,
-      skip_internet_check = skip_internet_check
+      skip_internet_check = skip_internet_check,
+      ...
     ))
   } #
 
@@ -127,7 +128,8 @@ TNRS <- function(taxonomic_names,
           mode = mode,
           matches = matches,
           accuracy = accuracy,
-          skip_internet_check = skip_internet_check
+          skip_internet_check = skip_internet_check,
+          ...
         )
 
         # results<-matrix(nrow = nrow(taxonomic_names),ncol = ncol(results_i))
@@ -149,7 +151,8 @@ TNRS <- function(taxonomic_names,
             mode = mode,
             matches = matches,
             accuracy = accuracy,
-            skip_internet_check = skip_internet_check
+            skip_internet_check = skip_internet_check,
+            ...
           )
         )
       } # last batch
@@ -166,7 +169,8 @@ TNRS <- function(taxonomic_names,
             mode = mode,
             matches = matches,
             accuracy = accuracy,
-            skip_internet_check = skip_internet_check
+            skip_internet_check = skip_internet_check,
+            ...
           )
         )
       } # middle bits

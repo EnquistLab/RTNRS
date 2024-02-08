@@ -9,7 +9,7 @@
 * Updated tests per new API options
 * removed documentation for '...' from TNRS_core, as we aren't using this anymore.
 * Updating to reflect new sources
-
+* Fixed bug in TNRS.R where additional parameters weren't being passed to internal functions
 
 
 ===============
