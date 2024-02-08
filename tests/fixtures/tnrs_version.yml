@@ -1,0 +1,29 @@
+http_interactions:
+- request:
+    method: post
+    uri: https://tnrsapi.xyz/tnrs_api.php
+    body:
+      encoding: ''
+      string: '{"opts":{"sources":"wcvp,wfo","class":"wfo","mode":"meta","matches":"best"}}'
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      charset: UTF-8
+  response:
+    status:
+      status_code: 200
+      category: Success
+      reason: OK
+      message: 'Success: (200) OK'
+    headers:
+      date: Thu, 08 Feb 2024 19:39:31 GMT
+      server: Apache/2.4.29 (Ubuntu)
+      access-control-allow-origin: '*'
+      content-length: '111'
+      content-type: application/json
+    body:
+      encoding: ''
+      file: no
+      string: '[{"app_version":"5.1","db_version":"4.3","build_date":"2023-05-16","code_version":"5.1","api_version":"5.0.4"}]'
+  recorded_at: 2024-02-08 19:39:31 GMT
+  recorded_with: vcr/1.2.2, webmockr/0.9.0

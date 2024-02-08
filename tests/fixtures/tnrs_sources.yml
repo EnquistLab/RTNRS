@@ -1,0 +1,36 @@
+http_interactions:
+- request:
+    method: post
+    uri: https://tnrsapi.xyz/tnrs_api.php
+    body:
+      encoding: ''
+      string: '{"opts":{"sources":"wcvp,wfo","class":"wfo","mode":"sources","matches":"best"}}'
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      charset: UTF-8
+  response:
+    status:
+      status_code: 200
+      category: Success
+      reason: OK
+      message: 'Success: (200) OK'
+    headers:
+      date: Thu, 08 Feb 2024 19:39:31 GMT
+      server: Apache/2.4.29 (Ubuntu)
+      access-control-allow-origin: '*'
+      content-length: '1184'
+      content-type: application/json
+    body:
+      encoding: ''
+      file: no
+      string: '[{"sourceID":"1","sourceName":"wfo","sourceNameFull":"World Flora Online","sourceUrl":"http:\/\/www.worldfloraonline.org\/","description":"The
+        WFO is an open-access, Web-based compendium of the world''s plant species.
+        It is a collaborative, international project, building upon existing knowledge
+        and published Floras, checklists and revisions","dataUrl":"http:\/\/104.198.143.165\/files\/WFO_Backbone\/_WFOCompleteBackbone\/","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2021\/07\/wfo_logo.jpeg","version":"v.2023.02","sourceReleaseDate":"2023-02-28","tnrsDateAccessed":"2023-05-03"},{"sourceID":"2","sourceName":"wcvp","sourceNameFull":"World
+        Checklist of Vascular Plants","sourceUrl":"https:\/\/wcvp.science.kew.org\/","description":"The
+        World Checklist of Vascular Plants (WCVP) is a global consensus view of all
+        known vascular plant species (flowering plants, conifers, ferns, clubmosses
+        and firmosses)","dataUrl":"http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/wcvp.zip","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2021\/07\/kew_logo.png","version":"11","sourceReleaseDate":"2023-04-27","tnrsDateAccessed":"2023-05-03"}]'
+  recorded_at: 2024-02-08 19:39:30 GMT
+  recorded_with: vcr/1.2.2, webmockr/0.9.0

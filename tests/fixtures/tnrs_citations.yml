@@ -1,0 +1,46 @@
+http_interactions:
+- request:
+    method: post
+    uri: https://tnrsapi.xyz/tnrs_api.php
+    body:
+      encoding: ''
+      string: '{"opts":{"sources":"wcvp,wfo","class":"wfo","mode":"citations","matches":"best"}}'
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      charset: UTF-8
+  response:
+    status:
+      status_code: 200
+      category: Success
+      reason: OK
+      message: 'Success: (200) OK'
+    headers:
+      date: Thu, 08 Feb 2024 19:39:29 GMT
+      server: Apache/2.4.29 (Ubuntu)
+      access-control-allow-origin: '*'
+      content-length: '1395'
+      content-type: application/json
+    body:
+      encoding: ''
+      file: no
+      string: '[{"source":"tnrs_pub","citation":"@article{tnrspub, author = {Boyle,
+        B. and Hopkins, N. and Lu, Z. and Garay, J. A. R. and Mozzherin, D. and Rees,
+        T. and Matasci, N. and Narro, M. L. and Piel, W. H. and McKay, S. J. and Lowry,
+        S. and Freeland, C. and Peet, R. K. and Enquist, B. J.}, journal = {BMC Bioinformatics},
+        number = {1}, pages = {16}, title = {The taxonomic name resolution service:
+        an online tool for automated standardization of plant names}, volume = {14},
+        year = {2013}, doi = {10.1186\/1471-2105-14-16}}"},{"source":"tnrs","citation":"@misc{tnrs,
+        author = {Boyle, B. L. and Matasci, N. and Mozzherin, D. and Rees, T. and
+        Barbosa, G. C. and Kumar Sajja, R. and Enquist, B. J.}, journal = {Botanical
+        Information and Ecology Network}, title = {Taxonomic Name Resolution Service,
+        version 5.1}, year = {2021}, url = {https:\/\/tnrs.biendata.org\/}, note =
+        {Accessed <date_of_access>} }"},{"source":"wfo","citation":"@misc{wfo, author
+        = {{WFO}}, title = {World Flora Online}, howpublished  = {v.2023.02}, year
+        = {2023}, url = {http:\/\/www.worldfloraonline.org\/}, note = {Accessed 3
+        May 2023} }"},{"source":"wcvp","citation":"@misc{wcvp, author = {{Govaerts
+        R (ed.)}}, publisher = {Royal Botanic Gardens, Kew}, title = {WCVP: World
+        Checklist of Vascular Plants, version 11}, year = {2023}, url = {http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/},
+        note = {Accessed 3 May 2023} }"}]'
+  recorded_at: 2024-02-08 19:39:30 GMT
+  recorded_with: vcr/1.2.2, webmockr/0.9.0
