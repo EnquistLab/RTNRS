@@ -4,12 +4,13 @@
 #' @param url Server URL to use.  Defaults to the stable production version
 #' @param mode API mode to use.  One of "collaborators",
 #' @param data_json Either NULL (the default) or properly formatted json
-#' @param sources Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".
+#' @param sources Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", "wcvp", and "cact".
 #' @param classification Character. Family classification to use. Currently options include "wfo" (the default).
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
 #' @param batches NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented
+#' @note For more information on current sources, use the function TNRS_sources()
 #' @importFrom jsonlite toJSON
 #' @import httr
 #' @keywords internal
