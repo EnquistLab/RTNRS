@@ -3,6 +3,7 @@
 ===============
 
 ## NEW FEATURES
+* A new source has been added, "cact", which contains only species within the Cactaceae.
 
 ## Bug Fixes
 
@@ -10,7 +11,7 @@
 * removed documentation for '...' from TNRS_core, as we aren't using this anymore.
 * Updating to reflect new sources
 * Fixed bug in TNRS.R where additional parameters weren't being passed to internal functions
-
+* Updated documentation
 
 ===============
 # TNRS 0.3.4
