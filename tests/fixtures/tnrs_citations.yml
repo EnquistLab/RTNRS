@@ -16,10 +16,10 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 08 Feb 2024 19:39:29 GMT
-      server: Apache/2.4.29 (Ubuntu)
+      date: Tue, 05 Mar 2024 14:37:34 GMT
+      server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
-      content-length: '1395'
+      content-length: '2249'
       content-type: application/json
     body:
       encoding: ''
@@ -30,17 +30,27 @@ http_interactions:
         S. and Freeland, C. and Peet, R. K. and Enquist, B. J.}, journal = {BMC Bioinformatics},
         number = {1}, pages = {16}, title = {The taxonomic name resolution service:
         an online tool for automated standardization of plant names}, volume = {14},
-        year = {2013}, doi = {10.1186\/1471-2105-14-16}}"},{"source":"tnrs","citation":"@misc{tnrs,
+        year = {2013}, doi = {10.1186\/1471-2105-14-16}  }"},{"source":"tnrs","citation":"@misc{tnrs,
         author = {Boyle, B. L. and Matasci, N. and Mozzherin, D. and Rees, T. and
         Barbosa, G. C. and Kumar Sajja, R. and Enquist, B. J.}, journal = {Botanical
         Information and Ecology Network}, title = {Taxonomic Name Resolution Service,
         version 5.1}, year = {2021}, url = {https:\/\/tnrs.biendata.org\/}, note =
-        {Accessed <date_of_access>} }"},{"source":"wfo","citation":"@misc{wfo, author
-        = {{WFO}}, title = {World Flora Online}, howpublished  = {v.2023.02}, year
-        = {2023}, url = {http:\/\/www.worldfloraonline.org\/}, note = {Accessed 3
-        May 2023} }"},{"source":"wcvp","citation":"@misc{wcvp, author = {{Govaerts
-        R (ed.)}}, publisher = {Royal Botanic Gardens, Kew}, title = {WCVP: World
-        Checklist of Vascular Plants, version 11}, year = {2023}, url = {http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/},
-        note = {Accessed 3 May 2023} }"}]'
-  recorded_at: 2024-02-08 19:39:30 GMT
+        {Accessed <date_of_access>} }"},{"source":"wfo","citation":"@dataset{wfo,
+        author = {The World Flora Online Consortium and Elliott, A., Hyam, R. and  Ulate,
+        W.},  title = {World Flora Online Plant List June 2023},  month = jun,  year
+        = 2023,  publisher = {Zenodo},  version = {2023-06},  doi = {10.5281\/zenodo.8079052},  url
+        = {https:\/\/doi.org\/10.5281\/zenodo.8079052},  note = {Accessed Jan 10,
+        2024} }"},{"source":"wcvp","citation":"@misc{wcvp, author = {{Govaerts R (ed.)}},
+        publisher = {Royal Botanic Gardens, Kew}, title = {WCVP: World Checklist of
+        Vascular Plants, Version 12}, year = {2023}, url = {http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/},
+        note = {Accessed 8 January 2024} }"},{"source":"cact","citation":"@article{cact,  author
+        = {Korotkova N., Aquino D., Arias S., Eggli U., Franck A., G\u00f3mez-Hinostrosa
+        C., Guerrero P. C., Hern\u00e1ndez H. M., Kohlbecker A., K\u00f6hler M., Luther
+        K., Majure L. C., M\u00fcller A., Metzing D., Nyffeler R., S\u00e1nchez D.,
+        Schlumpberger B. & Berendsohn W. G.},  title = {Cactaceae at Caryophyllales.org
+        \u2013 a dynamic online species-level taxonomic backbone for the family.},  year
+        = 2021,  journal = {Willdenowia},  volume = 51,  number = 2,  pages = {251-271},  version
+        = {2023-06},  doi = {10.3372\/wi.51.51208},  url = {https:\/\/caryophyllales.org\/cactaceae\/Checklist},  note
+        = {Accessed 2023-11-02}}\n"}]'
+  recorded_at: 2024-03-05 14:37:34 GMT
   recorded_with: vcr/1.2.2, webmockr/0.9.0

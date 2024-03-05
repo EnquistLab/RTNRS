@@ -16,21 +16,35 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 08 Feb 2024 19:39:31 GMT
-      server: Apache/2.4.29 (Ubuntu)
+      date: Tue, 05 Mar 2024 14:37:35 GMT
+      server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
-      content-length: '1184'
+      content-length: '2818'
       content-type: application/json
     body:
       encoding: ''
       file: no
-      string: '[{"sourceID":"1","sourceName":"wfo","sourceNameFull":"World Flora Online","sourceUrl":"http:\/\/www.worldfloraonline.org\/","description":"The
-        WFO is an open-access, Web-based compendium of the world''s plant species.
-        It is a collaborative, international project, building upon existing knowledge
-        and published Floras, checklists and revisions","dataUrl":"http:\/\/104.198.143.165\/files\/WFO_Backbone\/_WFOCompleteBackbone\/","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2021\/07\/wfo_logo.jpeg","version":"v.2023.02","sourceReleaseDate":"2023-02-28","tnrsDateAccessed":"2023-05-03"},{"sourceID":"2","sourceName":"wcvp","sourceNameFull":"World
-        Checklist of Vascular Plants","sourceUrl":"https:\/\/wcvp.science.kew.org\/","description":"The
-        World Checklist of Vascular Plants (WCVP) is a global consensus view of all
-        known vascular plant species (flowering plants, conifers, ferns, clubmosses
-        and firmosses)","dataUrl":"http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/wcvp.zip","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2021\/07\/kew_logo.png","version":"11","sourceReleaseDate":"2023-04-27","tnrsDateAccessed":"2023-05-03"}]'
-  recorded_at: 2024-02-08 19:39:30 GMT
+      string: '[{"sourceID":"1","sourceName":"wfo","sourceNameFull":"World Flora Online","sourceUrl":"http:\/\/www.worldfloraonline.org\/","geographic_scope":"global","taxonomic_scope":"Embryophyta","scope":"global","description":"The
+        World Flora Online will be an open-access, Web-based compendium of the worlds
+        plant species. It will be a collaborative, international project, building
+        upon existing knowledge and published floras, checklists and revisions but
+        will also require the collection and generation of new information on poorly
+        know plant groups and plants in unexplored regions. WFO replaces The Plant
+        List","dataUrl":"https:\/\/files.worldfloraonline.org\/files\/WFO_Backbone\/_WFOCompleteBackbone\/","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2021\/07\/wfo_logo.jpeg","isDefault":"1","version":"v.2023.06","sourceReleaseDate":"2023-06-01","tnrsDateAccessed":"2024-01-10"},{"sourceID":"2","sourceName":"wcvp","sourceNameFull":"World
+        Checklist of Vascular Plants","sourceUrl":"https:\/\/wcvp.science.kew.org\/","geographic_scope":"global","taxonomic_scope":"Tracheophyta","scope":"global","description":"
+        The World Checklist of Vascular Plants is based on Kew names and taxonomic
+        backbone which has been created by reconciling the names from the International
+        Plant Names Index (IPNI) with the taxonomy from the World Checklist of Selected
+        Plant Families (WCSP). This Beta version therefore only displays names that
+        are in both IPNI and WCVP. It contains both families that have been completed
+        and peer reviewed by both external and internal experts on the relevant families
+        as well as families that are in the process of being edited and reviewed.
+        Some of the original data which WCSP built upon came from our generous collaborators
+        listed in the acknowledgements. WCVP aims to represent a global consensus
+        view of current plant taxonomy by reflecting the latest published taxonomies
+        while incorporating the opinions of taxonomists based around the world.","dataUrl":"http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/wcvp.zip","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2021\/07\/kew_logo.png","isDefault":"0","version":"12","sourceReleaseDate":"2023-09-28","tnrsDateAccessed":"2024-01-08"},{"sourceID":"3","sourceName":"cact","sourceNameFull":"Cactaceae
+        checklist (caryophyllales.org)","sourceUrl":"https:\/\/caryophyllales.org\/cactaceae\/Checklist","geographic_scope":"global","taxonomic_scope":"Cactaceae","scope":"limited","description":"Cactaceae
+        at Caryophyllales.org \u2013 a dynamic online species-level taxonomic backbone
+        for the family.","dataUrl":"[by request]","logo_path":"https:\/\/bien.nceas.ucsb.edu\/bien\/wp-content\/uploads\/2024\/02\/cact_logo.png","isDefault":"0","version":null,"sourceReleaseDate":null,"tnrsDateAccessed":"2023-11-02"}]'
+  recorded_at: 2024-03-05 14:37:35 GMT
   recorded_with: vcr/1.2.2, webmockr/0.9.0

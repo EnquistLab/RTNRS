@@ -16,9 +16,9 @@ TNRS(
 )
 }
 \arguments{
-\item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed).  Alternatively, a character vector of names can be supplied.}
+\item{taxonomic_names}{Data.frame containing two columns: 1) Row number, 2) Taxonomic names to be resolved (or parsed). Note that these two columns must be in this order. Alternatively, a character vector of names can be supplied.}
 
-\item{sources}{Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".}
+\item{sources}{Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", "wcvp", and "cact". Use TNRS_sources() for more information.}
 
 \item{classification}{Character. Family classification to use. Currently options include "wfo" (the default).}
 
@@ -39,7 +39,7 @@ Dataframe containing TNRS results.
 Resolve plant taxonomic names.
 }
 \note{
-usda = United States Department of Agriculture, wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
+wfo = World Flora Online, wcvp = World Checklist of Vascular Plants, cact = Cactaceae at Caryophyllales.org.
 
 For queries of more than 5000 names, the function will automatically divide the query into batches of 5000 names and then run the batches one after the other. Thus, for very large queries this may take some time. When this is the case, a progress bar will be displayed.
 

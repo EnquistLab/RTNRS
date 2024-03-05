@@ -22,7 +22,7 @@ TNRS_core(
 
 \item{data_json}{Either NULL (the default) or properly formatted json}
 
-\item{sources}{Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", and "wcvp".}
+\item{sources}{Character. Taxonomic sources to use. Default is c("wcvp", "wfo"). Options include "wfo", "wcvp", and "cact".}
 
 \item{classification}{Character. Family classification to use. Currently options include "wfo" (the default).}
 
@@ -34,5 +34,8 @@ TNRS_core(
 }
 \description{
 Internal function for handling accessing the API,data formatting, and errors
+}
+\note{
+For more information on current sources, use the function TNRS_sources()
 }
 \keyword{internal}

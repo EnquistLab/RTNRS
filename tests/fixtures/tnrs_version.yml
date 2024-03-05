@@ -16,14 +16,14 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Thu, 08 Feb 2024 19:39:31 GMT
-      server: Apache/2.4.29 (Ubuntu)
+      date: Tue, 05 Mar 2024 14:37:35 GMT
+      server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
-      content-length: '111'
+      content-length: '109'
       content-type: application/json
     body:
       encoding: ''
       file: no
-      string: '[{"app_version":"5.1","db_version":"4.3","build_date":"2023-05-16","code_version":"5.1","api_version":"5.0.4"}]'
-  recorded_at: 2024-02-08 19:39:31 GMT
+      string: '[{"app_version":"5.2","db_version":"4.4","build_date":"2024-01-17","code_version":"5.1","api_version":"5.1"}]'
+  recorded_at: 2024-03-05 14:37:35 GMT
   recorded_with: vcr/1.2.2, webmockr/0.9.0
