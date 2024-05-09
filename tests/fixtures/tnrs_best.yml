@@ -17,7 +17,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Tue, 05 Mar 2024 14:37:26 GMT
+      date: Thu, 09 May 2024 18:46:13 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '1438'
@@ -30,5 +30,5 @@ http_interactions:
         & Dodson","Name_matched_accepted_family":"Orchidaceae","Genus_submitted":"Epidendon","Genus_matched":"Epidendrum","Genus_score":"0.7","Specific_epithet_submitted":"boyleii","Specific_epithet_matched":"boylei","Specific_epithet_score":"0.85714285714286","Family_submitted":"","Family_matched":"","Family_score":"","Infraspecific_rank":"","Infraspecific_epithet_matched":"","Infraspecific_epithet_score":"","Infraspecific_rank_2":"","Infraspecific_epithet_2_matched":"","Infraspecific_epithet_2_score":"","Annotations":"","Unmatched_terms":"","Name_matched_url":"https:\/\/powo.science.kew.org\/taxon\/urn:lsid:ipni.org:names:322241-2","Name_matched_lsid":"","Phonetic":"","Taxonomic_status":"Accepted","Accepted_name":"Epidendrum
         boylei","Accepted_species":"Epidendrum boylei","Accepted_name_author":"H\u00e1gsater
         & Dodson","Accepted_name_id":"941004","Accepted_name_rank":"species","Accepted_name_url":"https:\/\/powo.science.kew.org\/taxon\/urn:lsid:ipni.org:names:322241-2","Accepted_name_lsid":"","Accepted_family":"Orchidaceae","Overall_score_order":"1","Highertaxa_score_order":"1","Source":"wcvp","Warnings":"0","WarningsEng":""}]'
-  recorded_at: 2024-03-05 14:37:27 GMT
+  recorded_at: 2024-05-09 18:46:13 GMT
   recorded_with: vcr/1.2.2, webmockr/0.9.0
