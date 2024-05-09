@@ -13,10 +13,10 @@
 #' @importFrom jsonlite toJSON fromJSON
 #' @examples{
 #'
-#' TNRS_synonyms(taxonomic_names = "Palicourea elata")
+#' TNRS_synonyms(taxonomic_name = "Palicourea elata")
 #'
 #' }
-TNRS_synonyms <- function(taxonomic_names,
+TNRS_synonyms <- function(taxonomic_name,
                           source = "wcvp",
                           skip_internet_check = FALSE,
                           ...) {
@@ -31,13 +31,13 @@ TNRS_synonyms <- function(taxonomic_names,
 
   # If taxonomic names are supplied as a character string, make them into a data.frame
 
-  if (inherits(taxonomic_names, "character")) {
-    taxonomic_names <- data.frame(ID = 1:length(taxonomic_names), taxonomic_names)
+  if (inherits(taxonomic_name, "character")) {
+    taxonomic_name <- data.frame(ID = 1:length(taxonomic_name), taxonomic_name)
   }
 
   # Make sure only one name is supplied
 
-  if (nrow(taxonomic_names) != 1) {
+  if (nrow(taxonomic_name) != 1) {
     message("This function can only take one taxonomic name at a time.")
     return(invisible(NULL))
   }
@@ -58,7 +58,7 @@ TNRS_synonyms <- function(taxonomic_names,
 
   # Convert the data to JSON
 
-  data_json <- jsonlite::toJSON(unname(taxonomic_names))
+  data_json <- jsonlite::toJSON(unname(taxonomic_name))
 
   # Send data to core function
 

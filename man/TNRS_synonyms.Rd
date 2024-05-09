@@ -5,20 +5,20 @@
 \title{Get synonyms for a single species}
 \usage{
 TNRS_synonyms(
-  taxonomic_names,
+  taxonomic_name,
   source = "wcvp",
   skip_internet_check = FALSE,
   ...
 )
 }
 \arguments{
+\item{taxonomic_name}{Data.frame containing a single row and two columns: 1) Row number, 2) Taxonomic name to get synonyms of. Alternatively, a character vector of names can be supplied.}
+
 \item{source}{Character. Taxonomic source (1) to use. Default is "wcvp". Options include "wfo", and "wcvp".}
 
 \item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
 
 \item{...}{Additional parameters passed to internal functions}
-
-\item{taxonomic_name}{Data.frame containing a single row and two columns: 1) Row number, 2) Taxonomic name to get synonyms of. Alternatively, a character vector of names can be supplied.}
 }
 \value{
 Dataframe containing TNRS results.
@@ -34,7 +34,7 @@ wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
 \examples{
 {
 
-TNRS_synonyms(taxonomic_names = "Palicourea elata")
+TNRS_synonyms(taxonomic_name = "Palicourea elata")
 
 }
 }
