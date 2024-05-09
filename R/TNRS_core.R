@@ -91,7 +91,7 @@ TNRS_core <- function(url = "https://tnrsapi.xyz/tnrs_api.php",
 
   if (results_json$status_code != 200) {
     message(paste("Problem with the API: HTTP Status", results_json$status_code))
-    # fromJSON(rawToChar(results_json$content))
+    message(fromJSON(rawToChar(results_json$content)))
 
     return(invisible(NULL))
   }
