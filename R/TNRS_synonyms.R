@@ -38,16 +38,23 @@ TNRS_synonyms <- function(taxonomic_names,
   # Make sure only one name is supplied
 
   if (nrow(taxonomic_names) != 1) {
-    stop("This function can only take one taxonomic name at a time.")
+    message("This function can only take one taxonomic name at a time.")
+    return(invisible(NULL))
   }
 
   # Make sure only one source is supplied
 
   if (length(source) != 1) {
-    stop("This function requires one (and only one) source be specified.")
+    message("This function requires one (and only one) source be specified.")
+    return(invisible(NULL))
   }
 
+  # Check source validity
 
+  if (!source %in% c("wcvp", "wfo")) {
+    message("Source ", source, " is not a valid option. Please choose from wcvp or wfo")
+    return(invisible(NULL))
+  }
 
   # Convert the data to JSON
 
