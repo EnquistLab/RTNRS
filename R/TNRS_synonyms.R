@@ -2,12 +2,12 @@
 #"
 #' Get synonyms for a single species
 #' @param taxonomic_name Data.frame containing a single row and two columns: 1) Row number, 2) Taxonomic name to get synonyms of. Alternatively, a character vector of names can be supplied.
-#' @param source Character. Taxonomic source (1) to use. Default is "wcvp". Options include "wfo", and "wcvp".
+#' @param source Character. Taxonomic source (1) to use. Default is "wcvp". Options include "wfo", "wcvp", and "cact".
 #' @param skip_internet_check Should the check for internet connectivity be skipped? Default is FALSE.
 #' @param ... Additional parameters passed to internal functions
 #' @return Dataframe containing TNRS results.
 #' @note This function only handles a single source and a single taxonomic name at a time. This is by design.
-#' @note wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
+#' @note wfo = World Flora Online, wcvp = World Checklist of Vascular Plants, cact = Cactaceae at Caryophyllales.org
 #' @import httr
 #' @export
 #' @importFrom jsonlite toJSON fromJSON
@@ -51,7 +51,7 @@ TNRS_synonyms <- function(taxonomic_name,
 
   # Check source validity
 
-  if (!source %in% c("wcvp", "wfo")) {
+  if (!source %in% c("wcvp", "wfo", "cact")) {
     message("Source ", source, " is not a valid option. Please choose from wcvp or wfo")
     return(invisible(NULL))
   }

@@ -14,7 +14,7 @@ TNRS_synonyms(
 \arguments{
 \item{taxonomic_name}{Data.frame containing a single row and two columns: 1) Row number, 2) Taxonomic name to get synonyms of. Alternatively, a character vector of names can be supplied.}
 
-\item{source}{Character. Taxonomic source (1) to use. Default is "wcvp". Options include "wfo", and "wcvp".}
+\item{source}{Character. Taxonomic source (1) to use. Default is "wcvp". Options include "wfo", "wcvp", and "cact".}
 
 \item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
 
@@ -29,7 +29,7 @@ Get synonyms for a single species
 \note{
 This function only handles a single source and a single taxonomic name at a time. This is by design.
 
-wfo = World Flora Online, wcvp = World Checklist of Vascular Plants.
+wfo = World Flora Online, wcvp = World Checklist of Vascular Plants, cact = Cactaceae at Caryophyllales.org
 }
 \examples{
 {
