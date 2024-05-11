@@ -12,16 +12,16 @@ TNRS_synonyms(
 )
 }
 \arguments{
-\item{taxonomic_name}{Data.frame containing a single row and two columns: 1) Row number, 2) Taxonomic name to get synonyms of. Alternatively, a character vector of names can be supplied.}
+\item{taxonomic_name}{Data.frame containing a single row and two columns: 1) Row number, 2) Taxonomic name to get synonyms of. Alternatively, a single name cane be supplied as a character string.}
 
-\item{source}{Character. Taxonomic source (1) to use. Default is "wcvp". Options include "wfo", "wcvp", and "cact".}
+\item{source}{Character. A single taxonomic source to use. Default is "wcvp". Options include "wfo", "wcvp", and "cact".}
 
 \item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
 
 \item{...}{Additional parameters passed to internal functions}
 }
 \value{
-Dataframe containing TNRS results.
+Dataframe containing synonyms and associated data for a single species.
 }
 \description{
 Get synonyms for a single species
@@ -34,7 +34,7 @@ wfo = World Flora Online, wcvp = World Checklist of Vascular Plants, cact = Cact
 \examples{
 {
 
-TNRS_synonyms(taxonomic_name = "Palicourea elata")
+TNRS_synonyms(taxonomic_name = "Sabal palmetto",source =  "wfo")
 
 }
 }

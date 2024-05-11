@@ -3,7 +3,10 @@
 ===============
 
 ## NEW FEATURES
+
 * A new functions, TNRS_synonyms, has been added. This returns all synonyms for a single species from a single source.
+
+* Added tests for TNRS_synonyms
 
 ## Bug Fixes
 
@@ -13,6 +16,7 @@
 ===============
 
 ## NEW FEATURES
+
 * A new source has been added, "cact", which contains only species within the Cactaceae.
 
 ## Bug Fixes
