@@ -13,3 +13,6 @@ Before submitting names to the TNRS, we strongly recommend that you exclude any 
 * **"There appears to be a problem reaching the API."** This message is shown if an error is thrown when using the POST() in the httr package to connect to the API.  This is usually caused by temporary server outages (e.g. due to upgrades), but may also occur due to issues with curl, as noted here: https://github.com/EnquistLab/RTNRS/issues/7#issuecomment-1094680196
 * **"Problem with the API: HTTP Status ..."** This message is returned when the API connection is successful, but the API returns a status message indicating that something weird happened.  The status code shown can be consulted to figure out what might have gone wrong.
 * **"There seems to be a problem with the query, which returned the following: ..."** This message is shown if the API returns content that cannot be properly parsed.
+
+  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11186237.svg)](https://doi.org/10.5281/zenodo.11186237)
+
