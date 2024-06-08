@@ -42,15 +42,15 @@ TNRS_base <- function(taxonomic_names,
 
   if (any(grepl(
     pattern = "|",
-    x = taxonomic_names$taxonomic_names,
+    x = taxonomic_names[, 2],
     fixed = TRUE
   ))) {
     warning("A pipe was found in the supplied names. Removing it.")
 
-    taxonomic_names$taxonomic_names <- gsub(
+    taxonomic_names[, 2] <- gsub(
       pattern = "|",
       replacement = "",
-      x = taxonomic_names$taxonomic_names,
+      x = taxonomic_names[, 2],
       fixed = TRUE
     )
   }
