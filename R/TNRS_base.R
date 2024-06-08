@@ -40,7 +40,11 @@ TNRS_base <- function(taxonomic_names,
 
   # Strip and "|" and issue warning
 
-  if (any(grepl(pattern = "|", x = taxonomic_names$taxonomic_names))) {
+  if (any(grepl(
+    pattern = "|",
+    x = taxonomic_names$taxonomic_names,
+    fixed = TRUE
+  ))) {
     warning("A pipe was found in the supplied names. Removing it.")
 
     taxonomic_names$taxonomic_names <- gsub(
