@@ -21,7 +21,8 @@ TNRS_core <- function(url = "https://tnrsapi.xyz/tnrs_api.php",
                       classification = "wfo",
                       matches = "best",
                       accuracy = NULL,
-                      batches = NULL) {
+                      batches = NULL,
+                      ...) {
   # reformat sources if need  be (only likely when using internal function externally)
 
   if (length(sources) > 1) {

@@ -12,7 +12,8 @@ TNRS_core(
   classification = "wfo",
   matches = "best",
   accuracy = NULL,
-  batches = NULL
+  batches = NULL,
+  ...
 )
 }
 \arguments{

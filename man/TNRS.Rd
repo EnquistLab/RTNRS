@@ -12,6 +12,7 @@ TNRS(
   matches = "best",
   accuracy = NULL,
   skip_internet_check = FALSE,
+  name_limit = 5000,
   ...
 )
 }
@@ -29,6 +30,8 @@ TNRS(
 \item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned. If left NULL, the default threshold will be used.}
 
 \item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
+
+\item{name_limit}{Numeric. The maximum number of names to check in one batch.  The default is 5000 and is usually the fastest option.  This cannot exceed 5000.}
 
 \item{...}{Additional parameters passed to internal functions}
 }

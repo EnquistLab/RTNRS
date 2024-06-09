@@ -8,6 +8,7 @@
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned. If left NULL, the default threshold will be used.
 #' @param skip_internet_check Should the check for internet connectivity be skipped? Default is FALSE.
+#' @param name_limit Numeric. The maximum number of names to check in one batch.  The default is 5000 and is usually the fastest option.  This cannot exceed 5000.
 #' @param ... Additional parameters passed to internal functions
 #' @return Dataframe containing TNRS results.
 #' @note wfo = World Flora Online, wcvp = World Checklist of Vascular Plants, cact = Cactaceae at Caryophyllales.org.
@@ -32,6 +33,7 @@ TNRS <- function(taxonomic_names,
                  matches = "best",
                  accuracy = NULL,
                  skip_internet_check = FALSE,
+                 name_limit = 5000,
                  ...) {
   # Check for internet access
   if (!skip_internet_check) {
@@ -49,7 +51,11 @@ TNRS <- function(taxonomic_names,
 
 
   # Specify the limit of names for the TNRS
-  name_limit <- 5000
+
+  if (name_limit > 5000) {
+    message("name_limit cannot exceed 5000, fixing")
+    name_limit <- 5000
+  }
 
   # Check that accuracy makes sense
 
