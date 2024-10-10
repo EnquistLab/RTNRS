@@ -4,6 +4,8 @@
 
 ## NEW FEATURES
 
+* Added experimental new function "TNRS_robust" which functions identically to "TNRS", but checks for some very rare errors that can occur sporadically.
+
 ## Bug Fixes
 
 * Added code to remove pipes from species names, as these cause errors.
