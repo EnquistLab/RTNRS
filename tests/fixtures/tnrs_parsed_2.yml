@@ -17,7 +17,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Sat, 11 May 2024 01:48:51 GMT
+      date: Thu, 10 Oct 2024 19:15:16 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '1115'
@@ -29,5 +29,5 @@ http_interactions:
         rubrum","Family":"","Genus":"Acer","Specific_epithet":"rubrum","Infraspecific_rank":"","Infraspecific_epithet":"","Infraspecific_rank_2":"","Infraspecific_epithet_2":"","Author":"","Annotations":"","Unmatched_terms":"","WarningsEng":null},{"ID":"3","Name_submitted":"Xanthium
         strumarium","Family":"","Genus":"Xanthium","Specific_epithet":"strumarium","Infraspecific_rank":"","Infraspecific_epithet":"","Infraspecific_rank_2":"","Infraspecific_epithet_2":"","Author":"","Annotations":"","Unmatched_terms":"","WarningsEng":null},{"ID":"4","Name_submitted":"Abies
         alba","Family":"","Genus":"Abies","Specific_epithet":"alba","Infraspecific_rank":"","Infraspecific_epithet":"","Infraspecific_rank_2":"","Infraspecific_epithet_2":"","Author":"","Annotations":"","Unmatched_terms":"","WarningsEng":null}]'
-  recorded_at: 2024-05-11 01:48:52 GMT
-  recorded_with: vcr/1.2.2, webmockr/0.9.0
+  recorded_at: 2024-10-10 19:15:16 GMT
+  recorded_with: vcr/1.6.0, webmockr/1.0.0

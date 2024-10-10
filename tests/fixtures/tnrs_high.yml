@@ -17,7 +17,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Sat, 11 May 2024 01:48:52 GMT
+      date: Thu, 10 Oct 2024 19:15:16 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '3297'
@@ -34,5 +34,5 @@ http_interactions:
         match found]","Name_score":"","Name_matched_rank":"","Author_submitted":"","Author_matched":"","Author_score":"","Canonical_author":"","Name_matched_accepted_family":"","Genus_submitted":"Brad","Genus_matched":"","Genus_score":"","Specific_epithet_submitted":"boyle","Specific_epithet_matched":"","Specific_epithet_score":"","Family_submitted":"","Family_matched":"","Family_score":"","Infraspecific_rank":"","Infraspecific_epithet_matched":"","Infraspecific_epithet_score":"","Infraspecific_rank_2":"","Infraspecific_epithet_2_matched":"","Infraspecific_epithet_2_score":"","Annotations":"","Unmatched_terms":"Brad
         boyle","Name_matched_url":"","Name_matched_lsid":"","Phonetic":"","Taxonomic_status":"","Accepted_name":"","Accepted_species":"","Accepted_name_author":"","Accepted_name_id":"","Accepted_name_rank":"","Accepted_name_url":"","Accepted_name_lsid":"","Accepted_family":"","Overall_score_order":"","Highertaxa_score_order":"","Source":"","Warnings":"","WarningsEng":"[Partial]
         [HigherTaxa]"}]'
-  recorded_at: 2024-05-11 01:48:53 GMT
-  recorded_with: vcr/1.2.2, webmockr/0.9.0
+  recorded_at: 2024-10-10 19:15:17 GMT
+  recorded_with: vcr/1.6.0, webmockr/1.0.0

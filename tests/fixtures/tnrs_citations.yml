@@ -16,10 +16,10 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Sat, 11 May 2024 01:48:58 GMT
+      date: Thu, 10 Oct 2024 19:15:27 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
-      content-length: '2249'
+      content-length: '3146'
       content-type: application/json
     body:
       encoding: ''
@@ -30,17 +30,28 @@ http_interactions:
         S. and Freeland, C. and Peet, R. K. and Enquist, B. J.}, journal = {BMC Bioinformatics},
         number = {1}, pages = {16}, title = {The taxonomic name resolution service:
         an online tool for automated standardization of plant names}, volume = {14},
-        year = {2013}, doi = {10.1186\/1471-2105-14-16}  }"},{"source":"tnrs","citation":"@misc{tnrs,
+        year = {2013}, doi = {10.1186\/1471-2105-14-16}  }"},{"source":"tnrs_pub","citation":"@article{tnrspub,
+        author = {Boyle, B. and Hopkins, N. and Lu, Z. and Garay, J. A. R. and Mozzherin,
+        D. and Rees, T. and Matasci, N. and Narro, M. L. and Piel, W. H. and McKay,
+        S. J. and Lowry, S. and Freeland, C. and Peet, R. K. and Enquist, B. J.},
+        journal = {BMC Bioinformatics}, number = {1}, pages = {16}, title = {The taxonomic
+        name resolution service: an online tool for automated standardization of plant
+        names}, volume = {14}, year = {2013}, doi = {10.1186\/1471-2105-14-16} }"},{"source":"tnrs","citation":"@misc{tnrs,
         author = {Boyle, B. L. and Matasci, N. and Mozzherin, D. and Rees, T. and
         Barbosa, G. C. and Kumar Sajja, R. and Enquist, B. J.}, journal = {Botanical
         Information and Ecology Network}, title = {Taxonomic Name Resolution Service,
         version 5.1}, year = {2021}, url = {https:\/\/tnrs.biendata.org\/}, note =
-        {Accessed <date_of_access>} }"},{"source":"wfo","citation":"@dataset{wfo,
-        author = {The World Flora Online Consortium and Elliott, A., Hyam, R. and  Ulate,
-        W.},  title = {World Flora Online Plant List June 2023},  month = jun,  year
-        = 2023,  publisher = {Zenodo},  version = {2023-06},  doi = {10.5281\/zenodo.8079052},  url
-        = {https:\/\/doi.org\/10.5281\/zenodo.8079052},  note = {Accessed Jan 10,
-        2024} }"},{"source":"wcvp","citation":"@misc{wcvp, author = {{Govaerts R (ed.)}},
+        {Accessed <date_of_access>} }"},{"source":"tnrs","citation":"@misc{tnrs, author
+        = {Boyle, B. L. and Matasci, N. and Mozzherin, D. and Rees, T. and Barbosa,
+        G. C. and Kumar Sajja, R. and Enquist, B. J.}, journal = {Botanical Information
+        and Ecology Network}, title = {Taxonomic Name Resolution Service, version
+        5.1}, year = {2021}, url = {https:\/\/tnrs.biendata.org\/}, note = {Accessed
+        <date_of_access>} }"},{"source":"wfo","citation":"@dataset{wfo, author = {The
+        World Flora Online Consortium and Elliott, A., Hyam, R. and  Ulate, W.},  title
+        = {World Flora Online Plant List June 2023},  month = jun,  year = 2023,  publisher
+        = {Zenodo},  version = {2023-06},  doi = {10.5281\/zenodo.8079052},  url =
+        {https:\/\/doi.org\/10.5281\/zenodo.8079052},  note = {Accessed Jan 10, 2024}
+        }"},{"source":"wcvp","citation":"@misc{wcvp, author = {{Govaerts R (ed.)}},
         publisher = {Royal Botanic Gardens, Kew}, title = {WCVP: World Checklist of
         Vascular Plants, Version 12}, year = {2023}, url = {http:\/\/sftp.kew.org\/pub\/data-repositories\/WCVP\/},
         note = {Accessed 8 January 2024} }"},{"source":"cact","citation":"@article{cact,  author
@@ -52,5 +63,5 @@ http_interactions:
         = 2021,  journal = {Willdenowia},  volume = 51,  number = 2,  pages = {251-271},  version
         = {2023-06},  doi = {10.3372\/wi.51.51208},  url = {https:\/\/caryophyllales.org\/cactaceae\/Checklist},  note
         = {Accessed 2023-11-02}}\n"}]'
-  recorded_at: 2024-05-11 01:48:58 GMT
-  recorded_with: vcr/1.2.2, webmockr/0.9.0
+  recorded_at: 2024-10-10 19:15:27 GMT
+  recorded_with: vcr/1.6.0, webmockr/1.0.0

@@ -77,7 +77,7 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Sat, 11 May 2024 01:48:37 GMT
+      date: Thu, 10 Oct 2024 19:15:00 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
       transfer-encoding: chunked
@@ -522,5 +522,5 @@ http_interactions:
         & Stapf","Name_matched_accepted_family":"Peridiscaceae","Genus_submitted":"Soyauxia","Genus_matched":"Soyauxia","Genus_score":"1","Specific_epithet_submitted":"grandifolia","Specific_epithet_matched":"grandifolia","Specific_epithet_score":"1","Family_submitted":"Peridiscaceae","Family_matched":"Peridiscaceae","Family_score":"1","Infraspecific_rank":"","Infraspecific_epithet_matched":"","Infraspecific_epithet_score":"","Infraspecific_rank_2":"","Infraspecific_epithet_2_matched":"","Infraspecific_epithet_2_score":"","Annotations":"","Unmatched_terms":"","Name_matched_url":"https:\/\/powo.science.kew.org\/taxon\/urn:lsid:ipni.org:names:675632-1","Name_matched_lsid":"","Phonetic":"Y","Taxonomic_status":"Accepted","Accepted_name":"Soyauxia
         grandifolia","Accepted_species":"Soyauxia grandifolia","Accepted_name_author":"Gilg
         & Stapf","Accepted_name_id":"1064888","Accepted_name_rank":"species","Accepted_name_url":"https:\/\/powo.science.kew.org\/taxon\/urn:lsid:ipni.org:names:675632-1","Accepted_name_lsid":"","Accepted_family":"Peridiscaceae","Overall_score_order":"1","Highertaxa_score_order":"1","Source":"wcvp","Warnings":"0","WarningsEng":""}]'
-  recorded_at: 2024-05-11 01:48:41 GMT
-  recorded_with: vcr/1.2.2, webmockr/0.9.0
+  recorded_at: 2024-10-10 19:15:07 GMT
+  recorded_with: vcr/1.6.0, webmockr/1.0.0

@@ -16,69 +16,18 @@ http_interactions:
       reason: OK
       message: 'Success: (200) OK'
     headers:
-      date: Sat, 11 May 2024 01:48:59 GMT
+      date: Thu, 10 Oct 2024 19:15:28 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
-      content-length: '7924'
+      content-length: '611'
       content-type: application/json
     body:
       encoding: ''
       file: no
       string: '[{"submitted_name":"Sabal palmetto","matched_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"212706","syn_nameWithAuthor":"Inodes
-        blackburniana (Schult. & Schult.f.) O.F.Cook","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000217483"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"212711","syn_nameWithAuthor":"Inodes
-        palmetto (Walter) O.F.Cook","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000217488"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"212715","syn_nameWithAuthor":"Inodes
-        schwarzii O.F.Cook","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000217492"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"294250","syn_nameWithAuthor":"Sabal
-        bahamensis (Becc.) L.H.Bailey","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299260"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"294276","syn_nameWithAuthor":"Sabal
-        jamesiana Small","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299287"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"294292","syn_nameWithAuthor":"Sabal
-        palmetto var. bahamensis Becc.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299303"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"294293","syn_nameWithAuthor":"Sabal
-        parviflora Becc.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299304"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"294302","syn_nameWithAuthor":"Sabal
-        schwarzii (O.F.Cook) Becc.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299313"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"294311","syn_nameWithAuthor":"Sabal
-        viatoris L.H.Bailey","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299322"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"614475","syn_nameWithAuthor":"Sabal
-        blackburniana Schult. & Schult.f.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000621502"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"831714","syn_nameWithAuthor":"Chamaerops
-        palmetto (Walter) Michx.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000839968"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"917422","syn_nameWithAuthor":"Corypha
-        palmetto Walter","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000925835"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"917437","syn_nameWithAuthor":"Corypha
-        umbraculifera Jacq.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000925850"},{"submitted_name":"Sabal
-        palmetto","matched_nameWithAuthor":"Sabal palmetto (Walter) Lodd. ex Schult.
-        & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameID":"294291","accepted_nameWithAuthor":"Sabal
-        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameID":"1252409","syn_nameWithAuthor":"Sabal
-        blackburniana Glazebr.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0001269242"}]'
-  recorded_at: 2024-05-11 01:48:59 GMT
-  recorded_with: vcr/1.2.2, webmockr/0.9.0
+        palmetto (Walter) Lodd. ex Schult. & Schult.f.","matched_taxonomicStatus":"Accepted","accepted_nameWithAuthor":"Sabal
+        palmetto (Walter) Lodd. ex Schult. & Schult.f.","accepted_source":"wfo","accepted_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299302","syn_nameWithAuthor":"Sabal
+        palmetto var. bahamensis Becc.","syn_taxonomicStatus":"Synonym","syn_source":"wfo","syn_nameUrl":"https:\/\/www.worldfloraonline.org\/taxon\/wfo-0000299303","accepted_nameWithAuthor_strict":"Sabal
+        palmetto (Walter) Lodd. ex Schult. & Schult.f."}]'
+  recorded_at: 2024-10-10 19:15:29 GMT
+  recorded_with: vcr/1.6.0, webmockr/1.0.0

@@ -3,6 +3,7 @@
 export(TNRS)
 export(TNRS_citations)
 export(TNRS_metadata)
+export(TNRS_robust)
 export(TNRS_sources)
 export(TNRS_synonyms)
 export(TNRS_version)
