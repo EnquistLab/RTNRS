@@ -28,13 +28,18 @@ tnrs_threshold <- function(search_mode = c("normal", "extended")) {
 #' @param query,candidate Character vectors, recycled to a common length.
 #' @param rank One of "family", "genus" or "epithet", selecting the parameters.
 #' @param search_mode "normal" or "extended".
+#' @param query_key,candidate_key Optional precomputed phonetic keys.  The
+#'   reference keys are already held by the blocking index, and recomputing them
+#'   for every query dominates the run time, so callers matching many names
+#'   against a reference should pass them in.
 #' @return A data.frame with columns \code{match}, \code{phonetic} and
 #'   \code{edit_distance}.
 #' @keywords internal
 #' @noRd
 tnrs_match_component <- function(query, candidate,
                                  rank = c("genus", "family", "epithet"),
-                                 search_mode = c("normal", "extended")) {
+                                 search_mode = c("normal", "extended"),
+                                 query_key = NULL, candidate_key = NULL) {
   rank <- match.arg(rank)
   search_mode <- match.arg(search_mode)
 
@@ -74,7 +79,13 @@ tnrs_match_component <- function(query, candidate,
     (shorter < 6 & ratio > th$ratio_short) |
     (shorter >= 6 & ratio > th$ratio)
 
-  phonetic <- tnrs_near_match(query, key_type) == tnrs_near_match(candidate, key_type)
+  if (is.null(query_key)) {
+    query_key <- tnrs_near_match(query, key_type)
+  }
+  if (is.null(candidate_key)) {
+    candidate_key <- tnrs_near_match(candidate, key_type)
+  }
+  phonetic <- rep_len(query_key, n) == rep_len(candidate_key, n)
 
   first_ok <- ed < 2 | substr(candidate, 1, 1) == substr(query, 1, 1)
   # Epithets additionally require the first three characters to agree at ED 4
