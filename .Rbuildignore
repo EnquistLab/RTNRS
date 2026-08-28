@@ -9,3 +9,5 @@
 ^old_builds$
 ^CRAN-SUBMISSION$
 LICENSE.md
+^dev_notes$
+^\.github$
