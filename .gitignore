@@ -8,3 +8,8 @@ RTNRS.Rproj
 /doc/
 /Meta/
 dev_notes/
+
+# compiled objects
+src/*.o
+src/*.so
+src/*.dll
