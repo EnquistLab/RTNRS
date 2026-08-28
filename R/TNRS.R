@@ -59,7 +59,7 @@ TNRS <- function(taxonomic_names,
 
   # Check that accuracy makes sense
 
-  if (!class(accuracy) %in% c("NULL", "numeric")) {
+  if (!inherits(x = accuracy, what = c("NULL", "numeric"))) {
     stop("accuracy should be either numeric between 0 and 1, or NULL")
   }
 
@@ -124,68 +124,46 @@ TNRS <- function(taxonomic_names,
     ) # Character used to create the bar
 
 
+    results <- NULL
+
     for (i in 1:nchunks) {
-      # Use the first batch of results to set up the output file
-      if (i == 1) {
-        results <- TNRS_base(
-          taxonomic_names = taxonomic_names[(((i - 1) * name_limit) + 1):(i * name_limit), ],
-          sources = sources,
-          classification = classification,
-          mode = mode,
-          matches = matches,
-          accuracy = accuracy,
-          skip_internet_check = skip_internet_check,
-          ...
+      # Rows covered by this batch.  The final batch may be a partial one.
+
+      first_row <- ((i - 1) * name_limit) + 1
+      last_row <- min(i * name_limit, nrow(taxonomic_names))
+
+      results_i <- TNRS_base(
+        taxonomic_names = taxonomic_names[first_row:last_row, ],
+        sources = sources,
+        classification = classification,
+        mode = mode,
+        matches = matches,
+        accuracy = accuracy,
+        skip_internet_check = skip_internet_check,
+        ...
+      )
+
+      # A failed batch returns NULL.  Warn rather than dropping the names
+      # silently, since the remaining batches may still succeed.
+
+      if (is.null(results_i)) {
+        warning(
+          "No results returned for rows ", first_row, " to ", last_row,
+          ". These names are missing from the output."
         )
-
-        # results<-matrix(nrow = nrow(taxonomic_names),ncol = ncol(results_i))
-        # $results <- as.data.frame(results,stringsAsFactors = F)
-        # colnames(results)<-colnames(results_i)
-        # results[(((i-1)*name_limit)+1):(i*name_limit),]<-results_i
-        # rm(results_i)
-      } # for first batch
-
-
-      # For last batch
-      if (i == nchunks) {
-        results <- rbind(
-          results,
-          TNRS_base(
-            taxonomic_names = taxonomic_names[(((i - 1) * name_limit) + 1):(nrow(taxonomic_names)), ],
-            sources = sources,
-            classification = classification,
-            mode = mode,
-            matches = matches,
-            accuracy = accuracy,
-            skip_internet_check = skip_internet_check,
-            ...
-          )
-        )
-      } # last batch
-
-
-      # middle bits
-      if (i != nchunks & i != 1) {
-        results <- rbind(
-          results,
-          TNRS_base(
-            taxonomic_names = taxonomic_names[(((i - 1) * name_limit) + 1):(i * name_limit), ],
-            sources = sources,
-            classification = classification,
-            mode = mode,
-            matches = matches,
-            accuracy = accuracy,
-            skip_internet_check = skip_internet_check,
-            ...
-          )
-        )
-      } # middle bits
+      } else {
+        results <- rbind(results, results_i)
+      }
 
       setTxtProgressBar(pb, i)
     } # i loop
-  } # if more than 10k
 
+    close(pb)
+  } # if more than name_limit
 
-  close(pb)
+  if (is.null(results)) {
+    return(invisible(NULL))
+  }
+
   return(results)
 } # fx

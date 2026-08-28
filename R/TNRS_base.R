@@ -83,11 +83,20 @@ TNRS_base <- function(taxonomic_names,
     ...
   )
 
+  # If the API call failed, TNRS_core has already issued a message.  Pass the
+  # NULL along rather than attempting to reformat it.
+
+  if (is.null(results)) {
+    return(invisible(NULL))
+  }
+
   # reformat score columns to numeric
 
   score_cols <- colnames(results)[grep(pattern = "_score$", x = colnames(results))]
 
-  results[, score_cols] <- sapply(results[, score_cols], as.numeric)
+  if (length(score_cols) > 0) {
+    results[, score_cols] <- sapply(results[, score_cols], as.numeric)
+  }
 
   # Return results
   return(results)

@@ -60,7 +60,7 @@ TNRS_robust <- function(taxonomic_names,
 
   # Check that accuracy makes sense
 
-  if (!class(accuracy) %in% c("NULL", "numeric")) {
+  if (!inherits(x = accuracy, what = c("NULL", "numeric"))) {
     stop("accuracy should be either numeric between 0 and 1, or NULL")
   }
 
@@ -113,75 +113,75 @@ TNRS_robust <- function(taxonomic_names,
   #                    skip_internet_check = skip_internet_check)
 
 
-  # Evaluate names for erroneous assignment
+  # If the query failed entirely there is nothing to check or re-do
 
-  # first_stab$Unmatched_terms[1] <- first_stab$Name_submitted[1] #for testing
+  if (is.null(first_stab)) {
+    return(invisible(NULL))
+  }
 
-  # first_stab %>%
-  #   filter((Name_submitted == Unmatched_terms) & !is.na(Overall_score)) -> bad_output
+  # Evaluate names for erroneous assignment.  A result is suspicious when the
+  # whole submitted name was returned as unmatched, yet a score was assigned.
+  # Note that IDs, not rows, are tracked: with matches = "all" a single name
+  # yields several rows, and all of them must be re-done together.
 
-  first_stab[which((first_stab$Name_submitted == first_stab$Unmatched_terms) &
-    !is.na(first_stab$Overall_score)), ] -> bad_output
+  suspicious_ids <- function(x) {
+    unique(x$ID[which(x$Name_submitted == x$Unmatched_terms &
+      !is.na(x$Overall_score))])
+  }
 
-  # Set aside correctly assigned names
+  bad_ids <- suspicious_ids(first_stab)
 
-  #
-  #     first_stab %>%
-  #       filter(Name_submitted!=Unmatched_terms |
-  #                (Name_submitted == Unmatched_terms) & is.na(Overall_score)) -> first_stab2
-
-  first_stab[which((first_stab$Name_submitted != first_stab$Unmatched_terms) |
-    (first_stab$Name_submitted == first_stab$Unmatched_terms & is.na(first_stab$Overall_score))), ] -> first_stab2
-
-
-  if (nrow(bad_output) == 0) {
+  if (length(bad_ids) == 0) {
     return(first_stab)
   }
 
-  message("Detected ", nrow(bad_output), " suspicious results. Re-doing.")
+  message("Detected ", length(bad_ids), " suspicious results. Re-doing.")
+
+  # Set aside correctly assigned names, and hold the suspicious ones for retry
+
+  results <- first_stab[!first_stab$ID %in% bad_ids, ]
+  pending <- first_stab[first_stab$ID %in% bad_ids, ]
 
   # Try to re-do erroneous names
 
   attempt <- 0
 
-  while (attempt > attempts) {
+  while (attempt < attempts && length(bad_ids) > 0) {
     revised_output <- TNRS(
-      taxonomic_names = bad_output[, c(1, 2)],
+      taxonomic_names = unique(pending[, c(1, 2)]),
       sources = sources,
       classification = classification,
       mode = mode,
       matches = matches,
       accuracy = accuracy,
-      skip_internet_check = skip_internet_check
+      skip_internet_check = skip_internet_check,
+      ...
     )
 
-    # revised_output %>%
-    #   filter((Name_submitted == Unmatched_terms) & !is.na(Overall_score)) -> bad_output
+    # Keep the previous attempt's results rather than losing the names if the
+    # API becomes unavailable partway through
 
-    revised_output[which((revised_output$Name_submitted == revised_output$Unmatched_terms) &
-      !is.na(revised_output$Overall_score)), ] -> bad_output
-
-
-    # revised_output %>%
-    #   filter(Name_submitted != Unmatched_terms |
-    #            (Name_submitted == Unmatched_terms) & is.na(Overall_score)) -> ok_revised
-
-    revised_output[which((revised_output$Name_submitted != revised_output$Unmatched_terms) |
-      (revised_output$Name_submitted == revised_output$Unmatched_terms &
-        is.na(revised_output$Overall_score))), ] -> ok_revised
-
-
-
-    # first_stab <- bind_rows(first_stab,ok_revised)
-
-    first_stab <- rbind(first_stab, ok_revised)
-
-    attempt <- attempt + 1
-
-    if (nrow(bad_output) == 0) {
+    if (is.null(revised_output)) {
       break
     }
+
+    bad_ids <- suspicious_ids(revised_output)
+
+    results <- rbind(results, revised_output[!revised_output$ID %in% bad_ids, ])
+    pending <- revised_output[revised_output$ID %in% bad_ids, ]
+
+    attempt <- attempt + 1
   }
 
-  return(first_stab)
+  # Retain any names that were still suspicious when the attempts ran out, so
+  # that nothing is dropped from the output
+
+  results <- rbind(results, pending)
+
+  # Restore the order in which the names were submitted
+
+  results <- results[order(match(results$ID, first_stab$ID)), ]
+  rownames(results) <- NULL
+
+  return(results)
 }
