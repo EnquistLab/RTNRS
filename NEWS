@@ -1,4 +1,27 @@
 ===============
+# TNRS 0.3.8
+===============
+
+## NEW FEATURES
+
+## Bug Fixes
+
+* Fixed the retry loop in "TNRS_robust", which used the wrong comparison and so
+  never executed.  Suspicious results are now actually re-queried.
+* "TNRS_robust" now tracks suspicious results by name ID rather than by row, so
+  that all matches for a name are re-done together when matches = "all", and
+  re-done names no longer appear twice in the output.  Results are returned in
+  the order the names were submitted, and names that remain suspicious after the
+  final attempt are retained rather than dropped.
+* "TNRS_robust" now passes additional arguments (e.g. url) through to retries.
+* "TNRS_base" no longer errors when the API is unavailable; it returns NULL, as
+  the other functions do.
+* "TNRS" now warns, rather than silently dropping names, when one batch of a
+  multi-batch query fails.
+* Argument checking for "accuracy" now uses inherits() rather than class(),
+  matching the check already used in "TNRS_base".
+
+===============
 # TNRS 0.3.7
 ===============
 
