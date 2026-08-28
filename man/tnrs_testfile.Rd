@@ -3,7 +3,7 @@
 \docType{data}
 \name{tnrs_testfile}
 \alias{tnrs_testfile}
-\title{100 scientific names.}
+\title{100 scientific names}
 \format{
 A data frame with 100 rows and 2 variables:
 \describe{
