@@ -1,4 +1,4 @@
-#' 100 scientific names.
+#' 100 scientific names
 #'
 #' A dataset containing scientific names for 100 taxa.  Names vary in accuracy and correctness.
 #'
