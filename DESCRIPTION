@@ -1,6 +1,6 @@
 Package: TNRS
 Title: Taxonomic Name Resolution Service
-Version: 0.3.8
+Version: 0.4.0
 Authors@R: 
     c(
             person("Brian", "Maitner", email = "bmaitner@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-2118-9880")),
@@ -14,7 +14,8 @@ LazyData: true
 Imports: 
         jsonlite,
         httr,
-        Rcpp
+        Rcpp,
+        nanoparquet
 LinkingTo:
     Rcpp
 Suggests:
