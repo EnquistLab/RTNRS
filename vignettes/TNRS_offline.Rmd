@@ -180,12 +180,18 @@ If your data may contain non-plants, filter on those rather than taking
   otherwise is. This is a property of the published TNRS algorithm, which the
   local version reproduces. In practice it affects under 1% of single-character
   errors, since real misspellings usually preserve the opening.
-* **Second infraspecific ranks are not matched.** A name carrying two
-  infraspecific epithets, such as `Cirsium japonicum var. vestitum f. arakii`,
-  resolves to its parent taxon (here the variety). That is a correct answer as
-  far as it goes - the forma does sit within the variety - but you lose the
-  sub-taxon granularity, so it is reported as `[Partial]` in `WarningsEng`.
-  Such names are rare: none in WCVP v15, and 44 of 1.66 million in WFO 2025-12.
+* **Second infraspecific epithets are matched exactly, but not fuzzily.** A name
+  such as `Cirsium japonicum var. vestitum f. arakii` resolves in full when the
+  source carries it. A *misspelling* of the second epithet does not: the name
+  falls back to its parent taxon, which is correct as far as it goes - the forma
+  does sit within the variety - but loses the sub-taxon granularity, and is
+  reported as `[Partial]` in `WarningsEng`. Such names are rare: none at all in
+  WCVP v15, and 44 of 1.66 million in WFO 2025-12, all of them accepted taxa.
+
+  The web service does not resolve to this level at all. It has the
+  `Infraspecific_rank_2` and `Infraspecific_epithet_2_matched` columns but never
+  populates them, and for two of the three such names tested it returned no
+  match at all.
 * **`Name_matched_lsid` and `Accepted_name_lsid` are always empty**, because the
   sources do not supply them.
 
