@@ -189,27 +189,28 @@ tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
     # Nothing matched below species; fall through to the species-rank answer
   }
 
-  rows <- lapply(seq_along(accepted), function(i) {
-    hits <- tnrs_int_lookup(index$rows_by_species, accepted[i])
-    if (length(hits) == 0) {
-      return(NULL)
-    }
+  # One frame for all the matched species rather than one per species: building
+  # and rbind-ing small data.frames dominated the run time otherwise
+  hits <- lapply(accepted, function(a) {
+    found <- tnrs_int_lookup(index$rows_by_species, a)
     # Prefer the species-rank rows; an infraspecific row would misrepresent a
     # query that carried no infraspecific epithet
-    at_rank <- hits[!nzchar(names$infraspecific_epithet[hits])]
-    if (length(at_rank) > 0) {
-      hits <- at_rank
-    }
-    tnrs_candidate_frame(
-      hits, "species",
-      genus_ed = genus_distance[genus_slot[i]],
-      species_ed = species_distance[i],
-      phonetic = genus_phonetic[genus_slot[i]] && species_phonetic[i]
-    )
+    at_rank <- found[!nzchar(names$infraspecific_epithet[found])]
+    if (length(at_rank) > 0) at_rank else found
   })
-  rows <- do.call(rbind, rows)
 
-  if (is.null(rows)) empty else rows
+  counts <- lengths(hits)
+  if (all(counts == 0)) {
+    return(empty)
+  }
+  from <- rep(seq_along(accepted), counts)
+
+  tnrs_candidate_frame(
+    unlist(hits, use.names = FALSE), "species",
+    genus_ed = genus_distance[genus_slot[from]],
+    species_ed = species_distance[from],
+    phonetic = genus_phonetic[genus_slot[from]] & species_phonetic[from]
+  )
 }
 
 #' Match an infraspecific epithet within already-matched species
@@ -240,22 +241,20 @@ tnrs_match_infraspecific <- function(infra, species_positions, index,
   phonetic <- judged$phonetic[judged$match]
   species_slot <- match(index$infra1$parent[accepted], species_positions)
 
-  rows <- lapply(seq_along(accepted), function(i) {
-    hits <- tnrs_int_lookup(index$rows_by_infra1, accepted[i])
-    if (length(hits) == 0) {
-      return(NULL)
-    }
-    tnrs_candidate_frame(
-      hits, "infra1",
-      genus_ed = genus_distance[species_slot[i]],
-      species_ed = species_distance[species_slot[i]],
-      infra1_ed = distance[i],
-      phonetic = phonetic_so_far[species_slot[i]] && phonetic[i]
-    )
-  })
-  rows <- do.call(rbind, rows)
+  hits <- lapply(accepted, function(a) tnrs_int_lookup(index$rows_by_infra1, a))
+  counts <- lengths(hits)
+  if (all(counts == 0)) {
+    return(NULL)
+  }
+  from <- rep(seq_along(accepted), counts)
 
-  rows
+  tnrs_candidate_frame(
+    unlist(hits, use.names = FALSE), "infra1",
+    genus_ed = genus_distance[species_slot[from]],
+    species_ed = species_distance[species_slot[from]],
+    infra1_ed = distance[from],
+    phonetic = phonetic_so_far[species_slot[from]] & phonetic[from]
+  )
 }
 
 #' Fall back to the genus when the epithet cannot be matched

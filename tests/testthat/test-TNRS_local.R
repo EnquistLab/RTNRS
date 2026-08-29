@@ -248,24 +248,44 @@ test_that("unmatched terms report what the match did not account for", {
   expect_match(leftover$Unmatched_terms, "zzzzqqq")
 })
 
-test_that("a second infraspecific epithet is flagged rather than silently dropped", {
+test_that("a second infraspecific epithet resolves when the source has the name", {
   skip_without_backbone()
 
-  # infra2 is parsed but not matched, so such a name resolves to its parent
-  # taxon.  That is not a wrong answer - the forma does sit within the variety -
-  # but it is an incomplete one, and the score alone would not say so.
+  # WFO carries 44 names with two infraspecific epithets, all accepted taxa.
+  # The web service does not resolve to that level; it returns the parent, or
+  # nothing at all.  These resolve exactly here, via the whole-name lookup.
   parsed <- tnrs_parse("Cirsium japonicum var. vestitum f. arakii")
   expect_equal(parsed$infra1, "vestitum")
   expect_equal(parsed$infra2, "arakii")
 
   result <- TNRS_local("Cirsium japonicum var. vestitum f. arakii", quiet = TRUE)
 
+  expect_equal(result$Name_matched, "Cirsium japonicum var. vestitum f. arakii")
+  expect_equal(result$Name_matched_rank, "form")
+  expect_equal(result$Overall_score, 1)
+  # A complete match carries no warning
+  expect_equal(result$WarningsEng, "")
+})
+
+test_that("an unresolvable second epithet falls back to the parent and says so", {
+  skip_without_backbone()
+
+  # No such forma exists, so the name resolves to the variety it sits within.
+  # That parent is correct as far as it goes, but the resolution is incomplete.
+  result <- TNRS_local("Cirsium japonicum var. vestitum f. zzzzzzz", quiet = TRUE)
+
+  expect_equal(result$Name_matched, "Cirsium japonicum var. vestitum")
   expect_true(bitwAnd(result$Warnings, 1L) > 0L)
   expect_match(result$WarningsEng, "Partial")
-  # The submitted second epithet is reported; nothing was matched to it
-  expect_equal(result$Infraspecific_epithet_2_matched, "")
+})
 
-  # A one-level infraspecific name is not flagged
-  clean <- TNRS_local("Acer rubrum var. rubrum", sources = "wcvp", quiet = TRUE)
-  expect_equal(clean$WarningsEng, "")
+test_that("forma names reach the whole-name lookup despite the rank spelling", {
+  skip_without_backbone()
+
+  # The parser standardizes "f." to "fo." while the sources write "f.", so the
+  # reassembled key never matches these; the whole-name key does.
+  result <- TNRS_local("Acer rubrum f. rubrum", quiet = TRUE)
+
+  expect_equal(result$Name_matched, "Acer rubrum f. rubrum")
+  expect_equal(result$Overall_score, 1)
 })

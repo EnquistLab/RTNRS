@@ -231,7 +231,9 @@ tnrs_select_candidates <- function(query, candidates, backbone, matches,
     conflict <- length(unique(informative)) > 1
   }
 
-  pooled <- do.call(rbind, candidates)
+  # rbind on a one-element list still copies and rebuilds row names, which is
+  # measurable when it runs once per submitted name
+  pooled <- if (length(candidates) == 1L) candidates[[1]] else do.call(rbind, candidates)
 
   # Upstream ranks the candidates twice, under two schemes, and warns where the
   # two disagree about which match is best
