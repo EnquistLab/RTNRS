@@ -2,6 +2,18 @@
 
 The TNRS R package (also known as RTNRS) provides access to the Taxonomic Name Resolution Service API, which  is a tool for automated standardization of plant scientific names. The TNRS corrects spelling errors and alternative spellings to a standard list of names, and converts out of date names (synonyms) to the current accepted name. More information on the TNRS is available on the BIEN website (https://bien.nceas.ucsb.edu/bien/tools/tnrs/), and the code underlying the TNRS is available on Github at https://github.com/ojalaquellueva/tnrsapi.
 
+# Working offline
+
+Names can also be resolved without an internet connection, against a locally cached copy of the taxonomic sources, using the same algorithm as the web service:
+
+```r
+TNRS_local_build()   # one-off download, roughly 200 MB and a few minutes
+results <- TNRS_local(c("Quercuss alba", "Xantium strumarium"))
+TNRS_local_status()  # which sources and versions you resolved against
+```
+
+`TNRS_local()` returns the same columns as `TNRS()`. It is a separate function rather than an option on `TNRS()` because the two do not always give the same answer: the local copy of the sources is usually newer than the one the web service is running, and the local version consults a single source by default rather than blending two. See `vignette("TNRS_offline")` for the differences and how to interpret them.
+
 # Important Note
 
 Before submitting names to the TNRS, we strongly recommend that you exclude any names which are all whitespace, NULL, NA, or empty strings.  These "blank" names may cause the submitted names to become associated with incorrect IDs.  We are working on fixing this bug, but in the meantime we recommend that you omit such names from your queries.
