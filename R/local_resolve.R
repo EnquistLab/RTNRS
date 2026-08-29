@@ -36,7 +36,7 @@ tnrs_candidate_frame <- function(row, matched_rank,
 #' @keywords internal
 #' @noRd
 tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
-                           exact = NULL) {
+                           exact = NULL, exact_full = NULL) {
   index <- backbone$index
   names <- backbone$names
 
@@ -67,6 +67,24 @@ tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
       wanted <- tnrs_reduce_spaces(wanted)
       wanted_rank <- "infra1"
     }
+  }
+
+  # A hit on the whole submitted name is the most specific answer available,
+  # and is the only route to a second infraspecific epithet
+  if (length(exact_full) > 0) {
+    full_rank <- if (nzchar(parsed$infra2)) {
+      "infra2"
+    } else if (nzchar(parsed$infra1)) {
+      "infra1"
+    } else if (nzchar(epithet)) "species" else "genus"
+
+    return(tnrs_candidate_frame(
+      exact_full, full_rank,
+      genus_ed = 0L,
+      species_ed = if (nzchar(epithet)) 0L else NA_integer_,
+      infra1_ed = if (nzchar(parsed$infra1)) 0L else NA_integer_,
+      phonetic = TRUE
+    ))
   }
 
   if (is.null(exact)) {
@@ -373,10 +391,16 @@ tnrs_score_candidates <- function(candidates, parsed, names, source_order = 1L) 
     )
   )
   # A match at the wrong infraspecific rank is accepted but penalised, so that
-  # a correctly ranked alternative outranks it
-  wrong_rank <- !is.na(candidates$infra1_score) & nzchar(parsed$rank1) &
+  # a correctly ranked alternative outranks it.  The row's rank indicator
+  # describes its own rank, so a name matched at the second infraspecific level
+  # must be judged against the second submitted rank, not the first.
+  query_rank <- ifelse(
+    candidates$matched_rank == "infra2", parsed$rank2, parsed$rank1
+  )
+
+  wrong_rank <- !is.na(candidates$infra1_score) & nzchar(query_rank) &
     nzchar(candidates$rank_indicator) &
-    !tnrs_same_rank(parsed$rank1, candidates$rank_indicator)
+    !tnrs_same_rank(query_rank, candidates$rank_indicator)
   candidates$infra1_score[wrong_rank] <-
     candidates$infra1_score[wrong_rank] - tnrs_rank_penalty()
 

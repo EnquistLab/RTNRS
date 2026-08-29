@@ -125,12 +125,36 @@ TNRS_local <- function(taxonomic_names,
   )
   wanted <- tnrs_toupper_ascii(wanted)
 
+  # The reassembled key above stops at the first infraspecific epithet and uses
+  # standardized rank indicators.  The submitted name itself, with the authority
+  # removed, is tried as well: it carries any second infraspecific epithet, and
+  # it uses whatever rank spelling the source does - WFO writes "f." where we
+  # standardize to "fo.", so forma names would otherwise never hit this path.
+  wanted_full <- tnrs_toupper_ascii(tnrs_reduce_spaces(
+    mapply(
+      function(text, author) {
+        if (nzchar(author)) tnrs_remove_first(text, author) else text
+      },
+      pre$cleaned, parsed$authorship, USE.NAMES = FALSE
+    )
+  ))
+  # Only worth trying where it differs from the reassembled key
+  wanted_full[wanted_full == wanted] <- ""
+
   exact_hits <- lapply(sources, function(s) {
     tnrs_lookup_each(backbone[[s]]$index$rows_by_name, wanted)
   })
   names(exact_hits) <- sources
 
-  results <- vector("list", length(submitted))
+  exact_full_hits <- lapply(sources, function(s) {
+    tnrs_lookup_each(backbone[[s]]$index$rows_by_name, wanted_full)
+  })
+  names(exact_full_hits) <- sources
+
+  # Selection happens per name, but the output is assembled once at the end.
+  # Building a wide data.frame per name and rbind-ing them was about a quarter
+  # of the total run time.
+  selected <- vector("list", length(submitted))
 
   for (i in seq_along(submitted)) {
     query <- parsed[i, , drop = FALSE]
@@ -138,7 +162,8 @@ TNRS_local <- function(taxonomic_names,
     per_source <- lapply(seq_along(sources), function(s) {
       candidates <- tnrs_match_one(
         query, backbone[[sources[s]]],
-        exact = exact_hits[[sources[s]]][[i]]
+        exact = exact_hits[[sources[s]]][[i]],
+        exact_full = exact_full_hits[[sources[s]]][[i]]
       )
       if (nrow(candidates) == 0) {
         return(NULL)
@@ -152,17 +177,271 @@ TNRS_local <- function(taxonomic_names,
 
     per_source <- per_source[!vapply(per_source, is.null, logical(1))]
 
-    results[[i]] <- tnrs_assemble_row(
-      id = ids[i], submitted = submitted[i], query = query,
-      candidates = per_source, backbone = backbone,
-      matches = matches, accuracy = accuracy
+    selected[[i]] <- tnrs_select_candidates(
+      query = query, candidates = per_source, backbone = backbone,
+      matches = matches, accuracy = accuracy, query_index = i
     )
   }
 
-  out <- do.call(rbind, results)
-  rownames(out) <- NULL
-  out
+  tnrs_build_output(selected, ids, submitted, parsed, backbone)
 }
+
+#' Choose the rows to report for one submitted name
+#'
+#' Internal.  Returns plain vectors rather than a data.frame: the caller
+#' concatenates them across all names and builds the output once.
+#'
+#' @param query One row of the parsed query.
+#' @param candidates List of scored candidate frames, one per source.
+#' @param backbone The loaded backbone.
+#' @param matches "best" or "all".
+#' @param accuracy Optional score threshold.
+#' @param query_index Position of this name in the submitted batch.
+#' @return A list of equal-length vectors, one entry per output row.
+#' @keywords internal
+#' @noRd
+tnrs_select_candidates <- function(query, candidates, backbone, matches,
+                                   accuracy, query_index) {
+  none <- list(
+    query_index = query_index, row = NA_integer_, source = "",
+    matched_rank = "", overall_score = NA_real_, name_score = NA_real_,
+    author_score = NA_real_, genus_score = NA_real_, species_score = NA_real_,
+    infra1_score = NA_real_, family_score = NA_real_, phonetic = FALSE,
+    ambiguous = FALSE, conflict = FALSE,
+    overall_order = NA_integer_, highertaxa_order = NA_integer_
+  )
+
+  if (length(candidates) == 0) {
+    return(none)
+  }
+
+  # Whether the requested sources led to different accepted names for this
+  # submitted name.  Judged on the best candidate from each source, before they
+  # are pooled and the winner chosen, since pooling hides the disagreement.
+  conflict <- FALSE
+  if (length(candidates) > 1) {
+    per_source_accepted <- vapply(candidates, function(x) {
+      best <- x[1, ]
+      source_names <- backbone[[best$source]]$names
+      accepted <- source_names$accepted_name_id[best$row]
+      if (is.na(accepted)) "" else source_names$scientific_name[accepted]
+    }, character(1))
+
+    informative <- per_source_accepted[nzchar(per_source_accepted)]
+    conflict <- length(unique(informative)) > 1
+  }
+
+  pooled <- do.call(rbind, candidates)
+
+  # Upstream ranks the candidates twice, under two schemes, and warns where the
+  # two disagree about which match is best
+  overall_order <- tnrs_rank_order(pooled, "overall")
+  pooled$Overall_score_order <- order(overall_order)
+  pooled$Highertaxa_score_order <- order(tnrs_rank_order(pooled, "highertaxa"))
+  pooled <- pooled[overall_order, , drop = FALSE]
+
+  # Ambiguous: two *different* names the ordering could not separate.  Upstream
+  # only reaches its ambiguity marker after every comparison including
+  # Source_order has tied, so rows that are merely several records of the same
+  # name do not count - which is most of them.
+  sort_keys <- paste(
+    pooled$rank_index, tnrs_total_edit_distance(pooled),
+    pooled$name_score, pooled$overall_score, pooled$acceptance,
+    pooled$name_matched, pooled$source_order
+  )
+  tied <- sort_keys %in% sort_keys[duplicated(sort_keys)]
+  ambiguous <- tied & ave(
+    pooled$row, sort_keys,
+    FUN = function(rows) rep(length(unique(rows)) > 1L, length(rows))
+  ) == 1L
+
+  if (!is.null(accuracy)) {
+    keep <- !is.na(pooled$overall_score) & pooled$overall_score >= accuracy
+    ambiguous <- ambiguous[keep]
+    pooled <- pooled[keep, , drop = FALSE]
+    if (nrow(pooled) == 0) {
+      return(none)
+    }
+  }
+
+  if (matches == "best") {
+    ambiguous <- ambiguous[1]
+    pooled <- pooled[1, , drop = FALSE]
+  }
+
+  list(
+    query_index = rep(query_index, nrow(pooled)),
+    row = pooled$row,
+    source = pooled$source,
+    matched_rank = pooled$matched_rank,
+    overall_score = pooled$overall_score,
+    name_score = pooled$name_score,
+    author_score = pooled$author_score,
+    genus_score = pooled$genus_score,
+    species_score = pooled$species_score,
+    infra1_score = pooled$infra1_score,
+    family_score = pooled$family_score,
+    phonetic = pooled$phonetic,
+    ambiguous = ambiguous,
+    conflict = rep(conflict, nrow(pooled)),
+    overall_order = pooled$Overall_score_order,
+    highertaxa_order = pooled$Highertaxa_score_order
+  )
+}
+
+#' Build the output table from the selected candidates
+#'
+#' Internal.  Every column is built once, across all rows, rather than a
+#' data.frame being constructed per submitted name.
+#'
+#' @param selected List of \code{tnrs_select_candidates()} results.
+#' @param ids,submitted The submitted identifiers and names.
+#' @param parsed The parsed queries.
+#' @param backbone The loaded backbone.
+#' @return The output data.frame.
+#' @keywords internal
+#' @noRd
+tnrs_build_output <- function(selected, ids, submitted, parsed, backbone) {
+  pull <- function(field) unlist(lapply(selected, function(x) x[[field]]), use.names = FALSE)
+
+  query_index <- pull("query_index")
+  row <- pull("row")
+  source <- pull("source")
+  n <- length(row)
+
+  used_sources <- unique(source[nzchar(source)])
+
+  # Look each column up once per source rather than once per row
+  from_names <- function(column) {
+    out <- rep("", n)
+    for (s in used_sources) {
+      take <- which(source == s & !is.na(row))
+      if (length(take) > 0) {
+        out[take] <- as.character(backbone[[s]]$names[[column]][row[take]])
+      }
+    }
+    out
+  }
+
+  accepted <- rep(NA_integer_, n)
+  for (s in used_sources) {
+    take <- which(source == s & !is.na(row))
+    accepted[take] <- backbone[[s]]$names$accepted_name_id[row[take]]
+  }
+
+  from_accepted <- function(column) {
+    out <- rep("", n)
+    for (s in used_sources) {
+      take <- which(source == s & !is.na(accepted))
+      if (length(take) > 0) {
+        out[take] <- as.character(backbone[[s]]$names[[column]][accepted[take]])
+      }
+    }
+    out
+  }
+
+  matched_rank <- pull("matched_rank")
+  matched <- !is.na(row)
+
+  # A match that did not reach the rank the name was parsed to is partial, and
+  # upstream blanks the author fields when it is
+  depth_of_query <- ifelse(
+    nzchar(parsed$infra2), 4L,
+    ifelse(nzchar(parsed$infra1), 3L, ifelse(nzchar(parsed$species), 2L, 1L))
+  )[query_index]
+  depth_matched <- match(
+    matched_rank, c("genus", "species", "infra1", "infra2"),
+    nomatch = 0L
+  )
+  partial <- matched & depth_matched < depth_of_query
+
+  flags <- tnrs_warning_flags()
+  overall_order <- pull("overall_order")
+  highertaxa_order <- pull("highertaxa_order")
+
+  warnings <- flags[["Partial"]] * partial +
+    flags[["Ambiguous"]] * (pull("ambiguous") %in% TRUE) +
+    flags[["HigherTaxa"]] *
+      (!is.na(overall_order) & highertaxa_order > overall_order) +
+    flags[["Overall"]] *
+      (!is.na(overall_order) & highertaxa_order < overall_order)
+  warnings <- as.integer(warnings)
+
+  family_matched_name <- from_names("family")
+  submitted_family <- parsed$family[query_index]
+  # "The submitted family was matched", not "the matched name has a family": a
+  # name matched into a different family leaves the submitted one unmatched
+  family_matched <- nzchar(submitted_family) &
+    tolower(submitted_family) == tolower(family_matched_name)
+
+  unmatched <- vapply(seq_len(n), function(k) {
+    tnrs_unmatched_terms(
+      parsed$preprocessed[query_index[k]], parsed[query_index[k], ],
+      if (matched[k]) matched_rank[k] else "",
+      family_matched[k], parsed$start_string[query_index[k]]
+    )
+  }, character(1))
+
+  author_score <- pull("author_score")
+  author_score[partial] <- NA_real_
+
+  accepted_genus <- from_accepted("genus")
+  accepted_epithet <- from_accepted("specific_epithet")
+
+  data.frame(
+    ID = ids[query_index],
+    Name_submitted = submitted[query_index],
+    Overall_score = pull("overall_score"),
+    Name_matched_id = from_names("source_name_id"),
+    Name_matched = ifelse(matched, from_names("scientific_name"), "[No match found]"),
+    Name_score = pull("name_score"),
+    Name_matched_rank = from_names("name_rank"),
+    Author_submitted = parsed$authorship[query_index],
+    Author_matched = ifelse(partial, "", from_names("authorship")),
+    Author_score = author_score,
+    Canonical_author = from_names("authorship"),
+    Name_matched_accepted_family = from_accepted("family"),
+    Genus_submitted = parsed$genus[query_index],
+    Genus_matched = from_names("genus"),
+    Genus_score = pull("genus_score"),
+    Specific_epithet_submitted = parsed$species[query_index],
+    Specific_epithet_matched = from_names("specific_epithet"),
+    Specific_epithet_score = pull("species_score"),
+    Family_submitted = parsed$family[query_index],
+    Family_matched = family_matched_name,
+    Family_score = pull("family_score"),
+    Infraspecific_rank = parsed$rank1[query_index],
+    Infraspecific_epithet_matched = from_names("infraspecific_epithet"),
+    Infraspecific_epithet_score = pull("infra1_score"),
+    Infraspecific_rank_2 = parsed$rank2[query_index],
+    Infraspecific_epithet_2_matched = rep("", n),
+    Infraspecific_epithet_2_score = rep(NA_real_, n),
+    Annotations = parsed$annotations[query_index],
+    Unmatched_terms = unmatched,
+    Name_matched_url = from_names("url"),
+    Name_matched_lsid = rep("", n),
+    Phonetic = ifelse(pull("phonetic") %in% TRUE, "Y", ""),
+    Taxonomic_status = from_names("taxonomic_status"),
+    Accepted_name = from_accepted("scientific_name"),
+    Accepted_species = ifelse(
+      nzchar(accepted_epithet), paste(accepted_genus, accepted_epithet), ""
+    ),
+    Accepted_name_author = from_accepted("authorship"),
+    Accepted_name_id = from_accepted("source_name_id"),
+    Accepted_name_rank = from_accepted("name_rank"),
+    Accepted_name_url = from_accepted("url"),
+    Accepted_name_lsid = rep("", n),
+    Accepted_family = from_accepted("family"),
+    Overall_score_order = overall_order,
+    Highertaxa_score_order = highertaxa_order,
+    Source = source,
+    Warnings = warnings,
+    WarningsEng = tnrs_warnings_english(warnings),
+    Source_conflict = pull("conflict") %in% TRUE,
+    stringsAsFactors = FALSE
+  )
+}
+
 
 #' Warning flags, as a bit field
 #'
@@ -252,227 +531,4 @@ tnrs_unmatched_terms <- function(preprocessed, query, matched_rank,
 
   remainder <- tnrs_reduce_spaces(remainder)
   trimws(paste0(start_string, remainder))
-}
-
-#' Assemble the output rows for one submitted name
-#' @keywords internal
-#' @noRd
-tnrs_assemble_row <- function(id, submitted, query, candidates, backbone,
-                              matches, accuracy) {
-  flags <- tnrs_warning_flags()
-
-  blank <- data.frame(
-    ID = id,
-    Name_submitted = submitted,
-    Overall_score = NA_real_,
-    Name_matched_id = "",
-    Name_matched = "[No match found]",
-    Name_score = NA_real_,
-    Name_matched_rank = "",
-    Author_submitted = query$authorship,
-    Author_matched = "",
-    Author_score = NA_real_,
-    Canonical_author = "",
-    Name_matched_accepted_family = "",
-    Genus_submitted = query$genus,
-    Genus_matched = "",
-    Genus_score = NA_real_,
-    Specific_epithet_submitted = query$species,
-    Specific_epithet_matched = "",
-    Specific_epithet_score = NA_real_,
-    Family_submitted = query$family,
-    Family_matched = "",
-    Family_score = NA_real_,
-    Infraspecific_rank = query$rank1,
-    Infraspecific_epithet_matched = "",
-    Infraspecific_epithet_score = NA_real_,
-    Infraspecific_rank_2 = query$rank2,
-    Infraspecific_epithet_2_matched = "",
-    Infraspecific_epithet_2_score = NA_real_,
-    Annotations = query$annotations,
-    Unmatched_terms = "",
-    Name_matched_url = "",
-    Name_matched_lsid = "",
-    Phonetic = "",
-    Taxonomic_status = "",
-    Accepted_name = "",
-    Accepted_species = "",
-    Accepted_name_author = "",
-    Accepted_name_id = "",
-    Accepted_name_rank = "",
-    Accepted_name_url = "",
-    Accepted_name_lsid = "",
-    Accepted_family = "",
-    Overall_score_order = NA_integer_,
-    Highertaxa_score_order = NA_integer_,
-    Source = "",
-    Warnings = 0L,
-    WarningsEng = "",
-    Source_conflict = FALSE,
-    stringsAsFactors = FALSE
-  )
-
-  if (length(candidates) == 0) {
-    blank$Unmatched_terms <- tnrs_unmatched_terms(
-      query$preprocessed, query, "", FALSE, query$start_string
-    )
-    return(blank)
-  }
-
-  # Whether the requested sources led to different accepted names for this
-  # submitted name.  Judged on the best candidate from each source, before they
-  # are pooled and the winner chosen, since pooling hides the disagreement.
-  conflict <- FALSE
-  if (length(candidates) > 1) {
-    per_source_accepted <- vapply(candidates, function(x) {
-      best <- x[1, ]
-      source_names <- backbone[[best$source]]$names
-      accepted <- source_names$accepted_name_id[best$row]
-      if (is.na(accepted)) "" else source_names$scientific_name[accepted]
-    }, character(1))
-
-    informative <- per_source_accepted[nzchar(per_source_accepted)]
-    conflict <- length(unique(informative)) > 1
-  }
-
-  pooled <- do.call(rbind, candidates)
-
-  # Upstream ranks the candidates twice, under two schemes, and warns where the
-  # two disagree about which match is best
-  overall_order <- tnrs_rank_order(pooled, "overall")
-  highertaxa_order <- tnrs_rank_order(pooled, "highertaxa")
-
-  pooled$Overall_score_order <- order(overall_order)
-  pooled$Highertaxa_score_order <- order(highertaxa_order)
-
-  pooled <- pooled[overall_order, , drop = FALSE]
-
-  # Ambiguous: two *different* names the ordering could not separate.  Upstream
-  # only reaches its ambiguity marker after every comparison including
-  # Source_order has tied, so rows that are merely several records of the same
-  # name do not count - which is most of them.
-  sort_keys <- paste(
-    pooled$rank_index, tnrs_total_edit_distance(pooled),
-    pooled$name_score, pooled$overall_score, pooled$acceptance,
-    pooled$name_matched, pooled$source_order
-  )
-  tied <- sort_keys %in% sort_keys[duplicated(sort_keys)]
-  ambiguous <- tied & ave(
-    pooled$row, sort_keys,
-    FUN = function(rows) rep(length(unique(rows)) > 1L, length(rows))
-  ) == 1L
-
-  if (!is.null(accuracy)) {
-    keep <- !is.na(pooled$overall_score) & pooled$overall_score >= accuracy
-    ambiguous <- ambiguous[keep]
-    pooled <- pooled[keep, , drop = FALSE]
-    if (nrow(pooled) == 0) {
-      blank$Unmatched_terms <- tnrs_unmatched_terms(
-        query$preprocessed, query, "", FALSE, query$start_string
-      )
-      return(blank)
-    }
-  }
-
-  if (matches == "best") {
-    ambiguous <- ambiguous[1]
-    pooled <- pooled[1, , drop = FALSE]
-  }
-
-  out <- blank[rep(1, nrow(pooled)), , drop = FALSE]
-
-  for (i in seq_len(nrow(pooled))) {
-    candidate <- pooled[i, ]
-    names <- backbone[[candidate$source]]$names
-    row <- candidate$row
-
-    matched_rank <- candidate$matched_rank
-    # "The submitted family was matched", not "the matched name has a family":
-    # a name matched into a different family leaves the submitted one unmatched
-    family_matched <- nzchar(query$family) &&
-      identical(
-        tolower(query$family),
-        tolower(as.character(names$family[row]))
-      )
-
-    # Upstream flags a match as Partial when it did not reach the rank the name
-    # was parsed to, and blanks the author fields when it does
-    # A second infraspecific epithet is parsed but never matched, so a name
-    # carrying one resolves to its parent taxon.  That parent is correct as far
-    # as it goes - the sub-taxon really does sit within it - but the resolution
-    # is incomplete, and without this the answer would carry a score implying
-    # otherwise.
-    parsed_depth <- if (nzchar(query$infra2)) {
-      4L
-    } else if (nzchar(query$infra1)) {
-      3L
-    } else if (nzchar(query$species)) 2L else 1L
-    matched_depth <- match(matched_rank, c("genus", "species", "infra1"),
-      nomatch = 0L
-    )
-    partial <- matched_depth < parsed_depth
-
-    warnings <- 0L
-    if (partial) warnings <- bitwOr(warnings, flags[["Partial"]])
-    if (isTRUE(ambiguous[i])) warnings <- bitwOr(warnings, flags[["Ambiguous"]])
-    if (candidate$Highertaxa_score_order > candidate$Overall_score_order) {
-      warnings <- bitwOr(warnings, flags[["HigherTaxa"]])
-    } else if (candidate$Highertaxa_score_order < candidate$Overall_score_order) {
-      warnings <- bitwOr(warnings, flags[["Overall"]])
-    }
-
-    out$Overall_score[i] <- candidate$overall_score
-    out$Name_matched_id[i] <- names$source_name_id[row]
-    out$Name_matched[i] <- names$scientific_name[row]
-    out$Name_score[i] <- candidate$name_score
-    out$Name_matched_rank[i] <- names$name_rank[row]
-    out$Canonical_author[i] <- names$authorship[row]
-    out$Genus_matched[i] <- names$genus[row]
-    out$Genus_score[i] <- candidate$genus_score
-    out$Specific_epithet_matched[i] <- names$specific_epithet[row]
-    out$Specific_epithet_score[i] <- candidate$species_score
-    out$Family_matched[i] <- names$family[row]
-    out$Family_score[i] <- candidate$family_score
-    out$Infraspecific_epithet_matched[i] <- names$infraspecific_epithet[row]
-    out$Infraspecific_epithet_score[i] <- candidate$infra1_score
-    out$Name_matched_url[i] <- names$url[row]
-    out$Phonetic[i] <- if (isTRUE(candidate$phonetic)) "Y" else ""
-    out$Taxonomic_status[i] <- names$taxonomic_status[row]
-    out$Overall_score_order[i] <- candidate$Overall_score_order
-    out$Highertaxa_score_order[i] <- candidate$Highertaxa_score_order
-    out$Source[i] <- candidate$source
-    out$Source_conflict[i] <- conflict
-    out$Warnings[i] <- warnings
-    out$WarningsEng[i] <- tnrs_warnings_english(warnings)
-
-    # The author fields are reported only for a match that reached the parsed
-    # rank; upstream blanks them otherwise
-    if (!partial) {
-      out$Author_matched[i] <- names$authorship[row]
-      out$Author_score[i] <- candidate$author_score
-    }
-
-    out$Unmatched_terms[i] <- tnrs_unmatched_terms(
-      query$preprocessed, query, matched_rank, family_matched,
-      query$start_string
-    )
-
-    accepted <- names$accepted_name_id[row]
-    if (!is.na(accepted)) {
-      out$Accepted_name[i] <- names$scientific_name[accepted]
-      out$Accepted_name_author[i] <- names$authorship[accepted]
-      out$Accepted_name_id[i] <- names$source_name_id[accepted]
-      out$Accepted_name_rank[i] <- names$name_rank[accepted]
-      out$Accepted_name_url[i] <- names$url[accepted]
-      out$Accepted_family[i] <- names$family[accepted]
-      out$Name_matched_accepted_family[i] <- names$family[accepted]
-      if (nzchar(names$specific_epithet[accepted])) {
-        out$Accepted_species[i] <- paste(
-          names$genus[accepted], names$specific_epithet[accepted]
-        )
-      }
-    }
-  }
-
-  out
 }
