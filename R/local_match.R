@@ -144,3 +144,34 @@ tnrs_combine_matches <- function(components, search_mode = c("normal", "extended
     edit_distance = total_ed
   )
 }
+
+#' Do two infraspecific rank indicators agree?
+#'
+#' Internal.  R port of \code{TnrsAggregator::cmpRank()}.  Only the part before
+#' the first full stop is compared, every spelling of subspecies is folded
+#' together, and either being a substring of the other counts as agreement.
+#'
+#' @param rank1,rank2 Character vectors of rank indicators.
+#' @return Logical vector.
+#' @keywords internal
+#' @noRd
+tnrs_same_rank <- function(rank1, rank2) {
+  head_of <- function(x) {
+    x <- tolower(sub("[.].*$", "", as.character(x)))
+    x[grepl("ssp", x, fixed = TRUE)] <- "subsp"
+    x
+  }
+
+  a <- head_of(rank1)
+  b <- head_of(rank2)
+
+  mapply(
+    function(x, y) {
+      if (!nzchar(x) || !nzchar(y)) {
+        return(TRUE)
+      }
+      grepl(x, y, fixed = TRUE) || grepl(y, x, fixed = TRUE)
+    },
+    a, b, USE.NAMES = FALSE
+  )
+}

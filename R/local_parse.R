@@ -76,7 +76,7 @@ tnrs_is_hybrid_marker <- function(x) {
 tnrs_standardize_rank <- function(x) {
   ranks <- tnrs_standard_ranks()
   hit <- ranks[tolower(x)]
-  ifelse(is.na(hit), "", hit)
+  unname(ifelse(is.na(hit), "", hit))
 }
 
 #' Parse taxonomic names into their components

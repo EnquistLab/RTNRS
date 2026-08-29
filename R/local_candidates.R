@@ -21,12 +21,16 @@
 #' @param species_index Optional species index, used for the epithet rescue.
 #'   Must carry a \code{parent} pointing at positions in \code{index}.
 #' @param search_mode "normal" or "extended"; extended widens the length window.
+#' @param query_key Optional precomputed phonetic key for \code{genus}.
+#'   Computing it is cheap in bulk but not one call at a time, so callers
+#'   matching many names should compute the keys for all of them first.
 #' @return Integer vector of positions into \code{index}, sorted and unique.
 #' @keywords internal
 #' @noRd
 tnrs_genus_candidates <- function(genus, epithet = "", index,
                                   species_index = NULL,
-                                  search_mode = c("normal", "extended")) {
+                                  search_mode = c("normal", "extended"),
+                                  query_key = NULL) {
   search_mode <- match.arg(search_mode)
 
   genus <- tnrs_toupper_ascii(as.character(genus))
@@ -34,33 +38,60 @@ tnrs_genus_candidates <- function(genus, epithet = "", index,
     return(integer(0))
   }
 
-  query_key <- tnrs_near_match(genus, "genus_only")
+  if (is.null(query_key)) {
+    query_key <- tnrs_near_match(genus, "genus_only")
+  }
   query_len <- nchar(genus, type = "bytes")
   window <- if (search_mode == "extended") 4L else 2L
 
   # 1. Exact phonetic hit, with no length restriction
   candidates <- tnrs_lookup(index$by_key, query_key)
 
-  # 2. Length window, then the affix test.  Upstream compares one, two or three
-  # characters depending on min(query length, candidate length), so the test has
-  # to be evaluated per candidate rather than looked up directly.
-  window_hits <- tnrs_in_length_window(index, query_len, window)
+  # 2. Length window plus the affix test.  Rather than scanning the whole length
+  # window, pull the positions that share an affix with the query and check the
+  # window on those: the affix sets are one or two orders of magnitude smaller,
+  # and the exact rule still has to be applied per candidate because it depends
+  # on the shorter of the two names.
+  head1 <- substr(genus, 1, 1)
+  tail1 <- substr(genus, query_len, query_len)
+  head2 <- substr(genus, 1, 2)
+  head3 <- substr(genus, 1, 3)
+  tail3 <- substr(genus, max(1L, query_len - 2L), query_len)
 
-  if (length(window_hits) > 0) {
-    shorter <- pmin(query_len, index$len[window_hits])
+  lengths_in_window <- seq.int(max(1L, query_len - window), query_len + window)
+  shorter_possible <- pmin(query_len, lengths_in_window)
 
-    head1 <- substr(genus, 1, 1)
-    tail1 <- substr(genus, query_len, query_len)
-    head2 <- substr(genus, 1, 2)
-    head3 <- substr(genus, 1, 3)
-    tail3 <- substr(genus, max(1L, query_len - 2L), query_len)
+  affix_hits <- integer(0)
+  if (any(shorter_possible < 5)) {
+    affix_hits <- c(
+      affix_hits,
+      tnrs_lookup(index$by_h1, head1), tnrs_lookup(index$by_t1, tail1)
+    )
+  }
+  if (any(shorter_possible == 5)) {
+    affix_hits <- c(
+      affix_hits,
+      tnrs_lookup(index$by_h2, head2), tnrs_lookup(index$by_t3, tail3)
+    )
+  }
+  if (any(shorter_possible > 5)) {
+    affix_hits <- c(
+      affix_hits,
+      tnrs_lookup(index$by_h3, head3), tnrs_lookup(index$by_t3, tail3)
+    )
+  }
+  affix_hits <- unique(affix_hits)
 
-    affix_ok <-
-      (shorter < 5 & (index$h1[window_hits] == head1 | index$t1[window_hits] == tail1)) |
-        (shorter == 5 & (index$h2[window_hits] == head2 | index$t3[window_hits] == tail3)) |
-        (shorter > 5 & (index$h3[window_hits] == head3 | index$t3[window_hits] == tail3))
+  if (length(affix_hits) > 0) {
+    candidate_len <- index$len[affix_hits]
+    shorter <- pmin(query_len, candidate_len)
 
-    candidates <- c(candidates, window_hits[which(affix_ok)])
+    affix_ok <- abs(candidate_len - query_len) <= window &
+      ((shorter < 5 & (index$h1[affix_hits] == head1 | index$t1[affix_hits] == tail1)) |
+        (shorter == 5 & (index$h2[affix_hits] == head2 | index$t3[affix_hits] == tail3)) |
+        (shorter > 5 & (index$h3[affix_hits] == head3 | index$t3[affix_hits] == tail3)))
+
+    candidates <- c(candidates, affix_hits[which(affix_ok)])
   }
 
   # 3. Epithet rescue: genera carrying a species whose epithet sounds like the
@@ -137,7 +168,7 @@ tnrs_child_candidates <- function(epithet, parents, index) {
     return(integer(0))
   }
 
-  children <- tnrs_lookup(index$by_parent, as.character(parents))
+  children <- tnrs_int_lookup(index$by_parent, parents)
   if (length(children) == 0) {
     return(integer(0))
   }
