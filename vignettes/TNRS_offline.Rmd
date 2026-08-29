@@ -1,0 +1,198 @@
+---
+title: "Resolving names offline"
+author: "Brian Maitner"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Resolving names offline}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## Why resolve names offline
+
+`TNRS()` sends your names to the Taxonomic Name Resolution Service and returns
+the server's answer. That is the right choice most of the time, but it needs an
+internet connection, it needs the service to be up, and very large jobs are sent
+in batches of 5000 with a round trip for each.
+
+`TNRS_local()` runs the same matching algorithm on your own machine, against a
+copy of the taxonomic sources that you download once. It works with no network,
+it does not depend on the service being available, and there are no round trips.
+
+The two are separate functions rather than one function with a switch. That is
+deliberate: they do not always give the same answer, and it should always be
+obvious from your code which one produced a result.
+
+## One-off setup
+
+```{r}
+library(TNRS)
+
+TNRS_local_build()
+```
+
+This downloads the taxonomic sources from their publishers and prepares them for
+matching. It is roughly 200 MB and takes a few minutes. You only need to do it
+again when you want newer versions of the sources.
+
+To see what you have:
+
+```{r}
+TNRS_local_status()
+```
+
+```
+  source                          full_name version                     doi downloaded size_mb
+1   wcvp World Checklist of Vascular Plants     v15                    <NA> 2026-08-28    85.4
+2    wfo                 World Flora Online 2025-12 10.5281/zenodo.18007552 2026-08-28   115.5
+```
+
+Keep that output. It is what makes a local result citable: it records exactly
+which version of which source you resolved against.
+
+`TNRS_local_remove()` deletes the cache if you want the space back.
+
+## Resolving names
+
+```{r}
+results <- TNRS_local(c("Quercuss alba", "Xantium strumarium", "Acer rubrum"))
+
+results[, c("Name_submitted", "Name_matched", "Overall_score", "Accepted_name")]
+```
+
+```
+      Name_submitted        Name_matched Overall_score       Accepted_name
+1      Quercuss alba        Quercus alba     0.9792205        Quercus alba
+2 Xantium strumarium Xanthium strumarium     0.9792205 Xanthium strumarium
+3        Acer rubrum         Acer rubrum     1.0000000         Acer rubrum
+```
+
+The output has the same columns as `TNRS()`, so code that reads the result of
+one will read the other.
+
+The first call in a session loads the backbone, which takes about twenty seconds
+per source. After that it is held in memory, and matching runs at tens of
+thousands of names per minute.
+
+## How local results differ from the web service
+
+They usually agree, but not always, and the differences are worth understanding
+before you rely on either.
+
+### The local sources are usually newer
+
+The web service updates its copy of the sources periodically. `TNRS_local_build()`
+downloads directly from the publishers, so your copy is typically more current.
+At the time of writing the service is running World Flora Online v.2023.06 while
+the current release is 2025-12.
+
+That is usually an improvement, but it means a name can legitimately resolve
+differently in the two. If you compare them, expect real taxonomic updates among
+the differences, not just bugs. Report the versions from `TNRS_local_status()`
+so the reader knows which vintage you used.
+
+### One source by default, rather than two
+
+`TNRS()` consults `wcvp` and `wfo` together. When the two disagree about whether
+a name is accepted, the answer you get is assembled from both, and nothing in
+the output tells you that happened.
+
+`TNRS_local()` uses `wfo` alone by default, so the answer comes from one
+authority. To reproduce the web service's behaviour, ask for both:
+
+```{r}
+both <- TNRS_local(
+  c("Bartlettina macrocephala", "Acer rubrum"),
+  sources = c("wcvp", "wfo")
+)
+
+both[, c("Name_submitted", "Taxonomic_status", "Accepted_name", "Source",
+         "Source_conflict")]
+```
+
+```
+            Name_submitted Taxonomic_status            Accepted_name Source Source_conflict
+1 Bartlettina macrocephala         Accepted Bartlettina macrocephala    wfo            TRUE
+2              Acer rubrum         Accepted              Acer rubrum   wcvp           FALSE
+```
+
+`Source_conflict` marks names where the sources led to different accepted names.
+Those are the ones worth checking by hand. To see what each source actually
+said:
+
+```{r}
+TNRS_local("Bartlettina macrocephala",
+           sources = c("wcvp", "wfo"), matches = "all")
+```
+
+```
+              Name_matched Taxonomic_status            Accepted_name Source
+1 Bartlettina macrocephala         Accepted Bartlettina macrocephala    wfo
+2 Bartlettina macrocephala          Synonym  Bartlettina ehrenbergii   wcvp
+```
+
+Neither answer is wrong. Kew and World Flora Online genuinely disagree about
+this name, and a service that consults both has to pick one.
+
+### `accuracy` filters differently
+
+In `TNRS_local()`, `accuracy` discards matches whose overall score is below the
+threshold, which is what the documentation of the web service describes.
+
+The web service itself is more permissive: it discards a match only when
+*every* component score is below the threshold. Because a genus can score highly
+while the epithet fails entirely, a match with a low overall score can survive a
+high threshold there.
+
+## Names that are not plants
+
+Neither the web service nor `TNRS_local()` knows what a plant is. Both match
+against plant checklists, so a non-plant name is either unmatched or matched to
+whatever plant name happens to be closest:
+
+```{r}
+TNRS_local("Dendroica palmarum")[, c("Name_matched", "Overall_score",
+                                     "Accepted_name", "WarningsEng")]
+```
+
+*Dendroica palmarum* is a warbler. It can match a plant genus at a low score.
+
+Two columns tell you when this has happened:
+
+* `Overall_score` will be low.
+* `WarningsEng` will contain `[Partial]`, meaning the match did not reach the
+  rank the name was parsed to. A binomial that only matched at genus rank, with
+  its epithet unmatched, is the signature of this problem.
+
+If your data may contain non-plants, filter on those rather than taking
+`Accepted_name` at face value.
+
+## Known limitations
+
+* **Badly misspelled names can be missed.** The matcher narrows the search
+  before comparing, using the first and last few characters of the genus. A
+  genus misspelled at *both* ends can therefore be missed however close it
+  otherwise is. This is a property of the published TNRS algorithm, which the
+  local version reproduces. In practice it affects under 1% of single-character
+  errors, since real misspellings usually preserve the opening.
+* **Second infraspecific ranks are not matched.** Names with two infraspecific
+  epithets resolve at the first.
+* **`Name_matched_lsid` and `Accepted_name_lsid` are always empty**, because the
+  sources do not supply them.
+
+## Citing your results
+
+Cite the TNRS itself, the taxonomic sources, and the versions you used:
+
+```{r}
+# The TNRS and its sources
+TNRS_metadata()
+
+# The versions your local results came from
+TNRS_local_status()
+```
