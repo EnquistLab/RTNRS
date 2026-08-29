@@ -247,3 +247,25 @@ test_that("unmatched terms report what the match did not account for", {
   leftover <- TNRS_local("Acer rubrum zzzzqqq", quiet = TRUE)
   expect_match(leftover$Unmatched_terms, "zzzzqqq")
 })
+
+test_that("a second infraspecific epithet is flagged rather than silently dropped", {
+  skip_without_backbone()
+
+  # infra2 is parsed but not matched, so such a name resolves to its parent
+  # taxon.  That is not a wrong answer - the forma does sit within the variety -
+  # but it is an incomplete one, and the score alone would not say so.
+  parsed <- tnrs_parse("Cirsium japonicum var. vestitum f. arakii")
+  expect_equal(parsed$infra1, "vestitum")
+  expect_equal(parsed$infra2, "arakii")
+
+  result <- TNRS_local("Cirsium japonicum var. vestitum f. arakii", quiet = TRUE)
+
+  expect_true(bitwAnd(result$Warnings, 1L) > 0L)
+  expect_match(result$WarningsEng, "Partial")
+  # The submitted second epithet is reported; nothing was matched to it
+  expect_equal(result$Infraspecific_epithet_2_matched, "")
+
+  # A one-level infraspecific name is not flagged
+  clean <- TNRS_local("Acer rubrum var. rubrum", sources = "wcvp", quiet = TRUE)
+  expect_equal(clean$WarningsEng, "")
+})

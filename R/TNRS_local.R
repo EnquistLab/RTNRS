@@ -397,7 +397,14 @@ tnrs_assemble_row <- function(id, submitted, query, candidates, backbone,
 
     # Upstream flags a match as Partial when it did not reach the rank the name
     # was parsed to, and blanks the author fields when it does
-    parsed_depth <- if (nzchar(query$infra1)) {
+    # A second infraspecific epithet is parsed but never matched, so a name
+    # carrying one resolves to its parent taxon.  That parent is correct as far
+    # as it goes - the sub-taxon really does sit within it - but the resolution
+    # is incomplete, and without this the answer would carry a score implying
+    # otherwise.
+    parsed_depth <- if (nzchar(query$infra2)) {
+      4L
+    } else if (nzchar(query$infra1)) {
       3L
     } else if (nzchar(query$species)) 2L else 1L
     matched_depth <- match(matched_rank, c("genus", "species", "infra1"),
