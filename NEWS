@@ -1,4 +1,46 @@
 ===============
+# TNRS 0.4.0
+===============
+
+## NEW FEATURES
+
+* Names can now be resolved offline, against a locally cached copy of the
+  taxonomic sources, using the same algorithm as the web service.  Four new
+  functions:
+
+  - "TNRS_local_build" downloads and prepares the taxonomic sources.  This is a
+    one-off step of roughly 200 MB and a few minutes; afterwards no internet
+    connection is needed.
+  - "TNRS_local" resolves names against that local copy.  It returns the same
+    columns as "TNRS", so existing code that reads the output keeps working.
+  - "TNRS_local_status" reports which sources are available offline, which
+    version each is, and their DOIs, so that local results can be cited.
+  - "TNRS_local_remove" deletes the cache.
+
+* The local functions are additive: "TNRS" and the other API functions are
+  unchanged, and continue to query the web service.
+
+* See vignette("TNRS_offline") for the workflow and for how local results
+  differ from the web service.
+
+## NOTES ON THE LOCAL VERSION
+
+* "TNRS_local" defaults to a single source ("wfo"), where "TNRS" consults
+  "wcvp" and "wfo" together.  One source means the answer comes from one
+  authority.  Pass sources = c("wcvp", "wfo") for the web service's behaviour;
+  where the two disagree, the new "Source_conflict" column marks the name.
+
+* The local backbone is downloaded from the publishers and is usually newer
+  than the copy the web service is running, so some names legitimately resolve
+  differently.  Report the versions from "TNRS_local_status" alongside results.
+
+* The "accuracy" argument filters on the overall score.  The web service
+  discards a match only when every component score is below the threshold, so
+  it is more permissive than its own documentation describes.
+
+## Bug Fixes
+
+===============
 # TNRS 0.3.8
 ===============
 
