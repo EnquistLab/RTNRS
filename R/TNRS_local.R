@@ -25,6 +25,11 @@
 #'   2 GB peak. The default is a reasonable balance; much smaller batches report
 #'   progress more often but run slower.
 #' @param dir Cache directory. Defaults to the standard user cache location.
+#' @param build_missing Should a requested source that has not been built yet be
+#'   downloaded and built now? Defaults to \code{interactive()}, which reports
+#'   the size and asks first. In a script it is therefore FALSE and nothing is
+#'   downloaded silently: the function reports what is missing and the call that
+#'   would fix it. Set it to TRUE to allow an unattended build.
 #' @param quiet Suppress progress messages? A progress bar is shown for jobs
 #'   large enough to need more than one batch.
 #' @return Dataframe of results, with the same core columns as \code{TNRS()},
@@ -36,6 +41,10 @@
 #'   alone by default, so the result comes from one authority and is
 #'   straightforward to cite. Pass \code{sources = c("wcvp", "wfo")} to
 #'   reproduce the web service's behaviour.
+#' @note \code{TNRS_local_build()} builds "wfo" alone by default, so asking for
+#'   "wcvp" as well needs it built first. Rather than download it behind your
+#'   back, this function reports what is missing and the call that would build
+#'   it; see \code{build_missing}.
 #' @note When more than one source is requested, \code{Source_conflict} is TRUE
 #'   for any name where the sources led to different accepted names. Those are
 #'   the names worth looking at by hand; \code{matches = "all"} shows what each
@@ -68,6 +77,7 @@ TNRS_local <- function(taxonomic_names,
                        accuracy = NULL,
                        batch_size = 10000,
                        dir = tnrs_cache_dir(),
+                       build_missing = interactive(),
                        quiet = FALSE) {
   matches <- match.arg(matches)
 
@@ -92,14 +102,10 @@ TNRS_local <- function(taxonomic_names,
     return(invisible(NULL))
   }
 
-  missing <- sources[!vapply(
-    sources, function(s) file.exists(tnrs_names_path(s, dir)), logical(1)
-  )]
-  if (length(missing) > 0) {
-    message(
-      "No local copy of: ", paste(missing, collapse = ", "),
-      ".\nRun TNRS_local_build() once to download and prepare the data."
-    )
+  if (!tnrs_require_sources(sources,
+    dir = dir,
+    build_missing = build_missing, quiet = quiet
+  )) {
     return(invisible(NULL))
   }
 

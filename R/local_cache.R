@@ -36,7 +36,12 @@ tnrs_source_registry <- function() {
       url = "https://sftp.kew.org/pub/data-repositories/WCVP/Archive/wcvp_v15.zip",
       taxonomic_scope = "Tracheophyta",
       license = "CC BY 4.0",
-      publisher = "Royal Botanic Gardens, Kew"
+      publisher = "Royal Botanic Gardens, Kew",
+      # Approximate, for the message shown before a download is started.
+      # disk_mb covers the archive, which is kept so that a rebuild needs no
+      # second download, plus the name table and the match index built from it.
+      download_mb = 85,
+      disk_mb = 192
     ),
     wfo = list(
       source = "wfo",
@@ -51,7 +56,9 @@ tnrs_source_registry <- function() {
       ),
       taxonomic_scope = "Embryophyta",
       license = "CC0 1.0",
-      publisher = "World Flora Online Consortium"
+      publisher = "World Flora Online Consortium",
+      download_mb = 116,
+      disk_mb = 235
     )
   )
 }

@@ -36,9 +36,29 @@ library(TNRS)
 TNRS_local_build()
 ```
 
-This downloads the taxonomic sources from their publishers and prepares them for
-matching. It is roughly 200 MB and takes a few minutes. You only need to do it
-again when you want newer versions of the sources.
+This downloads the World Flora Online backbone from its publisher and prepares
+it for matching: about 116 MB, and a few minutes. You only need to do it again
+when you want a newer version of the source.
+
+`TNRS_local()` uses that one source by default. If you want the second source as
+well, so that you can compare the two the way the web service does, build it too:
+
+```{r}
+TNRS_local_build("wcvp")
+```
+
+Asking `TNRS_local()` for a source you have not built does not quietly start a
+download. It tells you what is missing and the call that would fix it:
+
+```
+No local copy of: wcvp. (wfo is already built.)
+Run TNRS_local_build("wcvp") once to download and prepare it (about 85 MB to download).
+Or call this function again with build_missing = TRUE to do it now.
+```
+
+In an interactive session you can pass `build_missing = TRUE` and answer the
+prompt; in a script, setting it to `TRUE` builds without asking, which is the
+way to make a pipeline set itself up on a new machine.
 
 To see what you have:
 

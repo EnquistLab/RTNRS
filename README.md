@@ -7,7 +7,7 @@ The TNRS R package (also known as RTNRS) provides access to the Taxonomic Name R
 Names can also be resolved without an internet connection, against a locally cached copy of the taxonomic sources, using the same algorithm as the web service:
 
 ```r
-TNRS_local_build()   # one-off download, roughly 200 MB and a few minutes
+TNRS_local_build()   # one-off download, about 116 MB and a few minutes
 results <- TNRS_local(c("Quercuss alba", "Xantium strumarium"))
 TNRS_local_status()  # which sources and versions you resolved against
 ```

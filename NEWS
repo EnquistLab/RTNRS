@@ -9,8 +9,8 @@
   functions:
 
   - "TNRS_local_build" downloads and prepares the taxonomic sources.  This is a
-    one-off step of roughly 200 MB and a few minutes; afterwards no internet
-    connection is needed.
+    one-off step of about 116 MB and a few minutes for the default source;
+    afterwards no internet connection is needed.
   - "TNRS_local" resolves names against that local copy.  It returns the same
     columns as "TNRS", so existing code that reads the output keeps working.
   - "TNRS_local_status" reports which sources are available offline, which

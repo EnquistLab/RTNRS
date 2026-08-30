@@ -312,3 +312,65 @@ test_that("batch_size is validated", {
   expect_error(TNRS_local("Acer rubrum", batch_size = -5), "batch_size")
   expect_error(TNRS_local("Acer rubrum", batch_size = "many"), "batch_size")
 })
+
+test_that("a missing source names itself and the call that would build it", {
+  tmp <- file.path(tempdir(), "tnrs-cache-req")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  # Nothing built: the message should name the source and the exact fix
+  expect_message(
+    ok <- tnrs_require_sources("wcvp", dir = tmp, build_missing = FALSE),
+    'TNRS_local_build("wcvp")',
+    fixed = TRUE
+  )
+  expect_false(ok)
+
+  # Two missing sources are offered as a single call
+  expect_message(
+    tnrs_require_sources(c("wcvp", "wfo"), dir = tmp, build_missing = FALSE),
+    'TNRS_local_build(c("wcvp", "wfo"))',
+    fixed = TRUE
+  )
+})
+
+test_that("only the sources that are actually missing are reported", {
+  tmp <- file.path(tempdir(), "tnrs-cache-partial")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  # Stand in for a built source; only its presence is checked
+  file.create(tnrs_names_path("wfo", tmp))
+
+  expect_true(tnrs_require_sources("wfo", dir = tmp, build_missing = FALSE))
+
+  msg <- capture_messages(
+    tnrs_require_sources(c("wfo", "wcvp"), dir = tmp, build_missing = FALSE)
+  )
+  msg <- paste(msg, collapse = "")
+  expect_match(msg, "No local copy of: wcvp")
+  expect_match(msg, "wfo is already built")
+  expect_false(grepl("No local copy of: wfo", msg))
+})
+
+test_that("build_missing = FALSE never downloads", {
+  tmp <- file.path(tempdir(), "tnrs-cache-nodl")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  suppressMessages(
+    result <- TNRS_local("Acer rubrum", sources = "wcvp", dir = tmp,
+                         build_missing = FALSE, quiet = TRUE)
+  )
+  expect_null(result)
+  # An empty cache directory is the proof that nothing was fetched
+  expect_length(list.files(tmp), 0)
+})
+
+test_that("a source set is rendered as it would be typed", {
+  expect_identical(tnrs_source_arg("wfo"), '"wfo"')
+  expect_identical(tnrs_source_arg(c("wcvp", "wfo")), 'c("wcvp", "wfo")')
+})

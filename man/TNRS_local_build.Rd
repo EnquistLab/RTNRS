@@ -5,7 +5,7 @@
 \title{Build the local taxonomic backbone}
 \usage{
 TNRS_local_build(
-  sources = c("wcvp", "wfo"),
+  sources = "wfo",
   dir = tnrs_cache_dir(create = TRUE),
   overwrite = FALSE,
   quiet = FALSE
@@ -13,7 +13,9 @@ TNRS_local_build(
 }
 \arguments{
 \item{sources}{Character vector of sources to build. Options are "wcvp" and
-"wfo"; both are used by default, matching the web service.}
+"wfo". Only "wfo" is built by default, matching the default of
+\code{TNRS_local()}; build both to reproduce the web service, which
+consults them together.}
 
 \item{dir}{Cache directory. Defaults to the standard user cache location.}
 
@@ -31,11 +33,14 @@ with no internet connection.  The data is kept in the standard user cache
 directory, and can be removed again with \code{TNRS_local_remove()}.
 }
 \details{
-The download is large, roughly 200 MB for both sources, and preparing it
-takes a few minutes.  Each source is recorded with its version and, where the
-publisher provides one, its DOI, so that results obtained locally can be
-cited as precisely as results from the web service.  Use
-\code{TNRS_local_status()} to see what has been built.
+The download is large and preparing it takes a few minutes.  World Flora
+Online is about 116 MB to download and occupies roughly 235 MB once built;
+the World Checklist of Vascular Plants about 85 MB and 192 MB.  The
+downloaded archive is kept, so a rebuild needs no second download.  Each
+source is recorded with its version and, where the publisher provides one,
+its DOI, so that results obtained locally can be cited as precisely as
+results from the web service.  Use \code{TNRS_local_status()} to see what has
+been built.
 }
 \note{
 The taxonomic sources are downloaded from their publishers: the World
@@ -46,6 +51,9 @@ The taxonomic sources are downloaded from their publishers: the World
 \dontrun{
 # One-off setup; needs an internet connection and a few minutes
 TNRS_local_build()
+
+# Add the second source, to consult what the web service consults
+TNRS_local_build("wcvp")
 
 # See what is available offline
 TNRS_local_status()
