@@ -12,6 +12,8 @@ results <- TNRS_local(c("Quercuss alba", "Xantium strumarium"))
 TNRS_local_status()  # which sources and versions you resolved against
 ```
 
+In one comparison on a single machine, resolving 1000 names took about 6 minutes through the web service and about 11 seconds locally once the data was loaded; for a handful of names the web service is simpler and can be quicker, since loading the local data costs around twenty seconds per source. Timings will vary with hardware and with how busy the service is. See `vignette("TNRS_offline")` for the full comparison.
+
 `TNRS_local()` returns the same columns as `TNRS()`. It is a separate function rather than an option on `TNRS()` because the two do not always give the same answer: the local copy of the sources is usually newer than the one the web service is running, and the local version consults a single source by default rather than blending two. See `vignette("TNRS_offline")` for the differences and how to interpret them.
 
 # Important Note
