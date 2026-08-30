@@ -216,3 +216,35 @@ test_that("the gnparser path copes with names GNparser itself rejects", {
   expect_equal(q$parser, "gnparser")
   expect_equal(q$genus, "Acer")
 })
+
+test_that("a trailing 'f.' is read as filius, not as a rank", {
+  # "L. f." is Linnaeus filius, a very common author string.  A rank indicator
+  # with no epithet after it cannot be a rank, which is what separates the two.
+  q <- tnrs_parse_internal("Mauritia flexuosa L. f.")
+  expect_equal(q$authorship, "L. f.")
+  expect_equal(q$rank1, "")
+  expect_equal(q$infra1, "")
+
+  # Unspaced is unambiguous
+  expect_equal(tnrs_parse_internal("Mauritia L.f.")$authorship, "L.f.")
+
+  # With an epithet following, "f." really is forma
+  q <- tnrs_parse_internal("Acer rubrum f. rubrum")
+  expect_equal(q$rank1, "fo.")
+  expect_equal(q$infra1, "rubrum")
+  expect_equal(q$authorship, "")
+
+  # Author and forma together: both are kept
+  q <- tnrs_parse_internal("Acer rubrum L. f. rubrum")
+  expect_equal(q$authorship, "L.")
+  expect_equal(q$rank1, "fo.")
+  expect_equal(q$infra1, "rubrum")
+})
+
+test_that("a fused hybrid marker stays with the epithet", {
+  # Decision: report names as the source stores them.  WFO writes the
+  # multiplication sign, and that is what Name_matched carries.
+  expect_equal(tnrs_parse_internal("Prunus xyedoensis")$species, "xyedoensis")
+  expect_equal(tnrs_parse_internal("Epimedium xpurpureum Bailly")$species, "xpurpureum")
+  expect_equal(tnrs_parse_internal("Epimedium xpurpureum Bailly")$authorship, "Bailly")
+})

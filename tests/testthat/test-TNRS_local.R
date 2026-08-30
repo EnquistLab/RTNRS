@@ -289,3 +289,26 @@ test_that("forma names reach the whole-name lookup despite the rank spelling", {
   expect_equal(result$Name_matched, "Acer rubrum f. rubrum")
   expect_equal(result$Overall_score, 1)
 })
+
+test_that("batching does not change the result", {
+  skip_without_backbone()
+
+  names <- c(
+    "Acer rubrum", "Quercuss alba", "Zzzzzzz qqqqqqq", "Miconia",
+    "Xantium strumarium", "Acer rubrum var. rubrum", "Solanum lycopersicum"
+  )
+
+  whole <- TNRS_local(names, batch_size = 10000, quiet = TRUE)
+  in_twos <- TNRS_local(names, batch_size = 2, quiet = TRUE)
+  one_by_one <- TNRS_local(names, batch_size = 1, quiet = TRUE)
+
+  expect_identical(whole, in_twos)
+  expect_identical(whole, one_by_one)
+  expect_equal(nrow(whole), length(names))
+})
+
+test_that("batch_size is validated", {
+  expect_error(TNRS_local("Acer rubrum", batch_size = 0), "batch_size")
+  expect_error(TNRS_local("Acer rubrum", batch_size = -5), "batch_size")
+  expect_error(TNRS_local("Acer rubrum", batch_size = "many"), "batch_size")
+})

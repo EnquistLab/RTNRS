@@ -76,8 +76,44 @@ The output has the same columns as `TNRS()`, so code that reads the result of
 one will read the other.
 
 The first call in a session loads the backbone, which takes about twenty seconds
-per source. After that it is held in memory, and matching runs at tens of
-thousands of names per minute.
+per source. After that it is held in memory and every later call is pure
+matching.
+
+## How much faster is it?
+
+The table below is from a **single comparison on one machine**, resolving real
+names drawn at random from the backbone. Treat it as an indication of the shape
+of the difference, not as a benchmark: it will vary with your hardware, your
+network, and how busy the web service happens to be when you run it. In
+repeated runs here the web service's timings varied by a factor of two from one
+call to the next.
+
+| names | `TNRS()` (web service) | `TNRS_local()`, one source | `TNRS_local()`, both |
+|---|---|---|---|
+| 50 | 23 s | 10 s | 4 s |
+| 200 | 71 s | 4 s | 5 s |
+| 1000 | 376 s | 11 s | 16 s |
+
+The web service ran at roughly three names a second whatever the batch size,
+since the work happens on the server and every batch is a round trip. Locally
+the rate climbs with the size of the job, to something like 60-90 names a second
+for a thousand names, because the fixed costs are paid once.
+
+**For small jobs the web service can still win.** Loading the backbone costs
+about twenty seconds, which a short query does not earn back:
+
+* 50 names, from a cold session: about 31 s locally against 23 s for the web
+  service.
+* 1000 names, from a cold session: about 33 s locally against 376 s.
+
+Break-even was somewhere near seventy names in a fresh session, and beyond that
+the gap widens quickly, because the local cost is nearly flat while the web
+service's grows with every name. Within a session the backbone stays loaded, so
+the twenty seconds is paid once however many times you call `TNRS_local()`.
+
+If you are resolving a handful of names once, `TNRS()` is simpler and needs no
+setup. If you are resolving thousands, or the same names repeatedly, or you have
+no reliable connection, the local version is the better tool.
 
 ## How local results differ from the web service
 

@@ -9,6 +9,7 @@ TNRS_local(
   sources = "wfo",
   matches = c("best", "all"),
   accuracy = NULL,
+  batch_size = 10000,
   dir = tnrs_cache_dir(),
   quiet = FALSE
 )
@@ -30,9 +31,18 @@ best match ("best", the default)?}
 discarded. Note that, unlike the web service, this is applied to the
 overall score alone; see the note below.}
 
+\item{batch_size}{Number of names to match at a time. Batching releases each
+batch's working memory as it goes, and is what allows progress to be
+reported on a long job. The saving is modest, because the loaded reference
+data dominates memory and the result is assembled in full whatever the
+batch size: measured over 100,000 names, batching saved about 190 MB of a
+2 GB peak. The default is a reasonable balance; much smaller batches report
+progress more often but run slower.}
+
 \item{dir}{Cache directory. Defaults to the standard user cache location.}
 
-\item{quiet}{Suppress progress messages?}
+\item{quiet}{Suppress progress messages? A progress bar is shown for jobs
+large enough to need more than one batch.}
 }
 \value{
 Dataframe of results, with the same core columns as \code{TNRS()},

@@ -17,8 +17,16 @@
 #' @param accuracy Numeric. If specified, matches scoring below this are
 #'   discarded. Note that, unlike the web service, this is applied to the
 #'   overall score alone; see the note below.
+#' @param batch_size Number of names to match at a time. Batching releases each
+#'   batch's working memory as it goes, and is what allows progress to be
+#'   reported on a long job. The saving is modest, because the loaded reference
+#'   data dominates memory and the result is assembled in full whatever the
+#'   batch size: measured over 100,000 names, batching saved about 190 MB of a
+#'   2 GB peak. The default is a reasonable balance; much smaller batches report
+#'   progress more often but run slower.
 #' @param dir Cache directory. Defaults to the standard user cache location.
-#' @param quiet Suppress progress messages?
+#' @param quiet Suppress progress messages? A progress bar is shown for jobs
+#'   large enough to need more than one batch.
 #' @return Dataframe of results, with the same core columns as \code{TNRS()},
 #'   plus \code{Source} naming the source the match came from and
 #'   \code{Source_conflict} flagging names the requested sources disagreed about.
@@ -58,9 +66,18 @@ TNRS_local <- function(taxonomic_names,
                        sources = "wfo",
                        matches = c("best", "all"),
                        accuracy = NULL,
+                       batch_size = 10000,
                        dir = tnrs_cache_dir(),
                        quiet = FALSE) {
   matches <- match.arg(matches)
+
+  # Checked before coercing, so that a non-numeric argument reports the problem
+  # rather than emitting a coercion warning on the way to the error
+  if (!is.numeric(batch_size) || length(batch_size) != 1L ||
+    is.na(batch_size) || batch_size < 1) {
+    stop("batch_size should be a single positive number of names", call. = FALSE)
+  }
+  batch_size <- as.integer(batch_size)
 
   if (!inherits(x = accuracy, what = c("NULL", "numeric"))) {
     stop("accuracy should be either numeric between 0 and 1, or NULL")
@@ -141,49 +158,85 @@ TNRS_local <- function(taxonomic_names,
   # Only worth trying where it differs from the reassembled key
   wanted_full[wanted_full == wanted] <- ""
 
-  exact_hits <- lapply(sources, function(s) {
-    tnrs_lookup_each(backbone[[s]]$index$rows_by_name, wanted)
-  })
-  names(exact_hits) <- sources
+  # Names are matched in batches, which releases each batch's working set as it
+  # goes and lets a long job report progress.  Measured over 100,000 names this
+  # saves about 190 MB of a 2 GB peak - real but modest, since the loaded
+  # backbone dominates and the result is assembled in full regardless.  At
+  # 20,000 names the effect is not visible at all.
+  #
+  # Everything before this point is done once for the whole set.  Parsing in
+  # particular must not be repeated per batch: GNparser costs a couple of
+  # seconds to start up however few names it is handed, so parsing in batches of
+  # a thousand would add that cost to every one of them.
+  batches <- split(
+    seq_along(submitted),
+    ceiling(seq_along(submitted) / batch_size)
+  )
 
-  exact_full_hits <- lapply(sources, function(s) {
-    tnrs_lookup_each(backbone[[s]]$index$rows_by_name, wanted_full)
-  })
-  names(exact_full_hits) <- sources
-
-  # Selection happens per name, but the output is assembled once at the end.
-  # Building a wide data.frame per name and rbind-ing them was about a quarter
-  # of the total run time.
-  selected <- vector("list", length(submitted))
-
-  for (i in seq_along(submitted)) {
-    query <- parsed[i, , drop = FALSE]
-
-    per_source <- lapply(seq_along(sources), function(s) {
-      candidates <- tnrs_match_one(
-        query, backbone[[sources[s]]],
-        exact = exact_hits[[sources[s]]][[i]],
-        exact_full = exact_full_hits[[sources[s]]][[i]]
-      )
-      if (nrow(candidates) == 0) {
-        return(NULL)
-      }
-      scored <- tnrs_score_candidates(
-        candidates, query, backbone[[sources[s]]]$names, source_order = s
-      )
-      scored$source <- sources[s]
-      scored
-    })
-
-    per_source <- per_source[!vapply(per_source, is.null, logical(1))]
-
-    selected[[i]] <- tnrs_select_candidates(
-      query = query, candidates = per_source, backbone = backbone,
-      matches = matches, accuracy = accuracy, query_index = i
+  show_progress <- !quiet && length(batches) > 1
+  if (show_progress) {
+    progress <- utils::txtProgressBar(
+      min = 0, max = length(batches), style = 3, char = "="
     )
+    on.exit(close(progress), add = TRUE)
   }
 
-  tnrs_build_output(selected, ids, submitted, parsed, backbone)
+  outputs <- vector("list", length(batches))
+
+  for (b in seq_along(batches)) {
+    in_batch <- batches[[b]]
+
+    exact_hits <- lapply(sources, function(s) {
+      tnrs_lookup_each(backbone[[s]]$index$rows_by_name, wanted[in_batch])
+    })
+    names(exact_hits) <- sources
+
+    exact_full_hits <- lapply(sources, function(s) {
+      tnrs_lookup_each(backbone[[s]]$index$rows_by_name, wanted_full[in_batch])
+    })
+    names(exact_full_hits) <- sources
+
+    # Selection happens per name, but the output is assembled once per batch.
+    # Building a wide data.frame per name and rbind-ing them was about a quarter
+    # of the total run time.
+    selected <- vector("list", length(in_batch))
+
+    for (j in seq_along(in_batch)) {
+      i <- in_batch[j]
+      query <- parsed[i, , drop = FALSE]
+
+      per_source <- lapply(seq_along(sources), function(s) {
+        candidates <- tnrs_match_one(
+          query, backbone[[sources[s]]],
+          exact = exact_hits[[sources[s]]][[j]],
+          exact_full = exact_full_hits[[sources[s]]][[j]]
+        )
+        if (nrow(candidates) == 0) {
+          return(NULL)
+        }
+        scored <- tnrs_score_candidates(
+          candidates, query, backbone[[sources[s]]]$names, source_order = s
+        )
+        scored$source <- sources[s]
+        scored
+      })
+
+      per_source <- per_source[!vapply(per_source, is.null, logical(1))]
+
+      selected[[j]] <- tnrs_select_candidates(
+        query = query, candidates = per_source, backbone = backbone,
+        matches = matches, accuracy = accuracy, query_index = i
+      )
+    }
+
+    outputs[[b]] <- tnrs_build_output(selected, ids, submitted, parsed, backbone)
+
+    if (show_progress) utils::setTxtProgressBar(progress, b)
+  }
+
+  out <- if (length(outputs) == 1L) outputs[[1]] else do.call(rbind, outputs)
+  rownames(out) <- NULL
+  out
 }
 
 #' Choose the rows to report for one submitted name
@@ -198,6 +251,7 @@ TNRS_local <- function(taxonomic_names,
 #' @param accuracy Optional score threshold.
 #' @param query_index Position of this name in the submitted batch.
 #' @return A list of equal-length vectors, one entry per output row.
+#' @importFrom stats ave
 #' @keywords internal
 #' @noRd
 tnrs_select_candidates <- function(query, candidates, backbone, matches,
