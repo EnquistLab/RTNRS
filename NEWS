@@ -9,12 +9,18 @@
   functions:
 
   - "TNRS_local_build" downloads and prepares the taxonomic sources.  This is a
-    one-off step of about 116 MB and a few minutes for the default source;
-    afterwards no internet connection is needed.
+    one-off step of about 116 MB and a few minutes for the default source,
+    leaving about 120 MB on disk; afterwards no internet connection is needed.
+    The downloaded archive is deleted once the data has been prepared, since
+    it is not needed for matching.  Pass keep_archive = TRUE to keep it, which
+    roughly doubles the space used but means a rebuild needs no second
+    download; either way its size and checksum stay on record.
   - "TNRS_local" resolves names against that local copy.  It returns the same
     columns as "TNRS", so existing code that reads the output keeps working.
-  - "TNRS_local_status" reports which sources are available offline, which
-    version each is, and their DOIs, so that local results can be cited.
+  - "TNRS_local_status" lists every source the package can use: which are
+    built for offline use, which version each is and their DOIs so that local
+    results can be cited, and which are merely available, with what
+    downloading them would cost.
   - "TNRS_local_remove" deletes the cache.
 
 * The local functions are additive: "TNRS" and the other API functions are
@@ -29,6 +35,17 @@
   "wcvp" and "wfo" together.  One source means the answer comes from one
   authority.  Pass sources = c("wcvp", "wfo") for the web service's behaviour;
   where the two disagree, the new "Source_conflict" column marks the name.
+
+* "TNRS_local_build" builds "wfo" alone by default, matching "TNRS_local", so
+  the one-off setup is about 116 MB rather than 201 MB.  Build "wcvp" as well
+  if you want both.
+
+* Asking "TNRS_local" for a source that has not been built reports what is
+  missing and the exact "TNRS_local_build" call that would fix it, rather than
+  starting a large download unannounced.  The new "build_missing" argument
+  controls this: it defaults to interactive(), which asks first and reports the
+  download and disk cost, and can be set to TRUE so that an unattended script
+  builds what it needs.
 
 * The local backbone is downloaded from the publishers and is usually newer
   than the copy the web service is running, so some names legitimately resolve

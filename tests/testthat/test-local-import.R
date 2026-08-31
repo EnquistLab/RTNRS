@@ -120,10 +120,96 @@ test_that("status and removal cope with an absent cache", {
   unlink(tmp, recursive = TRUE)
 
   expect_message(result <- TNRS_local_status(dir = tmp), "No local backbone")
-  expect_null(result)
+
+  # Every source is still listed, so that an empty cache says what could be
+  # built rather than saying nothing at all
+  expect_s3_class(result, "data.frame")
+  expect_setequal(result$source, names(tnrs_source_registry()))
+  expect_false(any(result$built))
+  expect_true(all(is.na(result$version)))
+  expect_true(all(result$download_mb > 0))
 
   expect_message(removed <- TNRS_local_remove(dir = tmp, ask = FALSE), "Nothing to remove")
   expect_false(removed)
+})
+
+test_that("status separates what is built from what is merely available", {
+  tmp <- file.path(tempdir(), "tnrs-cache-status")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  # Stand in for a built source: the name table is what makes a source usable,
+  # and a provenance record is what makes it citable
+  file.create(tnrs_names_path("wfo", tmp))
+  saveRDS(
+    list(
+      source = "wfo", full_name = "World Flora Online", version = "2025-12",
+      doi = "10.5281/zenodo.18007552", downloaded = "2026-08-30",
+      bytes = 121000000
+    ),
+    tnrs_provenance_path("wfo", tmp)
+  )
+
+  expect_message(status <- TNRS_local_status(dir = tmp), "Not built: wcvp")
+
+  wfo <- status[status$source == "wfo", ]
+  wcvp <- status[status$source == "wcvp", ]
+
+  expect_true(wfo$built)
+  expect_identical(wfo$version, "2025-12")
+  expect_match(wfo$doi, "zenodo")
+
+  expect_false(wcvp$built)
+  expect_true(is.na(wcvp$version))
+  # Nothing of wcvp's is on disk, so it costs nothing
+  expect_identical(wcvp$size_mb, 0)
+})
+
+test_that("reported size is what is on disk, not what was downloaded", {
+  tmp <- file.path(tempdir(), "tnrs-cache-size")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  writeBin(raw(3 * 1024^2), tnrs_names_path("wfo", tmp))
+  # A provenance record claiming a 121 MB download that is no longer present
+  saveRDS(
+    list(
+      source = "wfo", full_name = "World Flora Online", version = "2025-12",
+      doi = NA_character_, downloaded = "2026-08-30", bytes = 121000000,
+      archive = file.path(tmp, "wfo-2025-12.zip"), archive_kept = FALSE
+    ),
+    tnrs_provenance_path("wfo", tmp)
+  )
+
+  status <- suppressMessages(TNRS_local_status(dir = tmp))
+  wfo <- status[status$source == "wfo", ]
+
+  # The 3 MB actually present, not the 115 MB the record describes
+  expect_lt(wfo$size_mb, 10)
+  expect_gt(wfo$size_mb, 2)
+})
+
+test_that("an archive downloaded but never built does not count as built", {
+  tmp <- file.path(tempdir(), "tnrs-cache-partial-build")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  # Provenance without a name table is what an interrupted build leaves behind
+  saveRDS(
+    list(
+      source = "wcvp", full_name = "World Checklist of Vascular Plants",
+      version = "v15", doi = NA_character_, downloaded = "2026-08-30",
+      bytes = 89000000
+    ),
+    tnrs_provenance_path("wcvp", tmp)
+  )
+
+  status <- suppressMessages(TNRS_local_status(dir = tmp))
+  expect_false(status$built[status$source == "wcvp"])
+  expect_true(is.na(status$version[status$source == "wcvp"]))
 })
 
 test_that("WCVP is read into the shared name table", {
@@ -257,4 +343,90 @@ test_that("building an unknown source is refused", {
     "Unknown source"
   )
   expect_null(result)
+})
+
+test_that("the archive is deleted after a build unless asked for", {
+  tmp <- file.path(tempdir(), "tnrs-cache-archive")
+
+  setup <- function() {
+    unlink(tmp, recursive = TRUE)
+    dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+    archive <- file.path(tmp, "wcvp-v15.zip")
+    writeBin(raw(2 * 1024^2), archive)
+    file.create(tnrs_names_path("wcvp", tmp))
+    saveRDS(
+      list(
+        source = "wcvp", version = "v15", archive = archive,
+        archive_kept = TRUE, bytes = 2 * 1024^2, md5 = "abc",
+        downloaded = "2026-08-30"
+      ),
+      tnrs_provenance_path("wcvp", tmp)
+    )
+    archive
+  }
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  archive <- setup()
+  removed <- suppressMessages(
+    tnrs_tidy_archive("wcvp", dir = tmp, keep_archive = FALSE)
+  )
+  expect_true(removed)
+  expect_false(file.exists(archive))
+
+  # What was downloaded stays documented once the file is gone
+  record <- readRDS(tnrs_provenance_path("wcvp", tmp))
+  expect_identical(record$md5, "abc")
+  expect_identical(record$bytes, 2 * 1024^2)
+  expect_false(record$archive_kept)
+  expect_true(is.na(record$archive))
+
+  archive <- setup()
+  expect_false(tnrs_tidy_archive("wcvp", dir = tmp, keep_archive = TRUE))
+  expect_true(file.exists(archive))
+})
+
+test_that("an interrupted build keeps its archive", {
+  tmp <- file.path(tempdir(), "tnrs-cache-interrupted")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  # Downloaded but never turned into a name table, which is what an interrupted
+  # build leaves behind.  Deleting the archive here would throw away the one
+  # thing that makes a retry cheap.
+  archive <- file.path(tmp, "wcvp-v15.zip")
+  writeBin(raw(1024), archive)
+  saveRDS(
+    list(source = "wcvp", version = "v15", archive = archive,
+         archive_kept = TRUE, bytes = 1024, downloaded = "2026-08-30"),
+    tnrs_provenance_path("wcvp", tmp)
+  )
+
+  expect_false(tnrs_tidy_archive("wcvp", dir = tmp, keep_archive = FALSE))
+  expect_true(file.exists(archive))
+})
+
+test_that("rebuilding an already-built source reclaims its archive", {
+  tmp <- file.path(tempdir(), "tnrs-cache-reclaim")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  # A cache as an earlier version of the package would have left it: built,
+  # with the archive still sitting there
+  archive <- file.path(tmp, "wcvp-v15.zip")
+  writeBin(raw(1024), archive)
+  file.create(tnrs_names_path("wcvp", tmp))
+  saveRDS(
+    list(source = "wcvp", full_name = "World Checklist of Vascular Plants",
+         version = "v15", doi = NA_character_, archive = archive,
+         bytes = 1024, downloaded = "2026-08-28"),
+    tnrs_provenance_path("wcvp", tmp)
+  )
+
+  suppressMessages(TNRS_local_build("wcvp", dir = tmp, quiet = TRUE))
+
+  expect_false(file.exists(archive))
+  # The name table is untouched: nothing was rebuilt, only tidied
+  expect_true(file.exists(tnrs_names_path("wcvp", tmp)))
 })

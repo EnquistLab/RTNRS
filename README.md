@@ -9,7 +9,7 @@ Names can also be resolved without an internet connection, against a locally cac
 ```r
 TNRS_local_build()   # one-off download, about 116 MB and a few minutes
 results <- TNRS_local(c("Quercuss alba", "Xantium strumarium"))
-TNRS_local_status()  # which sources and versions you resolved against
+TNRS_local_status()  # what is built, what else you could build, and versions
 ```
 
 In one comparison on a single machine, resolving 1000 names took about 6 minutes through the web service and about 11 seconds locally once the data was loaded; for a handful of names the web service is simpler and can be quicker, since loading the local data costs around twenty seconds per source. Timings will vary with hardware and with how busy the service is. See `vignette("TNRS_offline")` for the full comparison.

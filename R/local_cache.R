@@ -38,10 +38,11 @@ tnrs_source_registry <- function() {
       license = "CC BY 4.0",
       publisher = "Royal Botanic Gardens, Kew",
       # Approximate, for the message shown before a download is started.
-      # disk_mb covers the archive, which is kept so that a rebuild needs no
-      # second download, plus the name table and the match index built from it.
+      # disk_mb is the name table plus the match index, which is what remains
+      # once the archive has been deleted; keep_archive = TRUE adds download_mb
+      # back on top.
       download_mb = 85,
-      disk_mb = 192
+      disk_mb = 107
     ),
     wfo = list(
       source = "wfo",
@@ -58,9 +59,23 @@ tnrs_source_registry <- function() {
       license = "CC0 1.0",
       publisher = "World Flora Online Consortium",
       download_mb = 116,
-      disk_mb = 235
+      disk_mb = 120
     )
   )
+}
+
+#' Files a source occupies in the cache
+#'
+#' Internal.  Everything a source writes is prefixed with its name, so this is
+#' what it costs on disk: the name table, the match index, the provenance
+#' record, and the archive if it was kept.
+#' @keywords internal
+#' @noRd
+tnrs_source_files <- function(source, dir = tnrs_cache_dir()) {
+  if (!dir.exists(dir)) {
+    return(character(0))
+  }
+  list.files(dir, pattern = paste0("^", source, "-"), full.names = TRUE)
 }
 
 #' Path to the provenance record for a cached source
@@ -132,6 +147,9 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
     license = spec$license,
     publisher = spec$publisher,
     archive = archive,
+    archive_kept = TRUE,
+    # Recorded before the archive is possibly deleted, so that what was
+    # downloaded stays documented whether or not the file is still there
     bytes = as.numeric(file.size(archive)),
     md5 = unname(tools::md5sum(archive)),
     downloaded = as.character(Sys.Date())
@@ -143,44 +161,97 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
 
 #' Report on the locally cached taxonomic backbone
 #'
-#' Shows which taxonomic sources have been downloaded for offline use, which
-#' version each is, and how much space they occupy.  A local result can be cited
-#' using the version and DOI reported here.
+#' Shows every taxonomic source the package can use, whether it has been built
+#' for offline use, and for those that have, which version it is and how much
+#' space it occupies.  A local result can be cited using the version and DOI
+#' reported here.
+#'
+#' Sources that have not been built are listed too, with \code{built} FALSE and
+#' \code{download_mb} giving what fetching them would cost, so that this is the
+#' one place to look to answer both "what did I resolve against" and "what else
+#' could I use".  Build them with \code{TNRS_local_build()}.
 #'
 #' @param dir Cache directory.  Defaults to the standard user cache location.
-#' @return A data.frame with one row per cached source, invisibly if empty.
+#' @return A data.frame with one row per available source.  \code{version},
+#'   \code{doi} and \code{downloaded} describe what is installed and are NA for
+#'   a source that has not been built.  \code{size_mb} is what the source
+#'   occupies on disk now, which is larger for a source built with
+#'   \code{keep_archive = TRUE}; \code{download_mb} is what fetching it costs.
+#' @seealso \code{\link{TNRS_local_build}}
 #' @export
 #' @examples {
 #'   status <- TNRS_local_status()
 #' }
 TNRS_local_status <- function(dir = tnrs_cache_dir()) {
-  if (!dir.exists(dir)) {
-    message(
-      "No local backbone found. The cache directory does not exist yet:\n  ",
-      dir
-    )
-    return(invisible(NULL))
-  }
+  registry <- tnrs_source_registry()
+  sources <- names(registry)
 
-  files <- list.files(dir, pattern = "-provenance[.]rds$", full.names = TRUE)
-  if (length(files) == 0) {
-    message("No local backbone found in:\n  ", dir)
-    return(invisible(NULL))
-  }
-
-  records <- lapply(files, readRDS)
-
-  out <- data.frame(
-    source = vapply(records, function(x) x$source, character(1)),
-    full_name = vapply(records, function(x) x$full_name, character(1)),
-    version = vapply(records, function(x) x$version, character(1)),
-    doi = vapply(records, function(x) as.character(x$doi %||% NA), character(1)),
-    downloaded = vapply(records, function(x) x$downloaded, character(1)),
-    size_mb = round(vapply(records, function(x) x$bytes, numeric(1)) / 1024^2, 1),
-    stringsAsFactors = FALSE
+  # A provenance file records a completed download, which is not the same as a
+  # finished build: an interrupted run can leave the archive without the name
+  # table.  The name table is what the matcher needs, so that is what "built"
+  # means here.
+  built <- vapply(
+    sources, function(s) file.exists(tnrs_names_path(s, dir)), logical(1)
   )
 
-  out[order(out$source), ]
+  provenance <- lapply(sources, function(s) {
+    path <- tnrs_provenance_path(s, dir)
+    if (file.exists(path)) readRDS(path) else NULL
+  })
+  names(provenance) <- sources
+
+  # Installed detail, NA wherever a source has not been built, so that nothing
+  # in these columns can be mistaken for something you could cite
+  from_record <- function(field, empty) {
+    vapply(sources, function(s) {
+      record <- provenance[[s]]
+      if (!built[[s]] || is.null(record)) {
+        return(empty)
+      }
+      value <- record[[field]]
+      if (is.null(value)) empty else value
+    }, empty)
+  }
+
+  # Measured from the files that are actually there rather than taken from the
+  # provenance record, which describes the download.  The two differ whenever
+  # the archive has been deleted, which is the default after a build.
+  size_mb <- vapply(
+    sources,
+    function(s) round(sum(file.size(tnrs_source_files(s, dir))) / 1024^2, 1),
+    numeric(1)
+  )
+
+  out <- data.frame(
+    source = sources,
+    full_name = vapply(registry, function(x) x$full_name, character(1)),
+    built = unname(built),
+    version = unname(from_record("version", NA_character_)),
+    doi = unname(from_record("doi", NA_character_)),
+    downloaded = unname(from_record("downloaded", NA_character_)),
+    size_mb = unname(size_mb),
+    download_mb = vapply(registry, function(x) as.numeric(x$download_mb), numeric(1)),
+    stringsAsFactors = FALSE,
+    row.names = NULL
+  )
+  out <- out[order(out$source), ]
+
+  absent <- out$source[!out$built]
+  if (length(absent) == length(sources)) {
+    # The bare call builds the default source, which is the right advice here;
+    # naming one would mean picking it out of the registry order
+    message(
+      "No local backbone built yet in:\n  ", dir,
+      "\nRun TNRS_local_build() to set one up."
+    )
+  } else if (length(absent) > 0) {
+    message(
+      "Not built: ", paste(absent, collapse = ", "),
+      ". Add with TNRS_local_build(", tnrs_source_arg(absent), ")."
+    )
+  }
+
+  out
 }
 
 #' Delete the locally cached taxonomic backbone

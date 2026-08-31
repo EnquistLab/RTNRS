@@ -6,11 +6,13 @@
 #' directory, and can be removed again with \code{TNRS_local_remove()}.
 #'
 #' The download is large and preparing it takes a few minutes.  World Flora
-#' Online is about 116 MB to download and occupies roughly 235 MB once built;
-#' the World Checklist of Vascular Plants about 85 MB and 192 MB.  The
-#' downloaded archive is kept, so a rebuild needs no second download.  Each
-#' source is recorded with its version and, where the publisher provides one,
-#' its DOI, so that results obtained locally can be cited as precisely as
+#' Online is about 116 MB to download and occupies roughly 120 MB once built;
+#' the World Checklist of Vascular Plants about 85 MB and 107 MB.  The
+#' downloaded archive is deleted once the data has been prepared, since it is
+#' not needed for matching; pass \code{keep_archive = TRUE} to keep it, which
+#' roughly doubles the space used but means a rebuild needs no second download.
+#' Each source is recorded with its version and, where the publisher provides
+#' one, its DOI, so that results obtained locally can be cited as precisely as
 #' results from the web service.  Use \code{TNRS_local_status()} to see what has
 #' been built.
 #'
@@ -20,6 +22,14 @@
 #'   consults them together.
 #' @param dir Cache directory. Defaults to the standard user cache location.
 #' @param overwrite Re-download and rebuild even if the data is already present?
+#' @param keep_archive Keep the downloaded archive after building? It is not
+#'   needed for matching and roughly doubles the space used, so it is deleted by
+#'   default. Keep it if you expect to rebuild, for instance while testing, or
+#'   if you want the original file to hand: rebuilding without it means
+#'   downloading again. Its size and checksum are recorded either way, so
+#'   removing it costs nothing in provenance. This applies to a source that is
+#'   already built, so running the build again is how to reclaim the space used
+#'   by archives left behind by earlier versions of this package.
 #' @param quiet Suppress progress messages?
 #' @return The output of \code{TNRS_local_status()}, invisibly.
 #' @note The taxonomic sources are downloaded from their publishers: the World
@@ -39,6 +49,7 @@
 TNRS_local_build <- function(sources = "wfo",
                              dir = tnrs_cache_dir(create = TRUE),
                              overwrite = FALSE,
+                             keep_archive = FALSE,
                              quiet = FALSE) {
   registry <- tnrs_source_registry()
 
@@ -56,6 +67,9 @@ TNRS_local_build <- function(sources = "wfo",
 
     if (file.exists(names_file) && !overwrite) {
       if (!quiet) message("Source '", source, "' is already built; skipping.")
+      # Still applied, so that a source built by an earlier version of this
+      # package, which always kept its archive, can be tidied by building again
+      tnrs_tidy_archive(source, dir = dir, keep_archive = keep_archive, quiet = quiet)
       next
     }
 
@@ -80,18 +94,22 @@ TNRS_local_build <- function(sources = "wfo",
     nanoparquet::write_parquet(names, names_file, compression = "gzip")
 
     # The extracted text file is large and no longer needed once the compact
-    # form is saved; the archive is kept so a rebuild needs no download
+    # form is saved
     unlink(extracted)
     # Remove any name table left by an earlier version of this package
     unlink(file.path(dir, paste0(source, "-names.rds")))
     rm(names)
     invisible(gc(verbose = FALSE))
 
+    tnrs_tidy_archive(source, dir = dir, keep_archive = keep_archive, quiet = quiet)
+
     if (!quiet) message("Built '", source, "'.")
   }
 
-  status <- TNRS_local_status(dir)
-  if (!quiet && !is.null(status)) {
+  # Its own note about what is still unbuilt would be noise here, since the
+  # caller has just chosen what to build
+  status <- suppressMessages(TNRS_local_status(dir))
+  if (!quiet && any(status$built)) {
     message(
       "\nLocal backbone ready. Please cite the sources listed by ",
       "TNRS_local_status()."
@@ -146,6 +164,63 @@ tnrs_load_names <- function(source, dir = tnrs_cache_dir(), columns = NULL) {
   } else {
     nanoparquet::read_parquet(path, col_select = columns)
   }
+}
+
+#' Delete a source's downloaded archive once it has been built
+#'
+#' Internal.  The archive is only needed to produce the name table, so keeping
+#' it roughly doubles the space a source occupies.  It is removed unless the
+#' caller asked to keep it, and only once there is a name table to show for it,
+#' so an interrupted build never loses the download it would otherwise reuse.
+#'
+#' The size and checksum stay in the provenance record.  They describe the file
+#' that was downloaded and remain true once it is gone, which is what keeps a
+#' local result citable.
+#'
+#' @param source Source name.
+#' @param dir Cache directory.
+#' @param keep_archive Keep the archive?
+#' @param quiet Suppress progress messages?
+#' @return TRUE if an archive was removed, FALSE otherwise, invisibly.
+#' @keywords internal
+#' @noRd
+tnrs_tidy_archive <- function(source, dir = tnrs_cache_dir(),
+                              keep_archive = FALSE, quiet = FALSE) {
+  if (isTRUE(keep_archive)) {
+    return(invisible(FALSE))
+  }
+  if (!file.exists(tnrs_names_path(source, dir))) {
+    return(invisible(FALSE))
+  }
+
+  record_path <- tnrs_provenance_path(source, dir)
+  if (!file.exists(record_path)) {
+    return(invisible(FALSE))
+  }
+  record <- readRDS(record_path)
+
+  archive <- record$archive
+  if (is.null(archive) || is.na(archive) || !file.exists(archive)) {
+    return(invisible(FALSE))
+  }
+
+  freed <- file.size(archive)
+  if (unlink(archive) != 0) {
+    return(invisible(FALSE))
+  }
+
+  record$archive <- NA_character_
+  record$archive_kept <- FALSE
+  saveRDS(record, record_path)
+
+  if (!quiet) {
+    message(
+      "  removed the ", round(freed / 1024^2, 1), " MB archive; ",
+      "rebuilding '", source, "' would download it again ",
+      "(keep_archive = TRUE to keep it)."
+    )
+  }
+  invisible(TRUE)
 }
 
 #' How a set of source names would be written in a call

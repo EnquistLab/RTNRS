@@ -8,6 +8,7 @@ TNRS_local_build(
   sources = "wfo",
   dir = tnrs_cache_dir(create = TRUE),
   overwrite = FALSE,
+  keep_archive = FALSE,
   quiet = FALSE
 )
 }
@@ -20,6 +21,15 @@ consults them together.}
 \item{dir}{Cache directory. Defaults to the standard user cache location.}
 
 \item{overwrite}{Re-download and rebuild even if the data is already present?}
+
+\item{keep_archive}{Keep the downloaded archive after building? It is not
+needed for matching and roughly doubles the space used, so it is deleted by
+default. Keep it if you expect to rebuild, for instance while testing, or
+if you want the original file to hand: rebuilding without it means
+downloading again. Its size and checksum are recorded either way, so
+removing it costs nothing in provenance. This applies to a source that is
+already built, so running the build again is how to reclaim the space used
+by archives left behind by earlier versions of this package.}
 
 \item{quiet}{Suppress progress messages?}
 }
@@ -34,11 +44,13 @@ directory, and can be removed again with \code{TNRS_local_remove()}.
 }
 \details{
 The download is large and preparing it takes a few minutes.  World Flora
-Online is about 116 MB to download and occupies roughly 235 MB once built;
-the World Checklist of Vascular Plants about 85 MB and 192 MB.  The
-downloaded archive is kept, so a rebuild needs no second download.  Each
-source is recorded with its version and, where the publisher provides one,
-its DOI, so that results obtained locally can be cited as precisely as
+Online is about 116 MB to download and occupies roughly 120 MB once built;
+the World Checklist of Vascular Plants about 85 MB and 107 MB.  The
+downloaded archive is deleted once the data has been prepared, since it is
+not needed for matching; pass \code{keep_archive = TRUE} to keep it, which
+roughly doubles the space used but means a rebuild needs no second download.
+Each source is recorded with its version and, where the publisher provides
+one, its DOI, so that results obtained locally can be cited as precisely as
 results from the web service.  Use \code{TNRS_local_status()} to see what has
 been built.
 }

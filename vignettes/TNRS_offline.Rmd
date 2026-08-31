@@ -37,8 +37,19 @@ TNRS_local_build()
 ```
 
 This downloads the World Flora Online backbone from its publisher and prepares
-it for matching: about 116 MB, and a few minutes. You only need to do it again
-when you want a newer version of the source.
+it for matching: about 116 MB, and a few minutes, leaving about 120 MB on disk.
+You only need to do it again when you want a newer version of the source.
+
+The downloaded archive is deleted once the data has been prepared, because
+matching does not need it. If you expect to rebuild, keep it:
+
+```{r}
+TNRS_local_build(keep_archive = TRUE)
+```
+
+That roughly doubles the space used, and saves the download next time. Either
+way the archive's size and checksum stay in the record, so removing it costs
+nothing you would want to cite.
 
 `TNRS_local()` uses that one source by default. If you want the second source as
 well, so that you can compare the two the way the web service does, build it too:
@@ -67,13 +78,21 @@ TNRS_local_status()
 ```
 
 ```
-  source                          full_name version                     doi downloaded size_mb
-1   wcvp World Checklist of Vascular Plants     v15                    <NA> 2026-08-28    85.4
-2    wfo                 World Flora Online 2025-12 10.5281/zenodo.18007552 2026-08-28   115.5
+Not built: wcvp. Add with TNRS_local_build("wcvp").
+  source                          full_name built version                     doi downloaded size_mb download_mb
+1   wcvp World Checklist of Vascular Plants FALSE    <NA>                    <NA>       <NA>     0.0          85
+2    wfo                 World Flora Online  TRUE 2025-12 10.5281/zenodo.18007552 2026-08-30   119.9         116
 ```
 
-Keep that output. It is what makes a local result citable: it records exactly
-which version of which source you resolved against.
+Every source the package can use is listed, so this answers both questions at
+once: what you resolved against, and what else you could build. `built` is FALSE
+for a source you have not downloaded, and `version`, `doi` and `downloaded` are
+then NA, since there is nothing installed to describe. `size_mb` is what the
+source occupies on disk right now, so it is larger for a source built with
+`keep_archive = TRUE`; `download_mb` is what fetching it would cost.
+
+Keep the rows where `built` is TRUE. They are what makes a local result citable:
+they record exactly which version of which source you resolved against.
 
 `TNRS_local_remove()` deletes the cache if you want the space back.
 

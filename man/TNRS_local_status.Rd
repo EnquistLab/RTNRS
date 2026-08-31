@@ -10,15 +10,29 @@ TNRS_local_status(dir = tnrs_cache_dir())
 \item{dir}{Cache directory.  Defaults to the standard user cache location.}
 }
 \value{
-A data.frame with one row per cached source, invisibly if empty.
+A data.frame with one row per available source.  \code{version},
+  \code{doi} and \code{downloaded} describe what is installed and are NA for
+  a source that has not been built.  \code{size_mb} is what the source
+  occupies on disk now, which is larger for a source built with
+  \code{keep_archive = TRUE}; \code{download_mb} is what fetching it costs.
 }
 \description{
-Shows which taxonomic sources have been downloaded for offline use, which
-version each is, and how much space they occupy.  A local result can be cited
-using the version and DOI reported here.
+Shows every taxonomic source the package can use, whether it has been built
+for offline use, and for those that have, which version it is and how much
+space it occupies.  A local result can be cited using the version and DOI
+reported here.
+}
+\details{
+Sources that have not been built are listed too, with \code{built} FALSE and
+\code{download_mb} giving what fetching them would cost, so that this is the
+one place to look to answer both "what did I resolve against" and "what else
+could I use".  Build them with \code{TNRS_local_build()}.
 }
 \examples{
 {
   status <- TNRS_local_status()
 }
+}
+\seealso{
+\code{\link{TNRS_local_build}}
 }
