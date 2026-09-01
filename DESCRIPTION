@@ -25,6 +25,7 @@ Suggests:
     vcr (>= 0.6.0),
     devtools,
     rgnparser,
+    readxl,
     yaml
 VignetteBuilder: knitr
 RoxygenNote: 7.3.3
