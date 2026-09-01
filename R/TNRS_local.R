@@ -11,7 +11,8 @@
 #' @param sources Character. Taxonomic sources to use, in order of preference.
 #'   Defaults to "wfo" alone. Supplying more than one blends them, which is what
 #'   the web service does, but the sources do not always agree; see the note
-#'   below and the \code{Source_conflict} column.
+#'   below and the \code{Source_conflict} column. A checklist registered with
+#'   \code{TNRS_local_add_source()} can be named here like any other source.
 #' @param matches Character. Should all matches be returned ("all") or only the
 #'   best match ("best", the default)?
 #' @param accuracy Numeric. If specified, matches scoring below this are
@@ -58,7 +59,9 @@
 #'   component score falls below the threshold, so a low-scoring match can
 #'   survive a high threshold. This function applies the threshold to the
 #'   overall score, which is what the documentation of the web service describes.
-#' @seealso \code{\link{TNRS_local_build}}, \code{\link{TNRS_local_status}}
+#' @seealso \code{\link{TNRS_local_build}}, \code{\link{TNRS_local_status}},
+#'   \code{\link{TNRS_local_add_source}} to resolve against a checklist of your
+#'   own.
 #' @export
 #' @examples \dontrun{
 #' # One-off setup
@@ -93,7 +96,7 @@ TNRS_local <- function(taxonomic_names,
     stop("accuracy should be either numeric between 0 and 1, or NULL")
   }
 
-  registry <- tnrs_source_registry()
+  registry <- tnrs_source_registry(dir)
   if (!all(sources %in% names(registry))) {
     message(
       "Invalid source(s) specified. Current options are: ",

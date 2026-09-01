@@ -19,8 +19,15 @@ TRUE if anything was removed, FALSE otherwise, invisibly.
 Removes the downloaded taxonomic sources and everything derived from them.
 The data can be downloaded again at any time.
 }
+\details{
+Checklists registered with \code{TNRS_local_add_source()} go too, and those
+this package cannot fetch again, so it names them before asking.
+}
 \examples{
 \dontrun{
 TNRS_local_remove()
 }
+}
+\seealso{
+\code{\link{TNRS_local_add_source}}
 }

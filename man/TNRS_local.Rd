@@ -23,7 +23,8 @@ names can be supplied.}
 \item{sources}{Character. Taxonomic sources to use, in order of preference.
 Defaults to "wfo" alone. Supplying more than one blends them, which is what
 the web service does, but the sources do not always agree; see the note
-below and the \code{Source_conflict} column.}
+below and the \code{Source_conflict} column. A checklist registered with
+\code{TNRS_local_add_source()} can be named here like any other source.}
 
 \item{matches}{Character. Should all matches be returned ("all") or only the
 best match ("best", the default)?}
@@ -105,5 +106,7 @@ both[both$Source_conflict, ]
 }
 }
 \seealso{
-\code{\link{TNRS_local_build}}, \code{\link{TNRS_local_status}}
+\code{\link{TNRS_local_build}}, \code{\link{TNRS_local_status}},
+  \code{\link{TNRS_local_add_source}} to resolve against a checklist of your
+  own.
 }

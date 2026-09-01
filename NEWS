@@ -23,6 +23,29 @@
     downloading them would cost.
   - "TNRS_local_remove" deletes the cache.
 
+* "TNRS_local_add_source" registers a checklist you supply as a local source,
+  on the same footing as the ones this package downloads.  Use it for an
+  authority the TNRS does not distribute, for a group outside the flowering
+  plants, or for an in-house list.  Only the name itself is required: anything
+  the checklist does not carry, such as the genus and epithet, is derived from
+  the name using the same parser the resolver uses.  Columns are looked for
+  under their Darwin Core names by default, and named explicitly with the
+  "columns" argument otherwise.  A source added this way can be used on its own
+  or blended with "wfo" and "wcvp", with "Source_conflict" marking the names
+  they disagree about.
+
+  The Cactaceae checklist at caryophyllales.org, which the web service offers
+  as source "cact", is not distributed publicly, so this package cannot
+  download it.  If you obtain a copy you can register it with
+  "TNRS_local_add_source".
+
+* "TNRS_cdm_to_dwc" converts a taxonomic export from the EDIT platform into
+  Darwin Core, ready to register.  That is the form the Caryophyllales.org
+  checklists are supplied in, Cactaceae among them: one sheet of accepted taxa
+  and one of synonyms.  It stacks the two, folds the platform's own rank
+  spellings onto botanical ones, and reads each name's status off the tree, so
+  that names the authors could not place are not promoted to accepted taxa.
+
 * The local functions are additive: "TNRS" and the other API functions are
   unchanged, and continue to query the web service.
 

@@ -247,6 +247,80 @@ Two columns tell you when this has happened:
 If your data may contain non-plants, filter on those rather than taking
 `Accepted_name` at face value.
 
+## Using your own checklist
+
+`TNRS_local_add_source()` registers a checklist you supply as a source, on the
+same footing as the ones this package downloads. Use it for an authority the
+TNRS does not distribute, for a group outside the flowering plants, or for an
+in-house list.
+
+The web service offers a Cactaceae checklist from caryophyllales.org as source
+`cact`. That one is not published for download, so this package cannot fetch it
+for you, but if you obtain a copy you can register it:
+
+```{r}
+TNRS_local_add_source(
+  "cactaceae.csv",
+  source = "cact",
+  version = "2021",
+  full_name = "Cactaceae at Caryophyllales.org",
+  doi = "10.3372/wi.51.51208"
+)
+```
+
+Checklists are not always published as a single Darwin Core table. Those at
+Caryophyllales.org come as a workbook of two sheets, accepted taxa and synonyms,
+exported from the EDIT platform. `TNRS_cdm_to_dwc()` converts that shape:
+
+```{r}
+accepted <- readxl::read_excel("CactaceaeFullList.xlsx", sheet = "Accepted")
+synonym <- readxl::read_excel("CactaceaeFullList.xlsx", sheet = "Synonym")
+
+cact <- TNRS_cdm_to_dwc(accepted, synonym, family = "Cactaceae")
+TNRS_local_add_source(cact, source = "cact", version = "2023-11-02")
+```
+
+It stacks the two sheets, drops the placeholder nodes that organise the tree
+rather than name a taxon, and reads each name's status off the tree, so that
+names the authors could not place stay unchecked rather than becoming accepted
+taxa.
+
+Columns are otherwise looked for under their Darwin Core names, which is how
+checklists are normally published. A list that names them differently needs a mapping, and
+only the name itself is required:
+
+```{r}
+TNRS_local_add_source(
+  my_list,
+  source = "inhouse", version = "2026-09",
+  columns = c(scientific_name = "taxon", authorship = "author")
+)
+```
+
+Anything the checklist does not carry is worked out from the name by the same
+parser the resolver uses, so a single column of names is enough to start. A
+checklist with no status column is treated as a list of accepted names.
+
+Once registered, it behaves like any other source. It can be used on its own:
+
+```{r}
+TNRS_local(c("Mamillaria elongata"), sources = "cact")
+```
+
+or alongside a global source, which is the interesting case, since a specialist
+checklist is worth having precisely where it disagrees with a global one:
+
+```{r}
+results <- TNRS_local(names, sources = c("cact", "wfo"))
+results[results$Source_conflict, ]
+```
+
+Two things to know. `version` is required, because a result resolved against an
+unversioned local file cannot be reported reproducibly; it is recorded and shown
+by `TNRS_local_status()` like any other source's. And `TNRS_local_remove()`
+deletes sources you supplied along with everything else, and this package cannot
+fetch them again, so keep the original file.
+
 ## Known limitations
 
 * **Badly misspelled names can be missed.** The matcher narrows the search

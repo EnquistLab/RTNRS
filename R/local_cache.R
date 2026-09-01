@@ -23,10 +23,22 @@ tnrs_cache_dir <- function(create = FALSE) {
 #' WFO publishes a DOI per release on Zenodo, and Kew archives each WCVP version
 #' under its own filename, so a build can always be reproduced.
 #'
+#' @param dir Cache directory to look in for user-supplied sources.
 #' @return A named list of source definitions.
 #' @keywords internal
 #' @noRd
-tnrs_source_registry <- function() {
+tnrs_source_registry <- function(dir = tnrs_cache_dir()) {
+  c(tnrs_builtin_registry(), tnrs_custom_sources(dir))
+}
+
+#' Taxonomic sources this package can download
+#'
+#' Internal.  The sources the package ships knowledge of, as opposed to those a
+#' user has registered with \code{TNRS_local_add_source()}.
+#' @return A named list of source definitions.
+#' @keywords internal
+#' @noRd
+tnrs_builtin_registry <- function() {
   list(
     wcvp = list(
       source = "wcvp",
@@ -100,8 +112,16 @@ tnrs_provenance_path <- function(source, dir = tnrs_cache_dir()) {
 #' @noRd
 tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
                                  overwrite = FALSE, quiet = FALSE) {
-  registry <- tnrs_source_registry()
+  registry <- tnrs_builtin_registry()
   if (!source %in% names(registry)) {
+    if (isTRUE(unname(tnrs_is_custom(source, dir)))) {
+      stop(
+        "Source '", source, "' was supplied by you, so there is nothing to ",
+        "download. Register it again with TNRS_local_add_source() if its ",
+        "data is missing.",
+        call. = FALSE
+      )
+    }
     stop("Unknown source '", source, "'. Available: ",
       paste(names(registry), collapse = ", "),
       call. = FALSE
@@ -177,13 +197,14 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
 #'   a source that has not been built.  \code{size_mb} is what the source
 #'   occupies on disk now, which is larger for a source built with
 #'   \code{keep_archive = TRUE}; \code{download_mb} is what fetching it costs.
-#' @seealso \code{\link{TNRS_local_build}}
+#' @seealso \code{\link{TNRS_local_build}},
+#'   \code{\link{TNRS_local_add_source}}
 #' @export
 #' @examples {
 #'   status <- TNRS_local_status()
 #' }
 TNRS_local_status <- function(dir = tnrs_cache_dir()) {
-  registry <- tnrs_source_registry()
+  registry <- tnrs_source_registry(dir)
   sources <- names(registry)
 
   # A provenance file records a completed download, which is not the same as a
@@ -259,10 +280,14 @@ TNRS_local_status <- function(dir = tnrs_cache_dir()) {
 #' Removes the downloaded taxonomic sources and everything derived from them.
 #' The data can be downloaded again at any time.
 #'
+#' Checklists registered with \code{TNRS_local_add_source()} go too, and those
+#' this package cannot fetch again, so it names them before asking.
+#'
 #' @param dir Cache directory.  Defaults to the standard user cache location.
 #' @param ask Ask for confirmation before deleting? Defaults to TRUE in an
 #'   interactive session.
 #' @return TRUE if anything was removed, FALSE otherwise, invisibly.
+#' @seealso \code{\link{TNRS_local_add_source}}
 #' @export
 #' @examples \dontrun{
 #' TNRS_local_remove()
@@ -277,15 +302,29 @@ TNRS_local_remove <- function(dir = tnrs_cache_dir(), ask = interactive()) {
     na.rm = TRUE
   ) / 1024^2, 1)
 
+  # A downloaded source can always be fetched again; one the user supplied
+  # cannot, so it is called out rather than quietly included in the total
+  custom <- names(tnrs_custom_sources(dir))
+  warn <- if (length(custom) > 0) {
+    paste0(
+      "\nThis includes ", paste(custom, collapse = ", "),
+      ", which you supplied and this package cannot download again."
+    )
+  } else {
+    ""
+  }
+
   if (ask) {
     answer <- readline(paste0(
       "Delete the local TNRS backbone (", size_mb, " MB) in\n  ", dir,
-      "\n? [y/N] "
+      warn, "\n? [y/N] "
     ))
     if (!tolower(trimws(answer)) %in% c("y", "yes")) {
       message("Nothing removed.")
       return(invisible(FALSE))
     }
+  } else if (nzchar(warn)) {
+    message(sub("^\n", "", warn))
   }
 
   unlink(dir, recursive = TRUE)

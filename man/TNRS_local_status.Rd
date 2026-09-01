@@ -34,5 +34,6 @@ could I use".  Build them with \code{TNRS_local_build()}.
 }
 }
 \seealso{
-\code{\link{TNRS_local_build}}
+\code{\link{TNRS_local_build}},
+  \code{\link{TNRS_local_add_source}}
 }

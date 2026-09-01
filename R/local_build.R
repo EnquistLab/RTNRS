@@ -51,7 +51,22 @@ TNRS_local_build <- function(sources = "wfo",
                              overwrite = FALSE,
                              keep_archive = FALSE,
                              quiet = FALSE) {
-  registry <- tnrs_source_registry()
+  registry <- tnrs_builtin_registry()
+
+  # A source the user supplied cannot be downloaded, so say so rather than
+  # reporting it as unknown, which it is not
+  custom <- setdiff(sources, names(registry))
+  custom <- custom[unname(tnrs_is_custom(custom, dir))]
+  if (length(custom) > 0) {
+    message(
+      "Cannot build: ", paste(custom, collapse = ", "),
+      ". You supplied ", if (length(custom) == 1) "it" else "them",
+      ", so there is nothing to download.",
+      "
+Use TNRS_local_add_source() to register the data again."
+    )
+    return(invisible(NULL))
+  }
 
   unknown <- setdiff(sources, names(registry))
   if (length(unknown) > 0) {
@@ -259,7 +274,20 @@ tnrs_require_sources <- function(sources, dir = tnrs_cache_dir(),
     return(TRUE)
   }
 
-  registry <- tnrs_source_registry()
+  # A user-supplied source whose data has gone cannot be rebuilt from here,
+  # so it is reported separately and the rest carries on
+  gone <- missing[unname(tnrs_is_custom(missing, dir))]
+  if (length(gone) > 0) {
+    message(
+      "The data for ", paste(gone, collapse = ", "),
+      " is missing, and this package cannot fetch it because you supplied it.",
+      "
+Register it again with TNRS_local_add_source()."
+    )
+    return(FALSE)
+  }
+
+  registry <- tnrs_builtin_registry()
   download_mb <- sum(vapply(registry[missing], function(x) x$download_mb, numeric(1)))
   disk_mb <- sum(vapply(registry[missing], function(x) x$disk_mb, numeric(1)))
   fix <- paste0("TNRS_local_build(", tnrs_source_arg(missing), ")")

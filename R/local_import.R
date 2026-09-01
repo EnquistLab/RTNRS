@@ -234,17 +234,32 @@ tnrs_import_wfo <- function(path, quiet = FALSE) {
   out
 }
 
-#' Map WFO rank names onto the standard rank indicators
+#' Map a rank spelled out in full onto its standard rank indicator
 #'
-#' WFO spells ranks out in full.  Most map through the shared rank table; "form"
-#' is spelled without its final "a" in WFO and is handled here rather than by
-#' loosening the shared table, which is a faithful copy of the upstream one.
+#' Sources spell ranks out in full where the shared rank table, a faithful copy
+#' of the upstream one, is keyed mostly on the abbreviations that appear inside
+#' names.  The few full spellings that table does not carry are added here
+#' rather than by loosening it, since it is also what the parser uses to read
+#' submitted names and should keep matching upstream exactly.
+#'
+#' @param rank Character vector of rank names.
+#' @return The matching indicators, empty at and above species.
 #' @keywords internal
 #' @noRd
 tnrs_wfo_rank_indicator <- function(rank) {
   rank <- tolower(rank)
   out <- tnrs_standardize_rank(rank)
-  out[rank == "form"] <- "fo."
+
+  # WFO writes "form" without its final "a"; the rest are spellings used by
+  # checklists exported from the EDIT platform
+  extra <- c(
+    "form" = "fo.", "subvariety" = "subvar.", "subform" = "subfo.",
+    "subgenus" = "subgen.", "section" = "sect.", "subsection" = "subsect.",
+    "series" = "ser.", "subseries" = "subser.", "cultivar" = "cv."
+  )
+  hit <- extra[rank]
+  out[!is.na(hit)] <- unname(hit[!is.na(hit)])
+
   # Ranks at or above species carry no indicator
   out[rank %in% c("species", "genus", "family", "unranked", "")] <- ""
   out

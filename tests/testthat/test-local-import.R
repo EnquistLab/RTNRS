@@ -95,8 +95,8 @@ test_that("the cache directory is configurable", {
   unlink(tmp, recursive = TRUE)
 })
 
-test_that("every registered source carries the metadata needed to cite it", {
-  registry <- tnrs_source_registry()
+test_that("every source the package ships carries the metadata to cite it", {
+  registry <- tnrs_builtin_registry()
   expect_true(all(c("wcvp", "wfo") %in% names(registry)))
 
   for (source in registry) {
@@ -124,7 +124,7 @@ test_that("status and removal cope with an absent cache", {
   # Every source is still listed, so that an empty cache says what could be
   # built rather than saying nothing at all
   expect_s3_class(result, "data.frame")
-  expect_setequal(result$source, names(tnrs_source_registry()))
+  expect_setequal(result$source, names(tnrs_source_registry(tmp)))
   expect_false(any(result$built))
   expect_true(all(is.na(result$version)))
   expect_true(all(result$download_mb > 0))
