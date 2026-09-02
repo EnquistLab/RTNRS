@@ -23,7 +23,7 @@ This function provides citation information in bibtex format that can be used wi
 This function is a wrapper that returns the output of the functions TNRS_citations, TNRS_sources, and TNRS_version.
 }
 \examples{
-{
+\dontrun{
   metadata <- TNRS_metadata()
 }
 

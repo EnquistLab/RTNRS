@@ -5,7 +5,7 @@
 #' @param skip_internet_check Should the check for internet connectivity be skipped? Default is FALSE.
 #' @param ... Additional parameters passed to internal functions
 #' @export
-#' @examples {
+#' @examples \dontrun{
 #'   sources <- TNRS_sources()
 #' }
 #'

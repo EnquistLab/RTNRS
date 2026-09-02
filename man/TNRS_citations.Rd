@@ -21,7 +21,7 @@ Returns information needed to cite the TNRS
 This function provides citation information in bibtex format that can be used with reference manager software (e.g. Paperpile, Zotero). Please do remember to cite both the sources and the TNRS, as the TNRS couldn't exist without these sources!
 }
 \examples{
-{
+\dontrun{
   citation_info <- TNRS_citations()
 }
 }

@@ -7,7 +7,7 @@
 #' @note This function provides citation information in bibtex format that can be used with reference manager software (e.g. Paperpile, Zotero). Please remember to cite both the sources and the TNRS, as the TNRS couldn't exist without these sources!
 #' @note This function is a wrapper that returns the output of the functions TNRS_citations, TNRS_sources, and TNRS_version.
 #' @export
-#' @examples {
+#' @examples \dontrun{
 #'   metadata <- TNRS_metadata()
 #' }
 #'

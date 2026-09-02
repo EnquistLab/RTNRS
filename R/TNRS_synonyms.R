@@ -11,7 +11,7 @@
 #' @import httr
 #' @export
 #' @importFrom jsonlite toJSON fromJSON
-#' @examples{
+#' @examples \dontrun{
 #'
 #' TNRS_synonyms(taxonomic_name = "Sabal palmetto",source =  "wfo")
 #'

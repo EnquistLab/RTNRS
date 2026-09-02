@@ -18,7 +18,7 @@ Dataframe containing information about the sources used in the current TNRS vers
 Return metadata about the current TNRS sources
 }
 \examples{
-{
+\dontrun{
   sources <- TNRS_sources()
 }
 

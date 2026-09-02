@@ -32,7 +32,7 @@ This function only handles a single source and a single taxonomic name at a time
 wfo = World Flora Online, wcvp = World Checklist of Vascular Plants, cact = Cactaceae at Caryophyllales.org
 }
 \examples{
-{
+\dontrun{
 
 TNRS_synonyms(taxonomic_name = "Sabal palmetto",source =  "wfo")
 

@@ -18,7 +18,7 @@ Dataframe containing current TNRS version number, build date, and code version.
 Return metadata about the current TNRS version
 }
 \examples{
-{
+\dontrun{
   TNRS_version_metadata <- TNRS_version()
 }
 

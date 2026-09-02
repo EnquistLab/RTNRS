@@ -43,10 +43,20 @@ TNRS <- function(taxonomic_names,
     }
   }
 
-  # If taxonomic names are supplied as a character string, make them into a data.frame
+  # Everything checkable is checked before anything is sent, because the web
+  # service answers a malformed request with a status code and no explanation
+  submitted <- tnrs_check_names(taxonomic_names)
 
-  if (inherits(x = taxonomic_names, what = "character")) {
-    taxonomic_names <- as.data.frame(cbind(1:length(taxonomic_names), taxonomic_names))
+  # Each distinct, non-blank name is sent once under an identifier of our own.
+  # Upstream drops blank names, which shifts every later identifier, and
+  # combines repeated names into one row whose identifier is the others pasted
+  # together; sending the request this way avoids both, and the caller's rows
+  # are rebuilt from the answer afterwards.
+  taxonomic_names <- tnrs_request_frame(submitted)
+
+  if (nrow(taxonomic_names) == 0) {
+    message("No names to resolve: every name supplied was blank.")
+    return(tnrs_reconcile_results(NULL, submitted, taxonomic_names))
   }
 
 
@@ -95,7 +105,7 @@ TNRS <- function(taxonomic_names,
 
   # If there are less than the max number of names allowable, send them to the base package
   if (nrow(taxonomic_names) <= name_limit) {
-    return(TNRS_base(
+    results <- TNRS_base(
       taxonomic_names = taxonomic_names,
       sources = sources,
       classification = classification,
@@ -104,7 +114,11 @@ TNRS <- function(taxonomic_names,
       accuracy = accuracy,
       skip_internet_check = skip_internet_check,
       ...
-    ))
+    )
+    if (is.null(results)) {
+      return(invisible(NULL))
+    }
+    return(tnrs_reconcile_results(results, submitted, taxonomic_names))
   } #
 
   # If there are more than the max number of records, divide them into chunks and process the chunks
@@ -165,5 +179,5 @@ TNRS <- function(taxonomic_names,
     return(invisible(NULL))
   }
 
-  return(results)
+  return(tnrs_reconcile_results(results, submitted, taxonomic_names))
 } # fx
