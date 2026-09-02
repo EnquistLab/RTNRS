@@ -124,8 +124,11 @@ tnrs_request_frame <- function(submitted) {
   keep <- !tnrs_is_blank_name(submitted$name)
   names_to_send <- unique(submitted$name[keep])
 
+  # Integer, because the service documents its identifiers as unique integers
+  # and is sent them as JSON numbers; the caller's own identifiers, whatever
+  # they are, are put back by tnrs_reconcile_results()
   data.frame(
-    ID = as.character(seq_along(names_to_send)),
+    ID = seq_along(names_to_send),
     name = names_to_send,
     stringsAsFactors = FALSE
   )
@@ -168,8 +171,9 @@ tnrs_reconcile_results <- function(results, submitted, sent) {
   expanded <- results[rep(seq_len(nrow(results)), repeats), , drop = FALSE]
   expanded$ID <- trimws(unlist(ids))
 
-  # Back from our identifier to the name it stood for
-  name_of_row <- sent$name[match(expanded$ID, sent$ID)]
+  # Back from our identifier to the name it stood for.  The service returns
+  # every column as text, so both sides are compared as text.
+  name_of_row <- sent$name[match(expanded$ID, as.character(sent$ID))]
 
   # Rows grouped by the name they answer, so a name asked for twice can be
   # returned twice

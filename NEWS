@@ -105,6 +105,43 @@
 
 ## Bug Fixes
 
+* Names are now matched back to the rows they were submitted on.  Each distinct
+  name is sent once, under an identifier of this package's own, and the answer
+  is rebuilt against the request.  This fixes three reported problems at once:
+
+  - A blank name is no longer dropped by the service, which used to shift every
+    later name onto the identifier before it, silently and with no error.  That
+    was the most damaging of the three, since the identifier column exists to
+    join results back to the caller's data (#16).
+  - A name given more than once now returns a row per identifier, rather than
+    one row whose ID was the identifiers pasted together, "test-2,test-1" (#15).
+  - A name that is missing, empty or only whitespace is returned unmatched
+    rather than disappearing from the output (#14).
+
+  Sending each distinct name once also means a list with repeats is smaller to
+  resolve.
+
+* "TNRS_status" reports whether the web service is reachable, how quickly it
+  answered and which version it is running, so that a failing call can be told
+  apart from a failing connection without guesswork (#20).
+
+* A request that fails now says why.  Every failure used to be reported as
+  "There appears to be a problem reaching the API", which discarded the reason,
+  so a timeout, a refused connection, a name that would not resolve and a
+  certificate problem were indistinguishable.  Each is now named, along with
+  what to do about it.
+
+* "TNRS" and the other API functions take a "timeout" argument, in seconds.  A
+  large batch of names legitimately takes minutes, and there was previously no
+  way to wait longer than the default.
+
+* Submitted names are checked before anything is sent, so a malformed request
+  is explained rather than answered with "HTTP Status 400" (#13, #19).  The
+  checks cover the number of columns, the type supplied, empty input, and
+  missing or duplicated identifiers; the last of these would silently corrupt
+  any join back to the caller's data.  "TNRS" and "TNRS_local" share the checks
+  and report the same problems in the same words.
+
 * A family prefix that agreed with the matched name was penalised as though it
   had been wrong.  The submitted family was left unscored while still counting
   as a component of the name, so the score was divided by a part that

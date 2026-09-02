@@ -13,6 +13,7 @@ TNRS_core(
   matches = "best",
   accuracy = NULL,
   batches = NULL,
+  timeout = 300,
   ...
 )
 }
@@ -32,6 +33,10 @@ TNRS_core(
 \item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.}
 
 \item{batches}{NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented}
+
+\item{timeout}{Numeric.  Seconds to wait for the server before giving up.  A
+large batch of names legitimately takes minutes, so this is generous by
+default; raise it if a large request times out.}
 }
 \description{
 Internal function for handling accessing the API,data formatting, and errors

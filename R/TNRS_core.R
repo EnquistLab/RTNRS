@@ -10,6 +10,9 @@
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
 #' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
 #' @param batches NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented
+#' @param timeout Numeric.  Seconds to wait for the server before giving up.  A
+#'   large batch of names legitimately takes minutes, so this is generous by
+#'   default; raise it if a large request times out.
 #' @note For more information on current sources, use the function TNRS_sources()
 #' @importFrom jsonlite toJSON
 #' @import httr
@@ -22,6 +25,7 @@ TNRS_core <- function(url = "https://tnrsapi.xyz/tnrs_api.php",
                       matches = "best",
                       accuracy = NULL,
                       batches = NULL,
+                      timeout = 300,
                       ...) {
   # reformat sources if need  be (only likely when using internal function externally)
 
@@ -74,10 +78,14 @@ TNRS_core <- function(url = "https://tnrsapi.xyz/tnrs_api.php",
       add_headers("Accept" = "application/json"),
       add_headers("charset" = "UTF-8"),
       body = input_json,
-      encode = "json"
+      encode = "json",
+      httr::timeout(timeout)
     ),
     error = function(e) {
-      message("There appears to be a problem reaching the API.")
+      # The reason matters: a timeout, a refused connection and a name that
+      # will not resolve all used to be reported identically, leaving no way to
+      # tell a problem at the server from one at this end
+      message(tnrs_request_failure(conditionMessage(e), url, timeout))
     }
   )
 
