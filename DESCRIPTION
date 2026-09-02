@@ -15,7 +15,10 @@ Imports:
         jsonlite,
         httr,
         Rcpp,
-        nanoparquet
+        nanoparquet,
+        stats,
+        tools,
+        utils
 LinkingTo:
     Rcpp
 Suggests:
