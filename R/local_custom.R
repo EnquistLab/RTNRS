@@ -401,7 +401,8 @@ tnrs_is_custom <- function(source, dir = tnrs_cache_dir()) {
 #' @note \code{TNRS_local_remove()} deletes user-supplied sources along with
 #'   everything else, and this package cannot fetch them again, so keep the
 #'   original file.
-#' @seealso \code{\link{TNRS_local}}, \code{\link{TNRS_local_status}}
+#' @seealso \code{\link{TNRS_local}}, \code{\link{TNRS_local_status}},
+#'   \code{\link{TNRS_local_citations}}
 #' @export
 #' @examples \dontrun{
 #' # A checklist published in Darwin Core needs no mapping

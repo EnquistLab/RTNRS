@@ -22,6 +22,10 @@
     results can be cited, and which are merely available, with what
     downloading them would cost.
   - "TNRS_local_remove" deletes the cache.
+  - "TNRS_local_citations" gives everything a local result should be cited
+    with: the TNRS publication, this package, and each source resolved
+    against, at the version that was actually built rather than the one
+    currently published.  Optionally written out as BibTeX.
 
 * "TNRS_local_add_source" registers a checklist you supply as a local source,
   on the same footing as the ones this package downloads.  Use it for an
@@ -120,6 +124,10 @@
 
   Sending each distinct name once also means a list with repeats is smaller to
   resolve.
+
+* The package now carries a CITATION file, so citation("TNRS") gives the
+  software with its DOI and the TNRS publication together, rather than a
+  citation generated from the description.
 
 * "TNRS_status" reports whether the web service is reachable, how quickly it
   answered and which version it is running, so that a failing call can be told

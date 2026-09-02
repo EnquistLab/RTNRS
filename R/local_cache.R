@@ -55,6 +55,12 @@ tnrs_builtin_registry <- function() {
       taxonomic_scope = "Tracheophyta",
       license = "CC BY 4.0",
       publisher = "Royal Botanic Gardens, Kew",
+      citation = paste(
+        "Govaerts R., Nic Lughadha E., Black N., Turner R. & Paton A. (2021).",
+        "The World Checklist of Vascular Plants, a continuously updated",
+        "resource for exploring global plant diversity. Scientific Data 8: 215.",
+        "https://doi.org/10.1038/s41597-021-00997-6"
+      ),
       nomenclature = "botanical",
       # Approximate, for the message shown before a download is started.
       # disk_mb is the name table plus the match index, which is what remains
@@ -86,6 +92,11 @@ tnrs_builtin_registry <- function() {
       taxonomic_scope = "Embryophyta",
       license = "CC0 1.0",
       publisher = "World Flora Online Consortium",
+      # The form WFO asks to be cited in
+      citation = paste(
+        "WFO (2025): World Flora Online. Version 2025.12.",
+        "Published on the Internet; http://www.worldfloraonline.org"
+      ),
       nomenclature = "botanical",
       download_mb = 116,
       disk_mb = 120
@@ -117,6 +128,11 @@ tnrs_builtin_registry <- function() {
       taxonomic_scope = "Mammalia",
       license = "CC BY 4.0",
       publisher = "American Society of Mammalogists",
+      citation = paste(
+        "Mammal Diversity Database (2025). Mammal Diversity Database",
+        "(Version 2.3) [Data set]. Zenodo.",
+        "https://doi.org/10.5281/zenodo.17033774"
+      ),
       nomenclature = "zoological",
       download_mb = 68,
       disk_mb = 30
@@ -142,6 +158,11 @@ tnrs_builtin_registry <- function() {
       taxonomic_scope = "all life",
       license = "CC BY 4.0",
       publisher = "Catalogue of Life",
+      citation = paste(
+        "Banki O., Roskov Y., Doring M., Ower G., et al. (2026).",
+        "Catalogue of Life Checklist (Version 2026-08-20).",
+        "https://doi.org/10.48580/dgywk"
+      ),
       # Covers plants and animals, so both codes apply
       nomenclature = "mixed",
       # Measured: 488 MB down, 135 MB name table and 257 MB match index.

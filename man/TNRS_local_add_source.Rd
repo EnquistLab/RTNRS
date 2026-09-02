@@ -116,5 +116,6 @@ results[results$Source_conflict, ]
 }
 }
 \seealso{
-\code{\link{TNRS_local}}, \code{\link{TNRS_local_status}}
+\code{\link{TNRS_local}}, \code{\link{TNRS_local_status}},
+  \code{\link{TNRS_local_citations}}
 }
