@@ -31,7 +31,9 @@ test_that("batches cover every row exactly once", {
 
   expect_equal(batches, c("1-5000", "5001-10000", "10001-12000"))
   expect_equal(nrow(results), 12000L)
-  expect_equal(results$ID, names_in$ID)
+  # Identifiers come back as character, which is what the service returns for
+  # every column; the caller's own type is not preserved
+  expect_equal(results$ID, as.character(names_in$ID))
 })
 
 test_that("a query that is an exact multiple of name_limit is batched correctly", {
@@ -74,7 +76,16 @@ test_that("a failed batch warns instead of silently dropping names", {
     regexp = "5001 to 10000"
   )
 
-  expect_equal(nrow(results), 7000L)
+  # Every submitted row is accounted for, rather than the failed batch's names
+  # going missing and leaving a short frame that no longer joins back to the
+  # caller's data.  The warning above is what says they failed rather than
+  # simply not matching.
+  expect_equal(nrow(results), 12000L)
+  expect_equal(results$ID, as.character(names_in$ID))
+  expect_equal(sum(is.na(results$name)), 5000L)
+  # The batches that did succeed are unaffected
+  expect_false(anyNA(results$name[1:5000]))
+  expect_false(anyNA(results$name[10001:12000]))
 })
 
 test_that("a wholly unavailable API returns NULL rather than an error", {

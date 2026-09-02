@@ -68,7 +68,7 @@ http_interactions:
   response:
     status: 200
     headers:
-      date: Fri, 28 Aug 2026 19:36:57 GMT
+      date: Wed, 02 Sep 2026 16:14:35 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
       transfer-encoding: chunked
@@ -222,5 +222,5 @@ http_interactions:
         Erigeron poncinsii (Franch. ) Botsch.","Family":"Asteraceae","Genus":"Erigeron","Specific_epithet":"poncinsii","Infraspecific_rank":"","Infraspecific_epithet":"","Infraspecific_rank_2":"","Infraspecific_epithet_2":"","Author":"(Franch.
         ) Botsch.","Annotations":"","Unmatched_terms":"","WarningsEng":null},{"ID":"100","Name_submitted":"Peridiscaceae
         Soyauxia grandifolia","Family":"Peridiscaceae","Genus":"Soyauxia","Specific_epithet":"grandifolia","Infraspecific_rank":"","Infraspecific_epithet":"","Infraspecific_rank_2":"","Infraspecific_epithet_2":"","Author":"","Annotations":"","Unmatched_terms":"","WarningsEng":null}]'
-  recorded_at: 2026-08-28 19:38:23
+  recorded_at: 2026-09-02 16:14:37
 recorded_with: VCR-vcr/2.1.0

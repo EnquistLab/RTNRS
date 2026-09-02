@@ -13,8 +13,7 @@ test_that("example works", {
   })
 
 
-  # test below assume a data dictionary and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
+  expect_s3_class(results, "data.frame")
   expect_equal(object = nrow(results), expected = nrow(tnrs_testfile))
 })
 
@@ -30,8 +29,7 @@ test_that("character vector returns results", {
   })
 
 
-  # test below assume a data dictionary and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
+  expect_s3_class(results, "data.frame")
   expect_equal(object = nrow(results), expected = 3)
 })
 
@@ -48,8 +46,7 @@ test_that("character returns results", {
   })
 
 
-  # test below assume a data dictionary and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
+  expect_s3_class(results, "data.frame")
   expect_equal(object = nrow(results), expected = 1)
 })
 
@@ -70,8 +67,7 @@ test_that("all sources work", {
     )
   })
 
-  # test below assume a dataframe and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
+  expect_s3_class(results, "data.frame")
   expect_equal(object = nrow(results), expected = 4)
 
   # WFO
@@ -85,8 +81,7 @@ test_that("all sources work", {
     )
   })
 
-  # test below assume a dataframe and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
+  expect_s3_class(results, "data.frame")
   expect_equal(object = nrow(results), expected = 4)
 
 
@@ -165,9 +160,8 @@ test_that("matches all returns more rows than best", {
     )
   })
 
-  # test below assume a dataframe and will be skipped if one isn't returned
-  skip_if_not(class(all) == "data.frame")
-  skip_if_not(class(best) == "data.frame")
+  expect_s3_class(all, "data.frame")
+  expect_s3_class(best, "data.frame")
 
   expect_gt(object = nrow(all), expected = nrow(best))
 })
@@ -195,8 +189,8 @@ test_that("parsing returns matches", {
     )
   })
 
-  skip_if_not(class(parsed) == "data.frame")
-  skip_if_not(class(resolved) == "data.frame")
+  expect_s3_class(parsed, "data.frame")
+  expect_s3_class(resolved, "data.frame")
 
 
   expect_gt(object = ncol(resolved), expected = ncol(parsed))
@@ -215,7 +209,7 @@ test_that("parsing returns matches", {
     )
   })
 
-  skip_if_not(class(parsed) == "data.frame")
+  expect_s3_class(parsed, "data.frame")
 
   expect_equal(
     object = nrow(parsed),
@@ -247,8 +241,8 @@ test_that("changing accuracy changes results", {
     )
   })
 
-  skip_if_not(class(high) == "data.frame")
-  skip_if_not(class(low) == "data.frame")
+  expect_s3_class(high, "data.frame")
+  expect_s3_class(low, "data.frame")
 
 
   expect_gt(object = nrow(low), expected = nrow(high))

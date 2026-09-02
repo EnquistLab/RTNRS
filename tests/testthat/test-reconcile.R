@@ -184,3 +184,27 @@ test_that("several matches per name are all kept", {
   expect_identical(nrow(out), 3L)
   expect_identical(out$ID, c("a", "a", "b"))
 })
+
+test_that("identifiers go on the wire as integers, as the service documents", {
+  # The API's own documentation says identifiers must be unique integers.  The
+  # package used to send them as text for a character vector and as whatever
+  # the caller supplied for a data.frame; they are integers either way now.
+  sent <- tnrs_request_frame(
+    data.frame(ID = c("a", "b"), name = c("Quercus alba", "Acer rubrum"),
+               stringsAsFactors = FALSE)
+  )
+  expect_type(sent$ID, "integer")
+
+  body <- as.character(jsonlite::toJSON(unname(sent)))
+  expect_match(body, '[[1,"Quercus alba"],[2,"Acer rubrum"]]', fixed = TRUE)
+})
+
+test_that("the request carries each distinct name once, in order of first use", {
+  submitted <- data.frame(
+    ID = paste0("r", 1:5),
+    name = c("Acer rubrum", "", "Quercus alba", "Acer rubrum", NA),
+    stringsAsFactors = FALSE
+  )
+  body <- as.character(jsonlite::toJSON(unname(tnrs_request_frame(submitted))))
+  expect_match(body, '[[1,"Acer rubrum"],[2,"Quercus alba"]]', fixed = TRUE)
+})

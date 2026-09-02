@@ -12,7 +12,6 @@ test_that("example works", {
     )
   })
 
-  # test below assume a data dictionary and will be skipped if one isn't returned
-  skip_if_not(class(results) == "data.frame")
+  expect_s3_class(results, "data.frame")
   expect_gte(object = nrow(results), expected = 1)
 })

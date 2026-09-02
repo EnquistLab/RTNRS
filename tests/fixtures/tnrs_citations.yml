@@ -1,29 +1,18 @@
 http_interactions:
 - request:
-    method: post
+    method: POST
     uri: https://tnrsapi.xyz/tnrs_api.php
     body:
-      encoding: ''
       string: '{"opts":{"sources":"wcvp,wfo","class":"wfo","mode":"citations","matches":"best"}}'
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-      charset: UTF-8
   response:
-    status:
-      status_code: 200
-      category: Success
-      reason: OK
-      message: 'Success: (200) OK'
+    status: 200
     headers:
-      date: Thu, 10 Oct 2024 19:15:27 GMT
+      date: Wed, 02 Sep 2026 16:11:03 GMT
       server: Apache/2.4.41 (Ubuntu)
       access-control-allow-origin: '*'
       content-length: '3146'
       content-type: application/json
     body:
-      encoding: ''
-      file: no
       string: '[{"source":"tnrs_pub","citation":"@article{tnrspub, author = {Boyle,
         B. and Hopkins, N. and Lu, Z. and Garay, J. A. R. and Mozzherin, D. and Rees,
         T. and Matasci, N. and Narro, M. L. and Piel, W. H. and McKay, S. J. and Lowry,
@@ -63,5 +52,5 @@ http_interactions:
         = 2021,  journal = {Willdenowia},  volume = 51,  number = 2,  pages = {251-271},  version
         = {2023-06},  doi = {10.3372\/wi.51.51208},  url = {https:\/\/caryophyllales.org\/cactaceae\/Checklist},  note
         = {Accessed 2023-11-02}}\n"}]'
-  recorded_at: 2024-10-10 19:15:27 GMT
-  recorded_with: vcr/1.6.0, webmockr/1.0.0
+  recorded_at: 2026-09-02 16:11:04
+recorded_with: VCR-vcr/2.1.0

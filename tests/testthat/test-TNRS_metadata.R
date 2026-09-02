@@ -8,9 +8,7 @@ test_that("example works", {
 
   metadata <- TNRS_metadata()
 
-  # test below assume a data dictionary and will be skipped if one isn't returned
-
-  skip_if_not(class(metadata) == "list")
+  expect_type(metadata, "list")
 
   expect_equal(object = class(metadata[[1]]), expected = "data.frame")
   expect_equal(object = class(metadata[[2]]), expected = "data.frame")
