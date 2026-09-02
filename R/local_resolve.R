@@ -18,6 +18,42 @@ tnrs_candidate_frame <- function(row, matched_rank,
   )
 }
 
+#' Match one parsed name, letting the family compete
+#'
+#' Internal.  Upstream matches a submitted family whenever one was given, its
+#' only condition being that a family was parsed at all, and lets that match
+#' compete with whatever was found below it.  The difference shows on a genus
+#' present in neither backbone: the service can answer at family rank, where
+#' matching below the family alone leaves nothing but a chance resemblance to
+#' an unrelated genus.
+#'
+#' @param parsed One row of the parsed query, plus \code{family}.
+#' @param backbone One element of \code{tnrs_backbone()}.
+#' @param search_mode "normal" or "extended".
+#' @param exact,exact_full Rows already found by the batched exact lookup.
+#' @return A data.frame of candidates covering every rank that matched.
+#' @keywords internal
+#' @noRd
+tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
+                           exact = NULL, exact_full = NULL) {
+  below <- tnrs_match_below_family(
+    parsed, backbone, search_mode, exact, exact_full
+  )
+
+  if (!nzchar(parsed$family)) {
+    return(below)
+  }
+
+  family <- tnrs_match_family_only(parsed, backbone, search_mode)
+  if (nrow(family) == 0) {
+    return(below)
+  }
+  if (nrow(below) == 0) {
+    return(family)
+  }
+  rbind(below, family)
+}
+
 #' Find candidate name rows for one parsed query against one source
 #'
 #' Internal.  Runs the cascade: an exact hit on the full name short-circuits
@@ -35,8 +71,8 @@ tnrs_candidate_frame <- function(row, matched_rank,
 #' @return A data.frame of candidate rows and their scores, possibly empty.
 #' @keywords internal
 #' @noRd
-tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
-                           exact = NULL, exact_full = NULL) {
+tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
+                                    exact = NULL, exact_full = NULL) {
   index <- backbone$index
   names <- backbone$names
 
@@ -50,7 +86,8 @@ tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
   epithet <- parsed$species
 
   if (!nzchar(genus)) {
-    return(tnrs_match_family_only(parsed, backbone, search_mode))
+    # A submitted family, if there is one, is added by the caller
+    return(empty)
   }
 
   # 1. Exact hit at the deepest rank the query offered.  Most real queries land

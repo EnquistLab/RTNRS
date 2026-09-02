@@ -116,3 +116,52 @@ test_that("a family prefix that agrees with the match is not penalised", {
   expect_true(is.na(result$Family_score[3]))
   expect_lt(result$Overall_score[3], 0.7)
 })
+
+test_that("a submitted family competes even when a genus was given", {
+  # Upstream matches a submitted family whenever one was given, and lets it
+  # compete with whatever was found below. Matching it only when the genus is
+  # absent means a genus in neither backbone can never fall back to the family
+  # the user supplied: the real case was "Araucariaceae Brachyphyllum
+  # menendezii" answering Trachyphyllum, a moss one character away.
+  tmp <- file.path(tempdir(), "tnrs-family-competes")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  suppressMessages(
+    TNRS_local_add_source(
+      data.frame(
+        taxonID = c("1", "2", "3"),
+        scientificName = c("Araucariaceae", "Araucaria araucana", "Trachyphyllum"),
+        taxonRank = c("family", "species", "genus"),
+        taxonomicStatus = "accepted",
+        family = c("Araucariaceae", "Araucariaceae", "Pylaisiadelphaceae"),
+        acceptedNameUsageID = c("1", "2", "3"),
+        stringsAsFactors = FALSE
+      ),
+      source = "fam2", version = "1", dir = tmp, quiet = TRUE
+    )
+  )
+
+  result <- TNRS_local("Araucariaceae Brachyphyllum menendezii",
+    sources = "fam2", dir = tmp, build_missing = FALSE, quiet = TRUE
+  )
+
+  # The genus is in no backbone, so the family the user gave is the honest
+  # answer, rather than a one-character resemblance to an unrelated genus
+  expect_identical(result$Name_matched, "Araucariaceae")
+  expect_identical(result$Name_matched_rank, "family")
+
+  # And every candidate is still offered when they are asked for
+  all_of_them <- TNRS_local("Araucariaceae Brachyphyllum menendezii",
+    sources = "fam2", matches = "all", dir = tmp,
+    build_missing = FALSE, quiet = TRUE
+  )
+  expect_true("Araucariaceae" %in% all_of_them$Name_matched)
+  expect_true("Trachyphyllum" %in% all_of_them$Name_matched)
+
+  # A query with no family behaves as before
+  no_family <- TNRS_local("Brachyphyllum menendezii", sources = "fam2",
+                          dir = tmp, build_missing = FALSE, quiet = TRUE)
+  expect_identical(no_family$Name_matched, "Trachyphyllum")
+})
