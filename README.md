@@ -14,21 +14,59 @@ TNRS_local_status()  # what is built, what else you could build, and versions
 
 In one comparison on a single machine, resolving 1000 names took about 6 minutes through the web service and about 11 seconds locally once the data was loaded; for a handful of names the web service is simpler and can be quicker, since loading the local data costs around twenty seconds per source. Timings will vary with hardware and with how busy the service is. See `vignette("TNRS_offline")` for the full comparison.
 
+The offline engine is not limited to plants. `TNRS_local_build("mdd")` adds the
+Mammal Diversity Database, and `TNRS_local_build("col")` the Catalogue of Life,
+which covers all life. Sources record which nomenclatural code they follow, so
+zoological names are read correctly, and asking for a plant and an animal source
+together makes a name shared by both codes visible rather than silently resolved
+under one of them.
+
 You can also resolve against a checklist of your own, with `TNRS_local_add_source()`. That covers taxonomic authorities the TNRS does not distribute, groups outside the flowering plants, and in-house lists; only the name column is required, and a registered checklist can be blended with `wfo` and `wcvp` like any other source.
 
 `TNRS_local()` returns the same columns as `TNRS()`. It is a separate function rather than an option on `TNRS()` because the two do not always give the same answer: the local copy of the sources is usually newer than the one the web service is running, and the local version consults a single source by default rather than blending two. See `vignette("TNRS_offline")` for the differences and how to interpret them.
 
-# Important Note
+# Blank names
 
-Before submitting names to the TNRS, we strongly recommend that you exclude any names which are all whitespace, NULL, NA, or empty strings.  These "blank" names may cause the submitted names to become associated with incorrect IDs.  We are working on fixing this bug, but in the meantime we recommend that you omit such names from your queries.
+Names that are missing, empty, or only whitespace used to cause the names after
+them to be returned against the wrong IDs, so the advice was to remove them
+before querying. That is fixed as of 0.4.0: blank names are held back from the
+request and returned unmatched, so the IDs still line up and you no longer need
+to filter them out yourself. Repeated names are also returned once per row
+rather than sharing a single row with their IDs pasted together.
 
 
-# Warning Messages and Errors
+# When something goes wrong
 
-* **"This function requires internet access, please check your connection."** The TNRS package checks the internet connection before attempting a query.  It does so by attempting to contact www.google.com.  If this connection fails, it assumes there is no internet connection and issues this warning.
-* **"There appears to be a problem reaching the API."** This message is shown if an error is thrown when using the POST() in the httr package to connect to the API.  This is usually caused by temporary server outages (e.g. due to upgrades), but may also occur due to issues with curl, as noted here: https://github.com/EnquistLab/RTNRS/issues/7#issuecomment-1094680196
-* **"Problem with the API: HTTP Status ..."** This message is returned when the API connection is successful, but the API returns a status message indicating that something weird happened.  The status code shown can be consulted to figure out what might have gone wrong.
-* **"There seems to be a problem with the query, which returned the following: ..."** This message is shown if the API returns content that cannot be properly parsed.
+If a query fails and it is not clear whether the problem is at your end or the
+server's, ask:
+
+```r
+TNRS_status()
+#> TNRS server status
+#>   Internet  : connected
+#>   Server    : https://tnrsapi.xyz/tnrs_api.php
+#>   Reachable : yes, HTTP 200 in 0.3 seconds
+#>   Version   : app 5.3.1, database 4.4.1, built 2024-01-17
+```
+
+It reports separately on your connection and on the server, so the two cannot be
+confused, and returns the same information invisibly for use in a script.
+
+Messages you may see:
+
+* **"This function requires internet access, please check your connection."** The connection is checked before a query is attempted, by contacting www.google.com. Note this says nothing about the TNRS server itself, which may be down while your connection is fine; `TNRS_status()` is what distinguishes them.
+* **A request that fails now names its cause** rather than reporting every failure the same way. A timeout says how long it waited and how to wait longer; a name that will not resolve, a refused connection and a certificate problem are each identified. Certificate problems are usually local, and are discussed in https://github.com/EnquistLab/RTNRS/issues/7#issuecomment-1094680196
+* **"Problem with the API: HTTP Status ..."** The connection succeeded but the server reported a problem. The status code shown can be consulted to figure out what might have gone wrong.
+* **"There seems to be a problem with the query, which returned the following: ..."** The server returned content that could not be parsed.
+
+A large batch legitimately takes minutes. If it times out, wait longer rather
+than giving up:
+
+```r
+results <- TNRS(my_names, timeout = 900)
+```
+
+Or resolve the names offline, which needs no server at all.
 
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11186237.svg)](https://doi.org/10.5281/zenodo.11186237)
 
