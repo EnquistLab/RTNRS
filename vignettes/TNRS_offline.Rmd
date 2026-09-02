@@ -331,7 +331,7 @@ TNRS_local_build("mdd")   # Mammal Diversity Database, 68 MB
 TNRS_local_build("col")   # Catalogue of Life, all life, 488 MB
 ```
 
-Neither is built by default, and `col` in particular is much the largest source
+Neither is built by default, and `col` in particular is by far the largest source
 offered: 5.4 million names against WFO's 1.6 million. Build it only if you need
 its breadth.
 
