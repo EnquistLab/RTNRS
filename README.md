@@ -78,5 +78,6 @@ results <- TNRS(my_names, timeout = 900)
 
 Or resolve the names offline, which needs no server at all.
 
+  [![R-CMD-check](https://github.com/EnquistLab/RTNRS/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EnquistLab/RTNRS/actions/workflows/R-CMD-check.yaml)
   [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11186237.svg)](https://doi.org/10.5281/zenodo.11186237)
 
