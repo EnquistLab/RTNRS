@@ -381,6 +381,12 @@ tnrs_is_custom <- function(source, dir = tnrs_cache_dir()) {
 #'   scientific_name, authorship, name_rank, taxonomic_status, family, genus,
 #'   specific_epithet, infraspecific_epithet, source_name_id,
 #'   accepted_source_name_id and url. Only scientific_name is required.
+#' @param nomenclature Nomenclatural code the checklist follows: "botanical"
+#'   (the default), "zoological", or "mixed" for one covering both. It decides
+#'   how \code{TNRS_local()} reads a family prefix in a submitted name, since
+#'   botanical families end in -aceae and zoological ones in -idae. Recorded
+#'   with the source, so it is applied automatically whenever the source is
+#'   used.
 #' @param doi,url,publisher,license,taxonomic_scope,citation Optional metadata,
 #'   recorded so that the source can be cited alongside your results.
 #' @param delim Field separator, when \code{x} is a file. Guessed from the
@@ -420,6 +426,7 @@ TNRS_local_add_source <- function(x,
                                   version,
                                   full_name = source,
                                   columns = NULL,
+                                  nomenclature = "botanical",
                                   doi = NA_character_,
                                   url = NA_character_,
                                   publisher = NA_character_,
@@ -494,6 +501,7 @@ TNRS_local_add_source <- function(x,
     source = source,
     full_name = full_name,
     version = version,
+    nomenclature = nomenclature,
     doi = as.character(doi),
     url = as.character(url),
     taxonomic_scope = as.character(taxonomic_scope),

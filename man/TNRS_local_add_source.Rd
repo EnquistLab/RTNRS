@@ -10,6 +10,7 @@ TNRS_local_add_source(
   version,
   full_name = source,
   columns = NULL,
+  nomenclature = "botanical",
   doi = NA_character_,
   url = NA_character_,
   publisher = NA_character_,
@@ -44,6 +45,13 @@ checklist, for a list that does not use Darwin Core names. For example
 scientific_name, authorship, name_rank, taxonomic_status, family, genus,
 specific_epithet, infraspecific_epithet, source_name_id,
 accepted_source_name_id and url. Only scientific_name is required.}
+
+\item{nomenclature}{Nomenclatural code the checklist follows: "botanical"
+(the default), "zoological", or "mixed" for one covering both. It decides
+how \code{TNRS_local()} reads a family prefix in a submitted name, since
+botanical families end in -aceae and zoological ones in -idae. Recorded
+with the source, so it is applied automatically whenever the source is
+used.}
 
 \item{doi, url, publisher, license, taxonomic_scope, citation}{Optional metadata,
 recorded so that the source can be cited alongside your results.}

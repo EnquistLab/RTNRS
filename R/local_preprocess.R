@@ -5,21 +5,41 @@
 #' treat a family as a genus in the parser.  Kept in one place so the two cannot
 #' drift apart.
 #'
-#' Currently botanical: anything ending in -aceae, plus the classical
-#' alternatives that upstream accepts.  A non-botanical backbone would need its
-#' own endings here (-idae and -inae under the zoological code), which is why
-#' this is a function rather than a literal.
+#' Botanical families end in -aceae, plus the classical alternatives upstream
+#' accepts; zoological families end in -idae, which the code makes mandatory.
+#' Which applies depends on the sources being resolved against, so it is a
+#' parameter rather than a constant.
 #'
+#' Widening this is not free.  Stripping a zoological family prefix lets the
+#' rest of the name reach the matcher, which is the point when the backbone
+#' holds animals, but against a plant backbone it removes a protection: a bird
+#' name such as "Emberizidae Dendroica palmarum" currently fails to match
+#' precisely because the family is left in place, and stripping it would let
+#' "Dendroica" reach a plant genus it merely resembles.  Hence botanical only
+#' unless a zoological source was asked for.
+#'
+#' @param codes Nomenclatural codes in play, any of "botanical" and
+#'   "zoological".
 #' @return A single string: the body of an alternation, with no surrounding
 #'   group and no anchors, so that callers can wrap it as they need.
 #' @keywords internal
 #' @noRd
-tnrs_family_pattern <- function() {
-  paste0(
+tnrs_family_pattern <- function(codes = "botanical") {
+  codes <- tnrs_nomenclature_codes(codes)
+
+  botanical <- paste0(
     "[[:alpha:]]+aceae|Cruciferae|Guttiferae|Umbelliferae|Compositae|",
     "Leguminosae|Palmae|Labiatae|Gramineae|Mimosoideae|Papilionoideae|",
     "Caesalpinioideae"
   )
+  # The ICZN makes -idae mandatory for a family, so one ending covers them all
+  zoological <- "[[:alpha:]]+idae"
+
+  parts <- c(
+    if ("botanical" %in% codes) botanical,
+    if ("zoological" %in% codes) zoological
+  )
+  paste(parts, collapse = "|")
 }
 
 #' Pre-process submitted names before parsing
@@ -39,7 +59,8 @@ tnrs_family_pattern <- function() {
 #'   and \code{cleaned} (what should be handed to the parser).
 #' @keywords internal
 #' @noRd
-tnrs_preprocess <- function(x) {
+tnrs_preprocess <- function(x, codes = "botanical") {
+  codes <- tnrs_nomenclature_codes(codes)
   x <- as.character(x)
   n <- length(x)
 
@@ -99,7 +120,7 @@ tnrs_preprocess <- function(x) {
   # stuck to it.  The literal words "fam" and "family" are matched here too,
   # then nulled out below; upstream does the same.
   fam_re <- paste0(
-    "^((", tnrs_family_pattern(), "|fam(?:ily)?)",
+    "^((", tnrs_family_pattern(codes), "|fam(?:ily)?)",
     "((?:[^[:alpha:][:space:]]\\S*)?))(?=\\s+|$)"
   )
 

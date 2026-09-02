@@ -90,12 +90,16 @@ Use TNRS_local_add_source() to register the data again."
 
     tnrs_download_source(source, dir = dir, overwrite = overwrite, quiet = quiet)
 
-    member <- tnrs_source_member(source)
-    extracted <- tnrs_unpack_source(source, member, dir = dir)
+    extracted <- tnrs_unpack_source(source, dir = dir)
 
     names <- switch(source,
-      wcvp = tnrs_import_wcvp(extracted, quiet = quiet),
-      wfo = tnrs_import_wfo(extracted, quiet = quiet)
+      wcvp = tnrs_import_wcvp(extracted[["names"]], quiet = quiet),
+      wfo = tnrs_import_wfo(extracted[["names"]], quiet = quiet),
+      mdd = tnrs_import_mdd(
+        extracted[["species"]], extracted[["synonyms"]],
+        quiet = quiet
+      ),
+      col = tnrs_import_col(extracted[["names"]], quiet = quiet)
     )
     names <- tnrs_link_accepted(names)
 
@@ -131,17 +135,6 @@ Use TNRS_local_add_source() to register the data again."
     )
   }
   invisible(status)
-}
-
-#' File within a source archive that carries the names
-#' @keywords internal
-#' @noRd
-tnrs_source_member <- function(source) {
-  switch(source,
-    wcvp = "wcvp_names.csv",
-    wfo = "classification.csv",
-    stop("No archive member known for source '", source, "'.", call. = FALSE)
-  )
 }
 
 #' Path to a built source's name table

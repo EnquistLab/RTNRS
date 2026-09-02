@@ -46,9 +46,16 @@ tnrs_builtin_registry <- function() {
       version = "v15",
       doi = NA_character_,
       url = "https://sftp.kew.org/pub/data-repositories/WCVP/Archive/wcvp_v15.zip",
+      files = list(
+        names = list(
+          url = "https://sftp.kew.org/pub/data-repositories/WCVP/Archive/wcvp_v15.zip",
+          member = "wcvp_names.csv"
+        )
+      ),
       taxonomic_scope = "Tracheophyta",
       license = "CC BY 4.0",
       publisher = "Royal Botanic Gardens, Kew",
+      nomenclature = "botanical",
       # Approximate, for the message shown before a download is started.
       # disk_mb is the name table plus the match index, which is what remains
       # once the archive has been deleted; keep_archive = TRUE adds download_mb
@@ -67,11 +74,81 @@ tnrs_builtin_registry <- function() {
         "https://zenodo.org/api/records/18007552/files/",
         "_DwC_backbone_R.zip/content"
       ),
+      files = list(
+        names = list(
+          url = paste0(
+            "https://zenodo.org/api/records/18007552/files/",
+            "_DwC_backbone_R.zip/content"
+          ),
+          member = "classification.csv"
+        )
+      ),
       taxonomic_scope = "Embryophyta",
       license = "CC0 1.0",
       publisher = "World Flora Online Consortium",
+      nomenclature = "botanical",
       download_mb = 116,
       disk_mb = 120
+    ),
+    mdd = list(
+      source = "mdd",
+      full_name = "Mammal Diversity Database",
+      version = "v2.3",
+      doi = "10.5281/zenodo.17033774",
+      # Concept DOI, always resolving to the newest release:
+      # 10.5281/zenodo.4139722
+      url = "https://zenodo.org/records/17033774",
+      # Two files: the accepted species, and every name ever applied to them.
+      # The second is what makes synonyms resolvable, so both are needed.
+      files = list(
+        species = list(
+          url = paste0(
+            "https://zenodo.org/api/records/17033774/files/",
+            "MDD_v2.3_6836species.csv/content"
+          )
+        ),
+        synonyms = list(
+          url = paste0(
+            "https://zenodo.org/api/records/17033774/files/",
+            "Species_Syn_v2.3.csv/content"
+          )
+        )
+      ),
+      taxonomic_scope = "Mammalia",
+      license = "CC BY 4.0",
+      publisher = "American Society of Mammalogists",
+      nomenclature = "zoological",
+      download_mb = 68,
+      disk_mb = 30
+    ),
+    col = list(
+      source = "col",
+      full_name = "Catalogue of Life",
+      version = "COL26.8",
+      doi = "10.48580/dgywk",
+      url = "https://www.catalogueoflife.org/",
+      # The dated release, not the rolling latest_dwca.zip, which says nothing
+      # about which version it holds.  ChecklistBank keeps only a short window
+      # of these, so this URL will stop resolving once the release rotates out;
+      # the DOI above is the durable reference.  Note the export endpoint on
+      # api.checklistbank.org serves JSON whatever format is asked for, so it
+      # is not the download it appears to be.
+      files = list(
+        names = list(
+          url = "https://download.checklistbank.org/col/monthly/2026-08-20_dwca.zip",
+          member = "Taxon.tsv"
+        )
+      ),
+      taxonomic_scope = "all life",
+      license = "CC BY 4.0",
+      publisher = "Catalogue of Life",
+      # Covers plants and animals, so both codes apply
+      nomenclature = "mixed",
+      # Measured: 488 MB down, 135 MB name table and 257 MB match index.
+      # Building it takes about 9 minutes and the index another 12, at a peak
+      # of under 3 GB.
+      download_mb = 488,
+      disk_mb = 392
     )
   )
 }
@@ -129,32 +206,42 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
   }
 
   spec <- registry[[source]]
-  archive <- file.path(dir, paste0(source, "-", spec$version, ".zip"))
+  files <- tnrs_source_file_spec(spec)
 
-  if (file.exists(archive) && !overwrite) {
-    if (!quiet) {
-      message("Using cached archive for ", source, " ", spec$version)
-    }
-  } else {
-    if (!dir.exists(dir)) {
-      dir.create(dir, recursive = TRUE, showWarnings = FALSE)
-    }
-    if (!quiet) {
-      message("Downloading ", spec$full_name, " ", spec$version, " ...")
-    }
+  if (!dir.exists(dir)) {
+    dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+  }
 
-    # Download to a temporary file first so that an interrupted download can
-    # never be mistaken for a complete one
-    partial <- paste0(archive, ".part")
-    status <- utils::download.file(
-      url = spec$url, destfile = partial, mode = "wb",
-      quiet = quiet, cacheOK = FALSE
-    )
-    if (status != 0 || !file.exists(partial)) {
-      unlink(partial)
-      stop("Download failed for source '", source, "'.", call. = FALSE)
+  archive <- character(0)
+  for (part in names(files)) {
+    target <- tnrs_archive_path(source, spec$version, part, files, dir)
+
+    if (file.exists(target) && !overwrite) {
+      if (!quiet) {
+        message("Using cached download for ", source, " ", spec$version)
+      }
+    } else {
+      if (!quiet) {
+        message(
+          "Downloading ", spec$full_name, " ", spec$version,
+          if (length(files) > 1) paste0(" (", part, ")") else "", " ..."
+        )
+      }
+
+      # Download to a temporary file first so that an interrupted download can
+      # never be mistaken for a complete one
+      partial <- paste0(target, ".part")
+      status <- utils::download.file(
+        url = files[[part]]$url, destfile = partial, mode = "wb",
+        quiet = quiet, cacheOK = FALSE
+      )
+      if (status != 0 || !file.exists(partial)) {
+        unlink(partial)
+        stop("Download failed for source '", source, "'.", call. = FALSE)
+      }
+      file.rename(partial, target)
     }
-    file.rename(partial, archive)
+    archive[part] <- target
   }
 
   provenance <- list(
@@ -166,17 +253,54 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
     taxonomic_scope = spec$taxonomic_scope,
     license = spec$license,
     publisher = spec$publisher,
-    archive = archive,
+    archive = unname(archive),
     archive_kept = TRUE,
     # Recorded before the archive is possibly deleted, so that what was
     # downloaded stays documented whether or not the file is still there
-    bytes = as.numeric(file.size(archive)),
-    md5 = unname(tools::md5sum(archive)),
+    bytes = sum(as.numeric(file.size(archive))),
+    md5 = paste(unname(tools::md5sum(archive)), collapse = ", "),
     downloaded = as.character(Sys.Date())
   )
 
   saveRDS(provenance, tnrs_provenance_path(source, dir))
   invisible(provenance)
+}
+
+#' Files a source declares, as a named list of download specs
+#'
+#' Internal.  Most sources are a single download; a source such as the Mammal
+#' Diversity Database publishes its accepted names and its synonyms separately,
+#' and needs both.
+#' @keywords internal
+#' @noRd
+tnrs_source_file_spec <- function(spec) {
+  if (!is.null(spec$files)) {
+    return(spec$files)
+  }
+  list(names = list(url = spec$url, member = NULL))
+}
+
+#' Where a downloaded file for a source is kept
+#'
+#' Internal.  A single-file source keeps the name it always had, so that a
+#' cache built by an earlier version of this package is still recognised and
+#' not downloaded again.  Only a multi-file source needs the part in its name.
+#' @keywords internal
+#' @noRd
+tnrs_archive_path <- function(source, version, part, files, dir) {
+  url <- files[[part]]$url
+  # A query string is not part of the file name, and an export endpoint has no
+  # extension to read, so an archive is assumed where a member is declared
+  ext <- tools::file_ext(sub("[?].*$", "", url))
+  if (!nzchar(ext) || nchar(ext) > 4L) {
+    ext <- if (is.null(files[[part]]$member)) "csv" else "zip"
+  }
+  stem <- if (length(files) > 1L) {
+    paste0(source, "-", version, "-", part)
+  } else {
+    paste0(source, "-", version)
+  }
+  file.path(dir, paste0(stem, ".", ext))
 }
 
 #' Report on the locally cached taxonomic backbone
@@ -197,6 +321,8 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
 #'   a source that has not been built.  \code{size_mb} is what the source
 #'   occupies on disk now, which is larger for a source built with
 #'   \code{keep_archive = TRUE}; \code{download_mb} is what fetching it costs.
+#'   \code{nomenclature} is the code the source follows, which decides how
+#'   \code{TNRS_local()} reads a family prefix.
 #' @seealso \code{\link{TNRS_local_build}},
 #'   \code{\link{TNRS_local_add_source}}
 #' @export
@@ -250,6 +376,10 @@ TNRS_local_status <- function(dir = tnrs_cache_dir()) {
     version = unname(from_record("version", NA_character_)),
     doi = unname(from_record("doi", NA_character_)),
     downloaded = unname(from_record("downloaded", NA_character_)),
+    nomenclature = unname(vapply(
+      registry, function(x) as.character(x$nomenclature %||% "botanical"),
+      character(1)
+    )),
     size_mb = unname(size_mb),
     download_mb = vapply(registry, function(x) as.numeric(x$download_mb), numeric(1)),
     stringsAsFactors = FALSE,

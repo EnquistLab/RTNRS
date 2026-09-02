@@ -151,7 +151,13 @@ test_that("status separates what is built from what is merely available", {
     tnrs_provenance_path("wfo", tmp)
   )
 
-  expect_message(status <- TNRS_local_status(dir = tmp), "Not built: wcvp")
+  # Every unbuilt source is named, so the message grows as sources are added;
+  # what matters is that wcvp is among them and wfo is not
+  msg <- capture_messages(status <- TNRS_local_status(dir = tmp))
+  msg <- paste(msg, collapse = "")
+  expect_match(msg, "Not built:", fixed = TRUE)
+  expect_match(msg, "wcvp", fixed = TRUE)
+  expect_false(grepl("wfo", msg, fixed = TRUE))
 
   wfo <- status[status$source == "wfo", ]
   wcvp <- status[status$source == "wcvp", ]

@@ -56,8 +56,8 @@ tnrs_standard_ranks <- local({
 #' \code{tnrs_preprocess()}, via \code{tnrs_family_pattern()}.
 #' @keywords internal
 #' @noRd
-tnrs_is_family_token <- function(x) {
-  grepl(paste0("^(?:", tnrs_family_pattern(), ")$"), x, ignore.case = TRUE)
+tnrs_is_family_token <- function(x, codes = "botanical") {
+  grepl(paste0("^(?:", tnrs_family_pattern(codes), ")$"), x, ignore.case = TRUE)
 }
 
 #' Is a token a standalone hybrid marker?
@@ -100,7 +100,8 @@ tnrs_standardize_rank <- function(x) {
 #'   \code{unmatched} and \code{parser}.
 #' @keywords internal
 #' @noRd
-tnrs_parse <- function(x, parser = c("auto", "gnparser", "internal")) {
+tnrs_parse <- function(x, parser = c("auto", "gnparser", "internal"),
+                       codes = "botanical") {
   parser <- match.arg(parser)
 
   if (parser == "gnparser" && !tnrs_gnparser_available()) {
@@ -116,10 +117,10 @@ tnrs_parse <- function(x, parser = c("auto", "gnparser", "internal")) {
   }
 
   if (parser == "gnparser") {
-    return(tnrs_parse_gnparser(x))
+    return(tnrs_parse_gnparser(x, codes))
   }
 
-  tnrs_parse_internal(x)
+  tnrs_parse_internal(x, codes)
 }
 
 #' Is GNparser usable in this session?
@@ -147,7 +148,7 @@ tnrs_gnparser_available <- function() {
 #' GNparser does.
 #' @keywords internal
 #' @noRd
-tnrs_parse_internal <- function(x) {
+tnrs_parse_internal <- function(x, codes = "botanical") {
   x <- as.character(x)
   n <- length(x)
 
@@ -190,7 +191,7 @@ tnrs_parse_internal <- function(x) {
     # A family name is not a genus.  Pre-processing strips only one leading
     # family, so a repeated one ("Vochysiaceae Vochysiaceae Qualea grandiflora")
     # would otherwise be taken as the genus.
-    while (length(tokens) > 1 && tnrs_is_family_token(tokens[1])) {
+    while (length(tokens) > 1 && tnrs_is_family_token(tokens[1], codes)) {
       tokens <- tokens[-1]
       raw_tokens <- raw_tokens[-1]
     }
@@ -290,7 +291,7 @@ tnrs_parse_internal <- function(x) {
 #' then split into its components by the same logic as the internal parser.
 #' @keywords internal
 #' @noRd
-tnrs_parse_gnparser <- function(x) {
+tnrs_parse_gnparser <- function(x, codes = "botanical") {
   x <- as.character(x)
   n <- length(x)
   if (n == 0) {
@@ -305,7 +306,7 @@ tnrs_parse_gnparser <- function(x) {
   for (i in seq_len(n)) {
     tokens <- strsplit(txt[i], " ", fixed = TRUE)[[1]]
     tokens <- tokens[nzchar(tokens)]
-    while (length(tokens) > 1 && tnrs_is_family_token(tokens[1])) {
+    while (length(tokens) > 1 && tnrs_is_family_token(tokens[1], codes)) {
       tokens <- tokens[-1]
     }
     txt[i] <- paste(tokens, collapse = " ")

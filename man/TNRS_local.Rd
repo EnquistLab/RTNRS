@@ -11,6 +11,7 @@ TNRS_local(
   accuracy = NULL,
   batch_size = 10000,
   dir = tnrs_cache_dir(),
+  nomenclature = NULL,
   build_missing = interactive(),
   quiet = FALSE
 )
@@ -42,6 +43,14 @@ batch size: measured over 100,000 names, batching saved about 190 MB of a
 progress more often but run slower.}
 
 \item{dir}{Cache directory. Defaults to the standard user cache location.}
+
+\item{nomenclature}{Nomenclatural code the submitted names follow, either
+"botanical", "zoological" or "mixed". Defaults to NULL, which takes it from
+the sources requested, so an animal backbone reads animal names without
+your having to say so. Set it to override that. It decides how a family
+prefix is recognised: botanical families end in -aceae, zoological ones in
+-idae, so "Felidae Panthera leo" needs the zoological setting for the
+family to be stripped rather than read as the genus.}
 
 \item{build_missing}{Should a requested source that has not been built yet be
 downloaded and built now? Defaults to \code{interactive()}, which reports

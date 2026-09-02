@@ -26,6 +26,13 @@
 #'   2 GB peak. The default is a reasonable balance; much smaller batches report
 #'   progress more often but run slower.
 #' @param dir Cache directory. Defaults to the standard user cache location.
+#' @param nomenclature Nomenclatural code the submitted names follow, either
+#'   "botanical", "zoological" or "mixed". Defaults to NULL, which takes it from
+#'   the sources requested, so an animal backbone reads animal names without
+#'   your having to say so. Set it to override that. It decides how a family
+#'   prefix is recognised: botanical families end in -aceae, zoological ones in
+#'   -idae, so "Felidae Panthera leo" needs the zoological setting for the
+#'   family to be stripped rather than read as the genus.
 #' @param build_missing Should a requested source that has not been built yet be
 #'   downloaded and built now? Defaults to \code{interactive()}, which reports
 #'   the size and asks first. In a script it is therefore FALSE and nothing is
@@ -80,6 +87,7 @@ TNRS_local <- function(taxonomic_names,
                        accuracy = NULL,
                        batch_size = 10000,
                        dir = tnrs_cache_dir(),
+                       nomenclature = NULL,
                        build_missing = interactive(),
                        quiet = FALSE) {
   matches <- match.arg(matches)
@@ -125,8 +133,12 @@ TNRS_local <- function(taxonomic_names,
 
   # Preprocess and parse the whole batch at once; the phonetic keys in
   # particular are far cheaper computed in bulk than one name at a time
-  pre <- tnrs_preprocess(submitted)
-  parsed <- tnrs_parse(pre$cleaned)
+  # Which nomenclatural code the names follow decides how a family prefix is
+  # recognised, so it is settled before anything is read
+  codes <- tnrs_effective_codes(sources, nomenclature, dir = dir)
+
+  pre <- tnrs_preprocess(submitted, codes = codes)
+  parsed <- tnrs_parse(pre$cleaned, codes = codes)
   parsed$family <- pre$family
   parsed$annotations <- pre$annotations
   # Kept for the Unmatched_terms calculation, which works by subtracting the

@@ -321,6 +321,48 @@ by `TNRS_local_status()` like any other source's. And `TNRS_local_remove()`
 deletes sources you supplied along with everything else, and this package cannot
 fetch them again, so keep the original file.
 
+## Animals, and other codes of nomenclature
+
+The TNRS is a plant service, but the local engine is not limited to plants. Two
+animal-bearing sources are available:
+
+```{r}
+TNRS_local_build("mdd")   # Mammal Diversity Database, 68 MB
+TNRS_local_build("col")   # Catalogue of Life, all life, 488 MB
+```
+
+Neither is built by default, and `col` in particular is much the largest source
+offered: 5.4 million names against WFO's 1.6 million. Build it only if you need
+its breadth.
+
+Sources record which nomenclatural code they follow, and `TNRS_local()` takes
+the code from the sources you ask for. That matters mainly for family prefixes,
+since botanical families end in `-aceae` and zoological ones in `-idae`:
+
+```{r}
+TNRS_local("Felidae Panthera leo", sources = "mdd")
+```
+
+resolves, where the same name against a plant source would not, because
+`Felidae` would be read as the genus. The `nomenclature` argument overrides the
+setting if you need to.
+
+Asking for a plant and an animal source together resolves under both codes:
+
+```{r}
+TNRS_local(names, sources = c("mdd", "wfo"))
+```
+
+This is worth doing when your data may contain either. The two codes are
+independent, so the same genus name can be validly used for a plant and an
+animal, *Oenanthe* being both a bird and a plant genus. Resolving under one code
+alone hides that; resolving under both, with `Source` telling you which backbone
+each match came from, makes it visible.
+
+If your data are entirely non-plant, a single-kingdom source is the safer
+choice. Resolving animal names against a plant backbone produces confident
+nonsense, which is the subject of the previous section.
+
 ## Known limitations
 
 * **Badly misspelled names can be missed.** The matcher narrows the search

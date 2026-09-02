@@ -366,6 +366,24 @@ tnrs_score_candidates <- function(candidates, parsed, names, source_order = 1L) 
   candidates$species_matched <- names$specific_epithet[rows]
   candidates$family_matched <- names$family[rows]
 
+  # A submitted family that agrees with the family of the row that matched is
+  # scored.  Only the family-only path sets this distance while matching, so
+  # without this an ordinary genus or species match leaves a submitted family
+  # unscored: it still counts as a component the query offered, dividing the
+  # score by one more part while contributing nothing, and a correct family
+  # prefix is penalised exactly as though it had been wrong.
+  #
+  # Agreement is exact, which is what reproduces the web service: it scores a
+  # submitted family by looking it up, so one it recognises scores 1 and one it
+  # does not, a fungal family against a plant backbone say, is left unscored.
+  # A misspelled family therefore earns no partial credit here.
+  if (nzchar(parsed$family)) {
+    agrees <- is.na(candidates$family_ed) &
+      tnrs_toupper_ascii(candidates$family_matched) ==
+        tnrs_toupper_ascii(parsed$family)
+    candidates$family_ed[agrees] <- 0L
+  }
+
   candidates$genus_score <- ifelse(
     is.na(candidates$genus_ed), NA_real_,
     tnrs_ed_score(

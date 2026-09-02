@@ -296,7 +296,7 @@ tnrs_link_accepted <- function(names) {
 #' @return Path to the extracted file.
 #' @keywords internal
 #' @noRd
-tnrs_unpack_source <- function(source, member, dir = tnrs_cache_dir()) {
+tnrs_unpack_source <- function(source, dir = tnrs_cache_dir()) {
   provenance_file <- tnrs_provenance_path(source, dir)
   if (!file.exists(provenance_file)) {
     stop(
@@ -307,14 +307,34 @@ tnrs_unpack_source <- function(source, member, dir = tnrs_cache_dir()) {
   }
 
   provenance <- readRDS(provenance_file)
-  target <- file.path(dir, member)
+  spec <- tnrs_builtin_registry()[[source]]
+  files <- tnrs_source_file_spec(spec)
+  downloaded <- provenance$archive
+  names(downloaded) <- names(files)[seq_along(downloaded)]
 
-  if (!file.exists(target)) {
-    utils::unzip(provenance$archive, files = member, exdir = dir)
-  }
-  if (!file.exists(target)) {
-    stop("Could not extract '", member, "' from ", provenance$archive, call. = FALSE)
-  }
+  out <- character(0)
+  for (part in names(files)) {
+    member <- files[[part]]$member
+    archive <- downloaded[[part]]
 
-  target
+    if (is.null(member)) {
+      # Published as a plain file, so there is nothing to unpack
+      out[part] <- archive
+      next
+    }
+
+    target <- file.path(dir, member)
+    if (!file.exists(target)) {
+      utils::unzip(archive, files = member, exdir = dir)
+    }
+    if (!file.exists(target)) {
+      stop(
+        "Could not extract '", member, "' from ", archive, ". The archive holds: ",
+        paste(utils::unzip(archive, list = TRUE)$Name, collapse = ", "), ".",
+        call. = FALSE
+      )
+    }
+    out[part] <- target
+  }
+  out
 }

@@ -15,6 +15,8 @@ A data.frame with one row per available source.  \code{version},
   a source that has not been built.  \code{size_mb} is what the source
   occupies on disk now, which is larger for a source built with
   \code{keep_archive = TRUE}; \code{download_mb} is what fetching it costs.
+  \code{nomenclature} is the code the source follows, which decides how
+  \code{TNRS_local()} reads a family prefix.
 }
 \description{
 Shows every taxonomic source the package can use, whether it has been built
