@@ -1,0 +1,42 @@
+citHeader(
+  "To cite the TNRS R package in publications, cite both the software and the ",
+  "method it implements. If you resolved names offline, cite the taxonomic ",
+  "sources as well; TNRS_local_citations() assembles all of it, including the ",
+  "version of each source you actually used."
+)
+
+bibentry(
+  bibtype = "Manual",
+  title   = "TNRS: Taxonomic Name Resolution Service",
+  author  = c(
+    person("Brian", "Maitner"),
+    person("Brad", "Boyle")
+  ),
+  year    = sub("-.*", "", meta$Date %||% format(Sys.Date(), "%Y")),
+  note    = paste("R package version", meta$Version),
+  doi     = "10.5281/zenodo.11186237",
+  url     = "https://github.com/EnquistLab/RTNRS"
+)
+
+bibentry(
+  bibtype = "Article",
+  title   = paste(
+    "The taxonomic name resolution service: an online tool for automated",
+    "standardization of plant names"
+  ),
+  author  = c(
+    person("Brad", "Boyle"), person("Nicole", "Hopkins"),
+    person("Zhenyuan", "Lu"), person("Juan Antonio", "Raygoza Garay"),
+    person("Dmitry", "Mozzherin"), person("Tony", "Rees"),
+    person("Naim", "Matasci"), person("Martha L.", "Narro"),
+    person("William H.", "Piel"), person("Sheldon J.", "McKay"),
+    person("Sean", "Lowry"), person("Chris", "Freeland"),
+    person("Robert K.", "Peet"), person("Brian J.", "Enquist")
+  ),
+  journal = "BMC Bioinformatics",
+  year    = "2013",
+  volume  = "14",
+  number  = "1",
+  pages   = "16",
+  doi     = "10.1186/1471-2105-14-16"
+)
