@@ -25,14 +25,13 @@
 
 * "TNRS_local_add_source" registers a checklist you supply as a local source,
   on the same footing as the ones this package downloads.  Use it for an
-  authority the TNRS does not distribute, for a group outside the flowering
-  plants, or for an in-house list.  Only the name itself is required: anything
-  the checklist does not carry, such as the genus and epithet, is derived from
-  the name using the same parser the resolver uses.  Columns are looked for
-  under their Darwin Core names by default, and named explicitly with the
-  "columns" argument otherwise.  A source added this way can be used on its own
-  or blended with "wfo" and "wcvp", with "Source_conflict" marking the names
-  they disagree about.
+  authority the TNRS does not distribute or for an in-house list.  Only the name
+  itself is required: anything the checklist does not carry, such as the genus
+  and epithet, is derived from the name using the same parser the resolver uses.
+  Columns are looked for under their Darwin Core names by default, and named
+  explicitly with the "columns" argument otherwise. A source added this way can
+  be used on its own or blended with "wfo" and "wcvp", with "Source_conflict"
+  marking the names they disagree about.
 
   The Cactaceae checklist at caryophyllales.org, which the web service offers
   as source "cact", is not distributed publicly, so this package cannot
@@ -51,6 +50,32 @@
 
 * See vignette("TNRS_offline") for the workflow and for how local results
   differ from the web service.
+
+* Animal names can now be resolved.  Two sources cover them:
+
+  - "mdd", the Mammal Diversity Database, 6,836 accepted species and about
+    56,000 synonyms, 68 MB to download.  Published under CC BY 4.0 with a DOI
+    per release.
+  - "col", the Catalogue of Life, 5.4 million names covering all life.  It is
+    a 488 MB download and by far the largest source offered, so it is worth
+    building only if you need its breadth. Note, however, this breadth allows
+    better handling of cross-code homonyms.
+
+  Neither is built by default.  "TNRS_local_status" lists them, and
+  "TNRS_local_build" fetches them on request like any other source.
+
+* Sources now record which nomenclatural code they follow, and
+  "TNRS_local_status" reports it.  It decides how a family prefix in a
+  submitted name is read: botanical families end in -aceae, zoological ones in
+  -idae, so "Felidae Panthera leo" resolves against an animal source where it
+  would not against a plant one.  "TNRS_local" takes the code from the sources
+  requested, and the new "nomenclature" argument overrides that.  Asking for a
+  plant and an animal source together resolves under both, which is what makes
+  a name shared between the two codes visible rather than silently resolved
+  under one of them.
+
+* "TNRS_local_add_source" gained a "nomenclature" argument, so a checklist you
+  supply can say which code it follows.
 
 ## NOTES ON THE LOCAL VERSION
 
@@ -74,11 +99,18 @@
   than the copy the web service is running, so some names legitimately resolve
   differently.  Report the versions from "TNRS_local_status" alongside results.
 
-* The "accuracy" argument filters on the overall score.  The web service
+* The "accuracy" argument filters on the overall score. The web service
   discards a match only when every component score is below the threshold, so
   it is more permissive than its own documentation describes.
 
 ## Bug Fixes
+
+* A family prefix that agreed with the matched name was penalised as though it
+  had been wrong.  The submitted family was left unscored while still counting
+  as a component of the name, so the score was divided by a part that
+  contributed nothing: "Fagaceae Quercus alba" scored 0.5996 where the web
+  service gives 1.  A family the backbone does not recognise still scores
+  0.5996, as it does there.
 
 ===============
 # TNRS 0.3.8
