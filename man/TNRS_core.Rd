@@ -30,7 +30,7 @@ TNRS_core(
 
 \item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
 
-\item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.}
+\item{accuracy}{numeric. Optional score threshold between 0 and 1. The web service discards a match only when every component score falls below it, so this is more permissive than it appears; see TNRS() for the detail.}
 
 \item{batches}{NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented}
 

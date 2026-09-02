@@ -8,7 +8,7 @@
 #' @param classification Character. Family classification to use. Currently options include "wfo" (the default).
 #' @param mode Character.  Options are "resolve" and "parse". Default option is "resolve"
 #' @param matches Character. Should all matches be returned ("all") or only the best match ("best", the default)?
-#' @param accuracy numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned.
+#' @param accuracy numeric. Optional score threshold between 0 and 1. The web service discards a match only when every component score falls below it, so this is more permissive than it appears; see TNRS() for the detail.
 #' @param batches NULL or Numeric.  Optional number of batches to divide the request into for parallel processing. CUrrently isn't implemented
 #' @param timeout Numeric.  Seconds to wait for the server before giving up.  A
 #'   large batch of names legitimately takes minutes, so this is generous by

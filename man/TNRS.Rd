@@ -27,7 +27,7 @@ TNRS(
 
 \item{matches}{Character. Should all matches be returned ("all") or only the best match ("best", the default)?}
 
-\item{accuracy}{numeric.  If specified, only matches with a score greater than or equal to the supplied accuracy level will be returned. If left NULL, the default threshold will be used.}
+\item{accuracy}{numeric. Optional score threshold between 0 and 1. Note that the web service applies this across every component score at once, and discards a match only when all of them fall below it, so a match with a low overall score survives a high threshold if any one component clears it. Filtering on Overall_score afterwards is what most callers actually want. If left NULL, the service's own default of 0.53 is used.}
 
 \item{skip_internet_check}{Should the check for internet connectivity be skipped? Default is FALSE.}
 
