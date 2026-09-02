@@ -13,6 +13,54 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
+## Status: beta
+
+The offline engine is a new port of the published TNRS algorithm. Measured
+against the web service over the 100 name benchmark in `tnrs_testfile`:
+
+| | agree |
+|---|---|
+| `Name_matched` | 99 of 100 (97 exactly, two differing only in the hybrid marker) |
+| `Accepted_name` | 87 of 100 |
+
+The thirteen accepted-name differences are worth understanding, because most of
+them are not errors.
+
+**Five reflect newer data.** The service's backbone was built on 2024-01-17;
+the local copy is WFO 2025-12 and WCVP v15. Where a treatment changed in
+between, the local answer is the current one. `Warnstorfia trichophylla`
+resolves to `Sarmentypnum trichophyllum` through the service, but WFO now
+accepts `Warnstorfia trichophylla` and treats `Sarmentypnum trichophyllum` as
+the synonym. `Chamaecrista conferta var. gurgueiana` and
+`Lycium californicum subsp. carinatum` are both returned as accepted names by
+the service and are synonyms in both current sources. For
+`Engelhardia spicata var. colebrookeana` the service gives no accepted name at
+all, where the local version gives one.
+
+**Four are the two sources disagreeing.** WFO and WCVP do not always accept the
+same name, and the two implementations follow different ones. `Bartlettina
+macrocephala` is accepted in WFO and a synonym in WCVP; the service reports
+WCVP's answer and the local version WFO's. Neither is wrong. Ask for both
+sources and `Source_conflict` marks these.
+
+**The rest are rank conventions**, such as `Gentianopsis barbata subsp. barbata`
+against `var. barbata`, which is WFO and WCVP writing the same taxon at
+different ranks.
+
+**One difference is not in the local version's favour.** `Brachyphyllum
+menendezii`, a fossil conifer genus in neither backbone, is matched by the
+service to its family, `Araucariaceae`. The local version fuzzy-matches it to
+`Trachyphyllum`, a moss genus. That is the false-positive pattern described
+under "Names that are not plants" below, and here the service is the more
+cautious of the two.
+
+Beyond this benchmark, the engine has not been tested broadly across taxonomic
+groups, across all the sources it can now read, or against the range of messy
+input real datasets contain, and it has not been independently reviewed. The
+animal sources in particular are very new. Treat the results as provisional:
+for work where the answer matters, resolve a sample through `TNRS()` as well and
+compare, and please report anything that disagrees.
+
 ## Why resolve names offline
 
 `TNRS()` sends your names to the Taxonomic Name Resolution Service and returns

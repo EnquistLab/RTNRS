@@ -4,6 +4,16 @@ The TNRS R package (also known as RTNRS) provides access to the Taxonomic Name R
 
 # Working offline
 
+**Beta.** The offline engine is a new port of the published TNRS algorithm. On
+the 100 name benchmark it returns the same matched name as the web service for
+99 of them and the same accepted name for 87; most of the differences are cases
+where the local sources are newer than the service's, which was last built in
+January 2024, or where WFO and WCVP disagree and the two follow different ones.
+`vignette("TNRS_offline")` goes through them individually. It has not been
+tested broadly across taxonomic groups and sources, nor independently reviewed,
+so treat the results as provisional and check a sample against `TNRS()` for work
+where the answer matters.
+
 Names can also be resolved without an internet connection, against a locally cached copy of the taxonomic sources, using the same algorithm as the web service:
 
 ```r

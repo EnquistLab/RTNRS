@@ -43,6 +43,24 @@
 #' @return Dataframe of results, with the same core columns as \code{TNRS()},
 #'   plus \code{Source} naming the source the match came from and
 #'   \code{Source_conflict} flagging names the requested sources disagreed about.
+#' @note \strong{This is a new implementation and should be treated as beta.}
+#'   It is a port of the published TNRS algorithm. Measured against the web
+#'   service over the 100 name benchmark in \code{tnrs_testfile}, it returns the
+#'   same matched name for 99 of them: 97 exactly, and two more differing only
+#'   in whether the hybrid marker is written out. Accepted names agree for 87.
+#'   Most of the 13 differences are explained rather than wrong. In five, the
+#'   accepted name the service gives is now a synonym in the current sources,
+#'   or the service gave none at all, so the local answer reflects a treatment
+#'   that changed after the service's backbone was built in January 2024. In
+#'   four more, WFO and WCVP disagree and the two implementations follow
+#'   different sources, which \code{Source_conflict} marks. The rest differ in
+#'   rank convention between sources. One difference is not in this function's
+#'   favour: a fossil genus absent from both backbones is matched by the
+#'   service to its family, where this matches it to an unrelated moss genus.
+#'   Beyond that benchmark it has not been tested broadly across taxonomic
+#'   groups, sources, or the range of messy input real datasets contain, and it
+#'   has not been independently reviewed. For work where the answer matters,
+#'   check a sample against \code{TNRS()} and please report what disagrees.
 #' @note The default differs from \code{TNRS()}. The web service consults
 #'   \code{c("wcvp", "wfo")} together, which means a single answer can be
 #'   assembled from two authorities that disagree. This function consults "wfo"
