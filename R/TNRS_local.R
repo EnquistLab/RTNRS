@@ -120,23 +120,20 @@ TNRS_local <- function(taxonomic_names,
     return(invisible(NULL))
   }
 
-  if (inherits(x = taxonomic_names, what = "character")) {
-    taxonomic_names <- data.frame(
-      ID = seq_along(taxonomic_names), taxon = taxonomic_names,
-      stringsAsFactors = FALSE
-    )
-  }
-  ids <- as.character(taxonomic_names[[1]])
-  submitted <- as.character(taxonomic_names[[2]])
+  # Checked the same way as TNRS(), so the two report the same problems in the
+  # same words
+  checked <- tnrs_check_names(taxonomic_names)
+  ids <- checked$ID
+  submitted <- checked$name
 
   backbone <- tnrs_backbone(sources, dir = dir, quiet = quiet)
 
-  # Preprocess and parse the whole batch at once; the phonetic keys in
-  # particular are far cheaper computed in bulk than one name at a time
   # Which nomenclatural code the names follow decides how a family prefix is
   # recognised, so it is settled before anything is read
   codes <- tnrs_effective_codes(sources, nomenclature, dir = dir)
 
+  # Preprocess and parse the whole batch at once; the phonetic keys in
+  # particular are far cheaper computed in bulk than one name at a time
   pre <- tnrs_preprocess(submitted, codes = codes)
   parsed <- tnrs_parse(pre$cleaned, codes = codes)
   parsed$family <- pre$family
