@@ -168,7 +168,9 @@ TNRS_triage <- function(a, b) {
 
   vague <- grepl(
     paste0(
-      "\\bsp\\.?$|\\bspp\\.?$|\\bspec\\.?$|\\bsp\\.\\s|/| x |\\bx$|×|",
+      "\\bsp\\.?$|\\bspp\\.?$|\\bspec\\.?$|\\bsp\\.\\s|/| x |\\bx$|",
+      # The hybrid sign, by code point so the source stays ASCII
+      intToUtf8(0x00D7), "|",
       "\\bcf\\.|\\bnr\\.|\\baff\\.|\\bcomplex\\b|\\bgroup\\b|\\?|",
       "^BOLD:|\\bindet|\\bundet|\\bunident|\\bunknown|\\bunclassified"
     ),
@@ -294,7 +296,8 @@ tnrs_triage_canon <- function(x) {
   x[is.na(x)] <- ""
   x <- gsub("\\s*\\([^)]*\\)", "", x)
   x <- gsub("\\b(subsp|ssp|var|subvar|f|fo|forma|subf|nothosubsp|nothovar)\\.?\\s+", "", x)
-  x <- gsub("×", "", x)
+  # The hybrid sign, written by code point so the source stays ASCII
+  x <- gsub(intToUtf8(0x00D7), "", x, fixed = TRUE)
   x <- gsub("\\s+", " ", trimws(x))
   tolower(x)
 }

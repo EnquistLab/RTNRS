@@ -181,7 +181,8 @@ tnrs_normalize_auth <- function(x, upcase = TRUE) {
 #'
 #' Internal.  Authorities in real data abbreviate the surname freely, and
 #' without a standard: \code{Theob.}, \code{Edw.}, \code{Leic.}, \code{Neum.},
-#' \code{Wied.}, or simply \code{Th} and \code{Dön} with no stop at all.  Upstream
+#' \code{Wied.}, or simply \code{Th} and \code{Don} (for Donitz) with no stop at
+#' all.  Upstream
 #' meant to expand these from an \code{auth_abbrev} table but the call is
 #' commented out, and an n-gram comparison of \code{Edw.} with \code{(Edwards,
 #' 1914)} scores 0.16 for what is the same author.
