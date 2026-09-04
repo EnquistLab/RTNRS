@@ -138,17 +138,29 @@ test_that("matches = 'all' returns at least as many rows as 'best'", {
   expect_gte(nrow(all_matches), nrow(best))
 })
 
-test_that("accuracy discards low-scoring matches", {
+test_that("accuracy follows the web service's rule", {
   skip_without_backbone()
 
-  # Unlike the web service, the threshold applies to the overall score
+  # The web service drops a match only when every score is below the
+  # threshold.  A misspelt genus with the right epithet therefore survives
+  # any threshold, since the epithet scores 1; that is the service's
+  # documented permissiveness, reproduced rather than corrected here.
   loose <- TNRS_local("Quercuss alba", sources = "wcvp", quiet = TRUE)
   strict <- TNRS_local("Quercuss alba", sources = "wcvp",
     accuracy = 0.999, quiet = TRUE
   )
-
   expect_equal(loose$Name_matched, "Quercus alba")
-  expect_equal(strict$Name_matched, "[No match found]")
+  expect_equal(strict$Name_matched, "Quercus alba")
+
+  # What the threshold removes is a match poor in every part: a fragment that
+  # reaches a genus by one edit on two letters scores 0.5 all round, and the
+  # default of 0.53 discards it where accuracy = NULL keeps it
+  everything <- TNRS_local("Ab", sources = "wcvp", accuracy = NULL, quiet = TRUE)
+  default <- TNRS_local("Ab", sources = "wcvp", quiet = TRUE)
+  expect_true(nzchar(everything$Name_matched) &&
+    everything$Name_matched != "[No match found]")
+  expect_lt(everything$Overall_score, 0.53)
+  expect_equal(default$Name_matched, "[No match found]")
 })
 
 test_that("a single source is consulted by default", {
