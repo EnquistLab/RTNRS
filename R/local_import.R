@@ -9,7 +9,10 @@ tnrs_name_columns <- function() {
     "name_id", "source", "source_name_id", "scientific_name", "authorship",
     "name_rank", "taxonomic_status", "family", "genus", "specific_epithet",
     "rank_indicator", "infraspecific_epithet", "is_hybrid", "url",
-    "accepted_source_name_id"
+    "accepted_source_name_id",
+    # Classification above the family, empty where a source does not give it;
+    # what lets a search be confined to an order or a kingdom
+    "kingdom", "phylum", "class", "order"
   )
 }
 
@@ -143,6 +146,8 @@ tnrs_import_wcvp <- function(path, quiet = FALSE) {
       paste0("https://powo.science.kew.org/taxon/", raw$powo_id), ""
     ),
     accepted_source_name_id = raw$accepted_plant_name_id,
+    # WCVP records nothing above the family
+    kingdom = "", phylum = "", class = "", order = "",
     stringsAsFactors = FALSE
   )
 
@@ -224,6 +229,9 @@ tnrs_import_wfo <- function(path, quiet = FALSE) {
       paste0("https://www.worldfloraonline.org/taxon/", raw$taxonID)
     ),
     accepted_source_name_id = raw$acceptedNameUsageID,
+    # WFO's majorGroup (angiosperms, ferns, ...) is not a Linnean rank, and
+    # nothing else above the family is given
+    kingdom = "", phylum = "", class = "", order = "",
     stringsAsFactors = FALSE
   )
 

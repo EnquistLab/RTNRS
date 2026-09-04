@@ -18,9 +18,13 @@
 #'   \code{TNRS_local_status()} lists what is available and what is built.
 #' @param matches Character. Should all matches be returned ("all") or only the
 #'   best match ("best", the default)?
-#' @param accuracy Numeric. If specified, matches scoring below this are
-#'   discarded. Note that, unlike the web service, this is applied to the
-#'   overall score alone; see the note below.
+#' @param accuracy Numeric between 0 and 1, or NULL. Score threshold below
+#'   which a match is discarded and the name reported as unmatched. The
+#'   default, 0.53, is the web service's default, and the rule is the web
+#'   service's too: a match is dropped only when its overall score and every
+#'   component score (family, genus, specific and infraspecific epithets) all
+#'   fall below the threshold, so a partial match whose genus is right
+#'   survives; see the note below. NULL, or 0, keeps every match.
 #' @param batch_size Number of names to match at a time. Batching releases each
 #'   batch's working memory as it goes, and is what allows progress to be
 #'   reported on a long job. The saving is modest, because the loaded reference
@@ -36,6 +40,18 @@
 #'   prefix is recognised: botanical families end in -aceae, zoological ones in
 #'   -idae, so "Felidae Panthera leo" needs the zoological setting for the
 #'   family to be stripped rather than read as the genus.
+#' @param within Character. One or more taxon names at family rank or above
+#'   (family, order, class, phylum or kingdom) to confine the search to, for
+#'   instance \code{"Culicidae"} or \code{c("Ixodida", "Mesostigmata")}.
+#'   Defaults to NULL, the whole source. Names are never matched outside the
+#'   scope, so a misspelt or missing tick name cannot come back as the bird or
+#'   fungus it most resembles, which is what happens against an all-life
+#'   source like "col" otherwise; see the note below. Every source can be
+#'   confined to a family; ranks above that need the source to record them,
+#'   which "col" and "mdd" do and the plant sources do not. A genus is not
+#'   accepted, because a genus name is not unique across the tree of life.
+#'   A source built by an earlier version of this package has to be rebuilt
+#'   before it can be searched this way.
 #' @param build_missing Should a requested source that has not been built yet be
 #'   downloaded and built now? Defaults to \code{interactive()}, which reports
 #'   the size and asks first. In a script it is therefore FALSE and nothing is
@@ -79,11 +95,19 @@
 #'   backbone is downloaded directly from the publishers and is often newer than
 #'   the copy the web service is running, so a name may legitimately resolve
 #'   differently. Use \code{TNRS_local_status()} to report the versions you used.
-#' @note The \code{accuracy} argument behaves differently here than in
-#'   \code{TNRS()}. The web service discards a match only when \emph{every}
-#'   component score falls below the threshold, so a low-scoring match can
-#'   survive a high threshold. This function applies the threshold to the
-#'   overall score, which is what the documentation of the web service describes.
+#' @note A submitted family prefix does not confine the search. As in the web
+#'   service, the family is matched separately and only competes with what
+#'   was found below it, so \code{"Ixodidae Ixodes inopinatus"} against "col"
+#'   still reaches a bird. \code{within} is what narrows the search; a prefix
+#'   only scores it.
+#' @note \code{accuracy} means the same here as in \code{TNRS()}, and the
+#'   default is the same 0.53. The rule is more permissive than it looks:
+#'   the web service discards a match only when \emph{every} score is below
+#'   the threshold, so a genus-only match, whose genus score is 1, is always
+#'   kept, and a fuzzy match to a wrong genus survives if the genus score
+#'   alone clears the bar. What the threshold removes is the tail of matches
+#'   that are poor in every part. To cut a fuzzy match to the wrong group,
+#'   use \code{within}; to keep every match, pass \code{accuracy = NULL}.
 #' @seealso \code{\link{TNRS_local_build}}, \code{\link{TNRS_local_status}},
 #'   \code{\link{TNRS_local_add_source}} to resolve against a checklist of your
 #'   own.
@@ -98,17 +122,30 @@
 #' both <- TNRS_local(c("Quercuss alba", "Xantium strumarium"),
 #'                    sources = c("wcvp", "wfo"))
 #' both[both$Source_conflict, ]
+#'
+#' # Tick names against the Catalogue of Life, without straying outside ticks
+#' TNRS_local(c("Ixodes inopinatus", "Boophilus"),
+#'            sources = "col", within = "Ixodida")
 #' }
 TNRS_local <- function(taxonomic_names,
                        sources = "wfo",
                        matches = c("best", "all"),
-                       accuracy = NULL,
+                       accuracy = 0.53,
                        batch_size = 10000,
                        dir = tnrs_cache_dir(),
                        nomenclature = NULL,
+                       within = NULL,
                        build_missing = interactive(),
                        quiet = FALSE) {
   matches <- match.arg(matches)
+
+  if (!is.null(within)) {
+    if (!is.character(within) || length(within) == 0 ||
+      any(is.na(within)) || any(!nzchar(trimws(within)))) {
+      stop("within should be one or more taxon names, or NULL", call. = FALSE)
+    }
+    within <- trimws(within)
+  }
 
   # Checked before coercing, so that a non-numeric argument reports the problem
   # rather than emitting a coercion warning on the way to the error
@@ -120,6 +157,15 @@ TNRS_local <- function(taxonomic_names,
 
   if (!inherits(x = accuracy, what = c("NULL", "numeric"))) {
     stop("accuracy should be either numeric between 0 and 1, or NULL")
+  }
+  if (!is.null(accuracy)) {
+    if (length(accuracy) != 1L || is.na(accuracy) || accuracy < 0 || accuracy > 1) {
+      stop("accuracy should be either numeric between 0 and 1, or NULL")
+    }
+    # The web service treats 0 as "return everything", and so does this
+    if (accuracy == 0) {
+      accuracy <- NULL
+    }
   }
 
   registry <- tnrs_source_registry(dir)
@@ -145,6 +191,34 @@ TNRS_local <- function(taxonomic_names,
   submitted <- checked$name
 
   backbone <- tnrs_backbone(sources, dir = dir, quiet = quiet)
+
+  # Which part of each source the search is confined to.  A taxon that no
+  # source knows at any rank above genus is a mistake worth stopping on; one
+  # that some sources know and others do not just leaves the others empty.
+  scopes <- NULL
+  if (!is.null(within)) {
+    scopes <- lapply(sources, function(s) tnrs_scope_mask(backbone[[s]], within))
+    names(scopes) <- sources
+    found <- unique(unlist(lapply(scopes, function(x) x$found)))
+    unknown <- within[!tnrs_toupper_ascii(within) %in% tnrs_toupper_ascii(found)]
+    if (length(unknown) > 0) {
+      message(
+        "within: ", paste0('"', unknown, '"', collapse = ", "),
+        if (length(unknown) == 1) " is" else " are",
+        " not a taxon at family rank or above in ",
+        if (length(sources) == 1) "this source" else "any of these sources",
+        ". A genus cannot be used as a scope; give its family instead."
+      )
+      return(invisible(NULL))
+    }
+    empty <- sources[vapply(scopes, function(x) !any(x$row), logical(1))]
+    if (length(empty) > 0 && !quiet) {
+      message(
+        "within: source(s) ", paste(empty, collapse = ", "),
+        " hold nothing in that scope and will not match anything."
+      )
+    }
+  }
 
   # Which nomenclatural code the names follow decides how a family prefix is
   # recognised, so it is settled before anything is read
@@ -245,7 +319,8 @@ TNRS_local <- function(taxonomic_names,
         candidates <- tnrs_match_one(
           query, backbone[[sources[s]]],
           exact = exact_hits[[sources[s]]][[j]],
-          exact_full = exact_full_hits[[sources[s]]][[j]]
+          exact_full = exact_full_hits[[sources[s]]][[j]],
+          scope = scopes[[sources[s]]]
         )
         if (nrow(candidates) == 0) {
           return(NULL)
@@ -348,7 +423,15 @@ tnrs_select_candidates <- function(query, candidates, backbone, matches,
   ) == 1L
 
   if (!is.null(accuracy)) {
-    keep <- !is.na(pooled$overall_score) & pooled$overall_score >= accuracy
+    # The web service's rule (tnrs_api.php): a match is reset to "no match"
+    # only when the overall score and every component score are all below the
+    # threshold.  A component that was not scored counts as below, as it does
+    # there, where an empty string compares as zero.  So a genus-only match
+    # always survives, and what goes is the match poor in every part.
+    clears <- function(score) !is.na(score) & score >= accuracy
+    keep <- clears(pooled$overall_score) | clears(pooled$family_score) |
+      clears(pooled$genus_score) | clears(pooled$species_score) |
+      clears(pooled$infra1_score)
     ambiguous <- ambiguous[keep]
     pooled <- pooled[keep, , drop = FALSE]
     if (nrow(pooled) == 0) {

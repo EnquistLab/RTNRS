@@ -4,6 +4,33 @@
 
 ## NEW FEATURES
 
+* "TNRS_local" gains a "within" argument that confines the search to one or
+  more taxa at family rank or above, for instance within = "Culicidae" or
+  within = "Ixodida".  Against an all-life source such as the Catalogue of
+  Life, a misspelt or missing name otherwise comes back as whatever it most
+  resembles anywhere in the tree of life, a tick as a bird, a mosquito as a
+  fungus; a submitted family prefix does not prevent this, since as in the
+  web service the family is scored rather than used to narrow the search.
+  Every source can be confined to a family; the Catalogue of Life and the
+  Mammal Diversity Database record the ranks above it too.  The local name
+  table now carries kingdom, phylum, class and order for this, and a synonym
+  takes its classification from its accepted name, which the Catalogue of
+  Life leaves blank on synonym rows.  A source built by an earlier version
+  has to be rebuilt before it can be searched this way; a checklist
+  registered with "TNRS_local_add_source" can supply the ranks as Darwin Core
+  columns.
+
+* "TNRS_local" now applies an accuracy threshold by default, 0.53, the web
+  service's default, and applies it by the web service's rule: a match is
+  dropped only when its overall score and every component score fall below
+  the threshold.  Earlier versions applied "accuracy" to the overall score
+  alone and applied nothing unless asked, so a name whose only candidate
+  was a poor fuzzy match to an unrelated genus came back with that match at
+  a score of 0.2 or 0.3.  Pass accuracy = NULL to keep every match.
+
+* "TNRS_local_build" allows an hour for each download rather than R's default
+  60 seconds, which the 488 MB Catalogue of Life archive could not meet.
+
 * Names can now be resolved offline, against a locally cached copy of the
   taxonomic sources, using the same algorithm as the web service.  Four new
   functions:

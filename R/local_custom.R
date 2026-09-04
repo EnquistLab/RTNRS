@@ -22,7 +22,11 @@ tnrs_dwc_columns <- function() {
     specific_epithet = "specificEpithet",
     infraspecific_epithet = "infraspecificEpithet",
     accepted_source_name_id = "acceptedNameUsageID",
-    url = "references"
+    url = "references",
+    kingdom = "kingdom",
+    phylum = "phylum",
+    class = "class",
+    order = "order"
   )
 }
 
@@ -299,6 +303,12 @@ tnrs_import_checklist <- function(data, source, columns = NULL, quiet = FALSE) {
       grepl("^x | x ", scientific_name),
     url = column("url") %||% rep("", n),
     accepted_source_name_id = column("accepted_source_name_id") %||% rep("", n),
+    # Optional; what lets TNRS_local(within = ...) confine a search to an
+    # order or a class of this checklist
+    kingdom = column("kingdom") %||% rep("", n),
+    phylum = column("phylum") %||% rep("", n),
+    class = column("class") %||% rep("", n),
+    order = column("order") %||% rep("", n),
     stringsAsFactors = FALSE
   )
 
@@ -380,7 +390,11 @@ tnrs_is_custom <- function(source, dir = tnrs_cache_dir()) {
 #'   \code{c(scientific_name = "name", authorship = "author")}. The fields are
 #'   scientific_name, authorship, name_rank, taxonomic_status, family, genus,
 #'   specific_epithet, infraspecific_epithet, source_name_id,
-#'   accepted_source_name_id and url. Only scientific_name is required.
+#'   accepted_source_name_id, url, and the classification ranks kingdom,
+#'   phylum, class and order. Only scientific_name is required. The
+#'   classification ranks are what \code{TNRS_local(within = ...)} confines a
+#'   search by, so a checklist that gives them can be searched within an order
+#'   or a class as well as a family.
 #' @param nomenclature Nomenclatural code the checklist follows: "botanical"
 #'   (the default), "zoological", or "mixed" for one covering both. It decides
 #'   how \code{TNRS_local()} reads a family prefix in a submitted name, since
@@ -491,6 +505,7 @@ TNRS_local_add_source <- function(x,
 
   names <- tnrs_import_checklist(checklist, source, columns = columns, quiet = quiet)
   names <- tnrs_link_accepted(names)
+  names <- tnrs_inherit_classification(names)
 
   nanoparquet::write_parquet(names, names_file, compression = "gzip")
 

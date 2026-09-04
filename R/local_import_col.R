@@ -5,8 +5,8 @@ tnrs_col_terms <- function() {
   c(
     "taxonID", "scientificName", "scientificNameAuthorship", "taxonRank",
     "taxonomicStatus", "family", "genericName", "genus", "specificEpithet",
-    "infraspecificEpithet", "acceptedNameUsageID", "kingdom",
-    "nomenclaturalCode"
+    "infraspecificEpithet", "acceptedNameUsageID", "kingdom", "phylum",
+    "class", "order", "nomenclaturalCode"
   )
 }
 
@@ -164,6 +164,12 @@ tnrs_import_col <- function(path, quiet = FALSE) {
     is_hybrid = grepl(intToUtf8(0x00D7), canonical, fixed = TRUE),
     url = "",
     accepted_source_name_id = column("acceptedNameUsageID"),
+    # Given on accepted rows only; synonyms take theirs from the accepted name
+    # once the table is linked
+    kingdom = column("kingdom"),
+    phylum = column("phylum"),
+    class = column("class"),
+    order = column("order"),
     stringsAsFactors = FALSE
   )
 

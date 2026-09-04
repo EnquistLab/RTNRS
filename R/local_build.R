@@ -102,6 +102,7 @@ Use TNRS_local_add_source() to register the data again."
       col = tnrs_import_col(extracted[["names"]], quiet = quiet)
     )
     names <- tnrs_link_accepted(names)
+    names <- tnrs_inherit_classification(names)
 
     # Parquet with the gzip codec.  It is smaller than a gzipped RDS, several
     # times faster to read, and because the compression is per column chunk the

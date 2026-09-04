@@ -8,10 +8,11 @@ TNRS_local(
   taxonomic_names,
   sources = "wfo",
   matches = c("best", "all"),
-  accuracy = NULL,
+  accuracy = 0.53,
   batch_size = 10000,
   dir = tnrs_cache_dir(),
   nomenclature = NULL,
+  within = NULL,
   build_missing = interactive(),
   quiet = FALSE
 )
@@ -33,9 +34,13 @@ Life, which covers all life. A checklist registered with
 \item{matches}{Character. Should all matches be returned ("all") or only the
 best match ("best", the default)?}
 
-\item{accuracy}{Numeric. If specified, matches scoring below this are
-discarded. Note that, unlike the web service, this is applied to the
-overall score alone; see the note below.}
+\item{accuracy}{Numeric between 0 and 1, or NULL. Score threshold below
+which a match is discarded and the name reported as unmatched. The
+default, 0.53, is the web service's default, and the rule is the web
+service's too: a match is dropped only when its overall score and every
+component score (family, genus, specific and infraspecific epithets) all
+fall below the threshold, so a partial match whose genus is right
+survives; see the note below. NULL, or 0, keeps every match.}
 
 \item{batch_size}{Number of names to match at a time. Batching releases each
 batch's working memory as it goes, and is what allows progress to be
@@ -54,6 +59,19 @@ your having to say so. Set it to override that. It decides how a family
 prefix is recognised: botanical families end in -aceae, zoological ones in
 -idae, so "Felidae Panthera leo" needs the zoological setting for the
 family to be stripped rather than read as the genus.}
+
+\item{within}{Character. One or more taxon names at family rank or above
+(family, order, class, phylum or kingdom) to confine the search to, for
+instance \code{"Culicidae"} or \code{c("Ixodida", "Mesostigmata")}.
+Defaults to NULL, the whole source. Names are never matched outside the
+scope, so a misspelt or missing tick name cannot come back as the bird or
+fungus it most resembles, which is what happens against an all-life
+source like "col" otherwise; see the note below. Every source can be
+confined to a family; ranks above that need the source to record them,
+which "col" and "mdd" do and the plant sources do not. A genus is not
+accepted, because a genus name is not unique across the tree of life.
+A source built by an earlier version of this package has to be rebuilt
+before it can be searched this way.}
 
 \item{build_missing}{Should a requested source that has not been built yet be
 downloaded and built now? Defaults to \code{interactive()}, which reports
@@ -114,11 +132,20 @@ Results are not guaranteed to be identical to \code{TNRS()}. The local
   the copy the web service is running, so a name may legitimately resolve
   differently. Use \code{TNRS_local_status()} to report the versions you used.
 
-The \code{accuracy} argument behaves differently here than in
-  \code{TNRS()}. The web service discards a match only when \emph{every}
-  component score falls below the threshold, so a low-scoring match can
-  survive a high threshold. This function applies the threshold to the
-  overall score, which is what the documentation of the web service describes.
+A submitted family prefix does not confine the search. As in the web
+  service, the family is matched separately and only competes with what
+  was found below it, so \code{"Ixodidae Ixodes inopinatus"} against "col"
+  still reaches a bird. \code{within} is what narrows the search; a prefix
+  only scores it.
+
+\code{accuracy} means the same here as in \code{TNRS()}, and the
+  default is the same 0.53. The rule is more permissive than it looks:
+  the web service discards a match only when \emph{every} score is below
+  the threshold, so a genus-only match, whose genus score is 1, is always
+  kept, and a fuzzy match to a wrong genus survives if the genus score
+  alone clears the bar. What the threshold removes is the tail of matches
+  that are poor in every part. To cut a fuzzy match to the wrong group,
+  use \code{within}; to keep every match, pass \code{accuracy = NULL}.
 }
 \examples{
 \dontrun{
@@ -131,6 +158,10 @@ results <- TNRS_local(c("Quercuss alba", "Xantium strumarium"))
 both <- TNRS_local(c("Quercuss alba", "Xantium strumarium"),
                    sources = c("wcvp", "wfo"))
 both[both$Source_conflict, ]
+
+# Tick names against the Catalogue of Life, without straying outside ticks
+TNRS_local(c("Ixodes inopinatus", "Boophilus"),
+           sources = "col", within = "Ixodida")
 }
 }
 \seealso{

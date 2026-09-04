@@ -44,7 +44,11 @@ checklist, for a list that does not use Darwin Core names. For example
 \code{c(scientific_name = "name", authorship = "author")}. The fields are
 scientific_name, authorship, name_rank, taxonomic_status, family, genus,
 specific_epithet, infraspecific_epithet, source_name_id,
-accepted_source_name_id and url. Only scientific_name is required.}
+accepted_source_name_id, url, and the classification ranks kingdom,
+phylum, class and order. Only scientific_name is required. The
+classification ranks are what \code{TNRS_local(within = ...)} confines a
+search by, so a checklist that gives them can be searched within an order
+or a class as well as a family.}
 
 \item{nomenclature}{Nomenclatural code the checklist follows: "botanical"
 (the default), "zoological", or "mixed" for one covering both. It decides

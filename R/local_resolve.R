@@ -31,20 +31,24 @@ tnrs_candidate_frame <- function(row, matched_rank,
 #' @param backbone One element of \code{tnrs_backbone()}.
 #' @param search_mode "normal" or "extended".
 #' @param exact,exact_full Rows already found by the batched exact lookup.
+#' @param scope Output of \code{tnrs_scope_mask()}, or NULL for the whole
+#'   source.  Applied at every step of the cascade rather than to its result,
+#'   so that an exact hit outside the scope falls through to a fuzzy match
+#'   inside it rather than to nothing.
 #' @return A data.frame of candidates covering every rank that matched.
 #' @keywords internal
 #' @noRd
 tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
-                           exact = NULL, exact_full = NULL) {
+                           exact = NULL, exact_full = NULL, scope = NULL) {
   below <- tnrs_match_below_family(
-    parsed, backbone, search_mode, exact, exact_full
+    parsed, backbone, search_mode, exact, exact_full, scope
   )
 
   if (!nzchar(parsed$family)) {
     return(below)
   }
 
-  family <- tnrs_match_family_only(parsed, backbone, search_mode)
+  family <- tnrs_match_family_only(parsed, backbone, search_mode, scope)
   if (nrow(family) == 0) {
     return(below)
   }
@@ -72,9 +76,16 @@ tnrs_match_one <- function(parsed, backbone, search_mode = "normal",
 #' @keywords internal
 #' @noRd
 tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
-                                    exact = NULL, exact_full = NULL) {
+                                    exact = NULL, exact_full = NULL,
+                                    scope = NULL) {
   index <- backbone$index
   names <- backbone$names
+
+  # Hits from the batched lookup were found across the whole source
+  exact_full <- tnrs_scope_rows(exact_full, scope)
+  if (!is.null(exact)) {
+    exact <- tnrs_scope_rows(exact, scope)
+  }
 
   empty <- tnrs_candidate_frame(
     integer(0), character(0),
@@ -125,7 +136,9 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
   }
 
   if (is.null(exact)) {
-    exact <- tnrs_lookup(index$rows_by_name, tnrs_toupper_ascii(wanted))
+    exact <- tnrs_scope_rows(
+      tnrs_lookup(index$rows_by_name, tnrs_toupper_ascii(wanted)), scope
+    )
   }
 
   if (length(exact) > 0) {
@@ -146,8 +159,11 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
     species_index = index$species, search_mode = search_mode,
     query_key = genus_key
   )
+  # Before the edit distances are computed, so that a lookalike genus in
+  # another kingdom never becomes the best match
+  genus_candidates <- tnrs_scope_positions(genus_candidates, scope$genus)
   if (length(genus_candidates) == 0) {
-    return(tnrs_match_family_only(parsed, backbone, search_mode))
+    return(tnrs_match_family_only(parsed, backbone, search_mode, scope))
   }
 
   genus_match <- tnrs_match_component(
@@ -158,7 +174,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
   )
   matched_genera <- genus_candidates[genus_match$match]
   if (length(matched_genera) == 0) {
-    return(tnrs_match_family_only(parsed, backbone, search_mode))
+    return(tnrs_match_family_only(parsed, backbone, search_mode, scope))
   }
 
   genus_distance <- genus_match$edit_distance[genus_match$match]
@@ -171,7 +187,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
       if (length(hits) == 0) {
         return(NULL)
       }
-      hits <- hits[names$name_rank[hits] == "genus"]
+      hits <- tnrs_scope_rows(hits[names$name_rank[hits] == "genus"], scope)
       if (length(hits) == 0) {
         return(NULL)
       }
@@ -182,7 +198,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
     })
     rows <- do.call(rbind, rows)
     if (is.null(rows)) {
-      return(tnrs_match_family_only(parsed, backbone, search_mode))
+      return(tnrs_match_family_only(parsed, backbone, search_mode, scope))
     }
     return(rows)
   }
@@ -191,7 +207,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
   species_candidates <- tnrs_child_candidates(epithet, matched_genera, index$species)
   if (length(species_candidates) == 0) {
     return(tnrs_match_genus_only(
-      parsed, backbone, matched_genera, genus_distance, genus_phonetic
+      parsed, backbone, matched_genera, genus_distance, genus_phonetic, scope
     ))
   }
 
@@ -204,7 +220,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
   accepted <- species_candidates[species_match$match]
   if (length(accepted) == 0) {
     return(tnrs_match_genus_only(
-      parsed, backbone, matched_genera, genus_distance, genus_phonetic
+      parsed, backbone, matched_genera, genus_distance, genus_phonetic, scope
     ))
   }
 
@@ -218,7 +234,8 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
   if (nzchar(infra)) {
     infra_rows <- tnrs_match_infraspecific(
       infra, accepted, index, genus_distance[genus_slot],
-      species_distance, genus_phonetic[genus_slot] & species_phonetic
+      species_distance, genus_phonetic[genus_slot] & species_phonetic,
+      scope
     )
     if (!is.null(infra_rows)) {
       return(infra_rows)
@@ -229,7 +246,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
   # One frame for all the matched species rather than one per species: building
   # and rbind-ing small data.frames dominated the run time otherwise
   hits <- lapply(accepted, function(a) {
-    found <- tnrs_int_lookup(index$rows_by_species, a)
+    found <- tnrs_scope_rows(tnrs_int_lookup(index$rows_by_species, a), scope)
     # Prefer the species-rank rows; an infraspecific row would misrepresent a
     # query that carried no infraspecific epithet
     at_rank <- found[!nzchar(names$infraspecific_epithet[found])]
@@ -238,7 +255,11 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
 
   counts <- lengths(hits)
   if (all(counts == 0)) {
-    return(empty)
+    # Every matched species lay outside the scope, which for a genus that is
+    # a homonym across kingdoms is the expected outcome
+    return(tnrs_match_genus_only(
+      parsed, backbone, matched_genera, genus_distance, genus_phonetic, scope
+    ))
   }
   from <- rep(seq_along(accepted), counts)
 
@@ -259,7 +280,7 @@ tnrs_match_below_family <- function(parsed, backbone, search_mode = "normal",
 #' @noRd
 tnrs_match_infraspecific <- function(infra, species_positions, index,
                                      genus_distance, species_distance,
-                                     phonetic_so_far) {
+                                     phonetic_so_far, scope = NULL) {
   candidates <- tnrs_child_candidates(infra, species_positions, index$infra1)
   if (length(candidates) == 0) {
     return(NULL)
@@ -278,7 +299,9 @@ tnrs_match_infraspecific <- function(infra, species_positions, index,
   phonetic <- judged$phonetic[judged$match]
   species_slot <- match(index$infra1$parent[accepted], species_positions)
 
-  hits <- lapply(accepted, function(a) tnrs_int_lookup(index$rows_by_infra1, a))
+  hits <- lapply(accepted, function(a) {
+    tnrs_scope_rows(tnrs_int_lookup(index$rows_by_infra1, a), scope)
+  })
   counts <- lengths(hits)
   if (all(counts == 0)) {
     return(NULL)
@@ -298,13 +321,14 @@ tnrs_match_infraspecific <- function(infra, species_positions, index,
 #' @keywords internal
 #' @noRd
 tnrs_match_genus_only <- function(parsed, backbone, matched_genera,
-                                  genus_distance, genus_phonetic) {
+                                  genus_distance, genus_phonetic,
+                                  scope = NULL) {
   index <- backbone$index
   names <- backbone$names
 
   rows <- lapply(seq_along(matched_genera), function(i) {
     hits <- tnrs_int_lookup(index$rows_by_genus, matched_genera[i])
-    hits <- hits[names$name_rank[hits] == "genus"]
+    hits <- tnrs_scope_rows(hits[names$name_rank[hits] == "genus"], scope)
     if (length(hits) == 0) {
       return(NULL)
     }
@@ -316,7 +340,7 @@ tnrs_match_genus_only <- function(parsed, backbone, matched_genera,
   rows <- do.call(rbind, rows)
 
   if (is.null(rows)) {
-    tnrs_match_family_only(parsed, backbone, "normal")
+    tnrs_match_family_only(parsed, backbone, "normal", scope)
   } else {
     rows
   }
@@ -325,7 +349,8 @@ tnrs_match_genus_only <- function(parsed, backbone, matched_genera,
 #' Fall back to the family when nothing below it matched
 #' @keywords internal
 #' @noRd
-tnrs_match_family_only <- function(parsed, backbone, search_mode = "normal") {
+tnrs_match_family_only <- function(parsed, backbone, search_mode = "normal",
+                                   scope = NULL) {
   empty <- tnrs_candidate_frame(
     integer(0), character(0),
     genus_ed = integer(0), species_ed = integer(0), infra1_ed = integer(0),
@@ -340,7 +365,9 @@ tnrs_match_family_only <- function(parsed, backbone, search_mode = "normal") {
   index <- backbone$index
   names <- backbone$names
 
-  candidates <- tnrs_family_candidates(family, index$family, search_mode)
+  candidates <- tnrs_scope_positions(
+    tnrs_family_candidates(family, index$family, search_mode), scope$family
+  )
   if (length(candidates) == 0) {
     return(empty)
   }
@@ -358,10 +385,10 @@ tnrs_match_family_only <- function(parsed, backbone, search_mode = "normal") {
   # A family match points at the family name itself where the source carries
   # one as a name in its own right
   rows <- lapply(seq_along(matched), function(i) {
-    hits <- tnrs_lookup(
+    hits <- tnrs_scope_rows(tnrs_lookup(
       index$rows_by_name,
       tnrs_toupper_ascii(index$family$name[matched[i]])
-    )
+    ), scope)
     if (length(hits) == 0) {
       return(NULL)
     }

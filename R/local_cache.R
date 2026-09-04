@@ -252,6 +252,14 @@ tnrs_download_source <- function(source, dir = tnrs_cache_dir(create = TRUE),
       # Download to a temporary file first so that an interrupted download can
       # never be mistaken for a complete one
       partial <- paste0(target, ".part")
+
+      # R's default timeout is 60 seconds for the whole transfer, which a
+      # 500 MB archive on an ordinary connection cannot meet: the Catalogue of
+      # Life failed at 408 MB of 488.  Allowed an hour, restored afterwards.
+      old_timeout <- getOption("timeout")
+      options(timeout = max(3600, old_timeout))
+      on.exit(options(timeout = old_timeout), add = TRUE)
+
       status <- utils::download.file(
         url = files[[part]]$url, destfile = partial, mode = "wb",
         quiet = quiet, cacheOK = FALSE

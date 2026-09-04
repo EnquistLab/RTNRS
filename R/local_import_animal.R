@@ -101,6 +101,8 @@ tnrs_import_mdd <- function(species_path, synonym_path, quiet = FALSE) {
     name_rank = "species",
     taxonomic_status = "Accepted",
     family = tnrs_title_case(species$family),
+    # The species file classifies each species up to its order
+    order = if (is.null(species$order)) "" else tnrs_title_case(species$order),
     genus = species$genus,
     specific_epithet = species$specificEpithet,
     infraspecific_epithet = "",
@@ -163,6 +165,8 @@ tnrs_import_mdd <- function(species_path, synonym_path, quiet = FALSE) {
     ),
     taxonomic_status = status,
     family = tnrs_title_case(synonyms$MDD_family),
+    # Taken from the accepted name once the table is linked
+    order = "",
     genus = syn_genus,
     specific_epithet = syn_species,
     infraspecific_epithet = syn_infra,
@@ -193,6 +197,10 @@ tnrs_import_mdd <- function(species_path, synonym_path, quiet = FALSE) {
     is_hybrid = FALSE,
     url = "",
     accepted_source_name_id = combined$accepted_source_name_id,
+    # Every name here is a mammal, and the order is the deepest rank above
+    # the family the source gives
+    kingdom = "Animalia", phylum = "Chordata", class = "Mammalia",
+    order = combined$order,
     stringsAsFactors = FALSE
   )
 
