@@ -181,6 +181,86 @@ test_that("the default accuracy drops a match poor in every part and keeps a gen
   expect_error(TNRS_local("Ab", sources = "mixed", dir = tmp, accuracy = 2), "accuracy")
 })
 
+test_that("a fuzzy match whose author disagrees is flagged, an exact one is not", {
+  tmp <- file.path(tempdir(), "tnrs-author-flag")
+  unlink(tmp, recursive = TRUE)
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  ticks <- data.frame(
+    taxonID = c("g", "s1", "s2"),
+    scientificName = c("Ixodes", "Ixodes bakeri", "Ixodes ricinus"),
+    scientificNameAuthorship = c("Latreille, 1795", "Arthur & Clifford, 1961", "(Linnaeus, 1758)"),
+    taxonRank = c("genus", "species", "species"),
+    taxonomicStatus = "accepted",
+    acceptedNameUsageID = c("g", "s1", "s2"),
+    family = "Ixodidae", genus = "Ixodes",
+    specificEpithet = c("", "bakeri", "ricinus"),
+    stringsAsFactors = FALSE
+  )
+  suppressMessages(TNRS_local_add_source(ticks,
+    source = "ticks", version = "1", nomenclature = "zoological",
+    dir = tmp, quiet = TRUE
+  ))
+
+  result <- TNRS_local(
+    c(
+      # A species the source lacks, matched to its neighbour; the author is
+      # what gives it away
+      "Ixodes barkeri Barker 2019",
+      # The same without an author: nothing to contradict, so no flag
+      "Ixodes barkeri",
+      # An exact name with a later combination's author: sources cite these
+      # routinely, so no flag
+      "Ixodes ricinus Neumann, 1911",
+      # Fuzzy, but the author agrees
+      "Ixodes bakeri Arthur & Clifford 1961"
+    ),
+    sources = "ticks", dir = tmp, build_missing = FALSE, quiet = TRUE
+  )
+  expect_identical(result$Name_matched, c("Ixodes bakeri", "Ixodes bakeri", "Ixodes ricinus", "Ixodes bakeri"))
+  flagged <- bitwAnd(result$Warnings, 16L) > 0L
+  expect_identical(flagged, c(TRUE, FALSE, FALSE, FALSE))
+  expect_match(result$WarningsEng[1], "[Author]", fixed = TRUE)
+  expect_false(grepl("Author", result$WarningsEng[3], fixed = TRUE))
+})
+
+test_that("a leading higher taxon the source knows confines the name it opens", {
+  tmp <- scoped_dir("tnrs-scope-prefix")
+  on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
+
+  result <- TNRS_local(
+    c(
+      # order + species: the order is taken off and the species found
+      "Ixodida Ixodes ricinus",
+      # kingdom + homonym genus: the prefix decides which Oenanthe
+      "Plantae Oenanthe", "Aves Oenanthe",
+      # a prefix that rules the name out: the tick is not a bird
+      "Passeriformes Ixodes ricinus",
+      # a family the source knows, written under the botanical code: family path
+      "Ixodidae Ixodes ricinus",
+      # the order alone is a name to match, not a prefix
+      "Ixodida"
+    ),
+    sources = "mixed", dir = tmp, build_missing = FALSE, quiet = TRUE
+  )
+  expect_identical(result$Name_matched, c(
+    "Ixodes ricinus", "Oenanthe", "Oenanthe", "[No match found]", "Ixodes ricinus", "Ixodida"
+  ))
+  expect_identical(result$Name_matched_accepted_family[2:3], c("Apiaceae", "Muscicapidae"))
+  expect_identical(result$Family_submitted[5], "Ixodidae")
+  expect_equal(result$Overall_score[c(1, 5)], c(1, 1))
+  # The prefix was used, so it is not reported as an unmatched term
+  expect_identical(result$Unmatched_terms[1], "")
+
+  # The pre-processor reports what it took off
+  pre <- tnrs_preprocess(c("Ixodida Ixodes ricinus", "Ixodida", "Fagales Quercus alba"),
+    codes = "mixed", higher = c("IXODIDA"), families = "IXODIDAE"
+  )
+  expect_identical(pre$cleaned, c("Ixodes ricinus", "Ixodida", "Fagales Quercus alba"))
+  expect_identical(pre$higher, c("Ixodida", "", ""))
+})
+
 test_that("a homonym genus resolves to the kingdom asked for", {
   tmp <- scoped_dir("tnrs-scope-homonym")
   on.exit(unlink(tmp, recursive = TRUE), add = TRUE)

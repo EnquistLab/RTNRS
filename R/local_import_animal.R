@@ -210,6 +210,152 @@ tnrs_import_mdd <- function(species_path, synonym_path, quiet = FALSE) {
   out
 }
 
+#' Read the PHYLACINE synonymy table into the local name table
+#'
+#' Internal.  PHYLACINE 1.2 publishes one row per species it accepts, giving
+#' the binomial with its order, family and genus, and beside it the name the
+#' same species carries in four other lists: PHYLACINE 1.0 and 1.1,
+#' EltonTraits 1.0 and IUCN 2016-3.  Rows whose PHYLACINE fields read
+#' \code{000 Species not accepted} are names in those lists that PHYLACINE
+#' rejects.  There is no authorship, no rank below species and no status
+#' vocabulary; all of that is implied by the row's shape.
+#'
+#' Every alternative binomial that differs from the accepted one becomes a
+#' synonym pointing at it, so a name from any of the four lists resolves to
+#' PHYLACINE's; a rejected name becomes Unplaced with no accepted name.  A
+#' blank epithet, which the table has once, is dropped rather than imported
+#' as a bare genus that would then match every species of it.
+#'
+#' @param path Path to \code{Synonymy_table_with_unaccepted_species.csv}.
+#' @param quiet Suppress progress messages?
+#' @return A data.frame with the columns given by \code{tnrs_name_columns()}.
+#' @keywords internal
+#' @noRd
+tnrs_import_phylacine <- function(path, quiet = FALSE) {
+  if (!file.exists(path)) {
+    stop("PHYLACINE synonymy table not found: ", path, call. = FALSE)
+  }
+  if (!quiet) message("Reading PHYLACINE synonymy table ...")
+
+  raw <- utils::read.csv(
+    path,
+    colClasses = "character", na.strings = character(0),
+    stringsAsFactors = FALSE, check.names = FALSE, encoding = "UTF-8"
+  )
+  needed <- c(
+    "Binomial.1.2", "Order.1.2", "Family.1.2", "Genus.1.2", "Species.1.2",
+    "Genus.1.1", "Species.1.1", "Genus.1.0", "Species.1.0",
+    "EltonTraits.1.0.Genus", "EltonTraits.1.0.Species",
+    "IUCN.2016.3.Genus", "IUCN.2016.3.Species"
+  )
+  absent <- setdiff(needed, names(raw))
+  if (length(absent) > 0) {
+    stop(
+      "The PHYLACINE synonymy table is missing the column(s) ",
+      paste(absent, collapse = ", "), ". The published format may have changed.",
+      call. = FALSE
+    )
+  }
+
+  gone <- "000 Species not accepted"
+  blank <- function(v) is.na(v) | !nzchar(trimws(v)) | v == gone
+  binomial <- function(genus, epithet) {
+    ifelse(blank(genus) | blank(epithet), "", paste(trimws(genus), trimws(epithet)))
+  }
+
+  accepted <- raw[raw$Binomial.1.2 != gone, , drop = FALSE]
+  current <- gsub("_", " ", accepted$Binomial.1.2, fixed = TRUE)
+
+  # The four other lists' names for each accepted species, kept where they
+  # differ from the current one
+  others <- lapply(
+    list(
+      c("Genus.1.1", "Species.1.1"), c("Genus.1.0", "Species.1.0"),
+      c("EltonTraits.1.0.Genus", "EltonTraits.1.0.Species"),
+      c("IUCN.2016.3.Genus", "IUCN.2016.3.Species")
+    ),
+    function(cols) {
+      name <- binomial(accepted[[cols[1]]], accepted[[cols[2]]])
+      keep <- nzchar(name) & name != current
+      data.frame(name = name[keep], to = accepted$Binomial.1.2[keep], stringsAsFactors = FALSE)
+    }
+  )
+  synonyms <- unique(do.call(rbind, others))
+
+  # Names those lists carry that PHYLACINE does not accept, taken from
+  # whichever list has them
+  rejected <- raw[raw$Binomial.1.2 == gone, , drop = FALSE]
+  rejected_name <- rep("", nrow(rejected))
+  for (cols in list(
+    c("EltonTraits.1.0.Genus", "EltonTraits.1.0.Species"),
+    c("IUCN.2016.3.Genus", "IUCN.2016.3.Species"),
+    c("Genus.1.1", "Species.1.1"), c("Genus.1.0", "Species.1.0")
+  )) {
+    candidate <- binomial(rejected[[cols[1]]], rejected[[cols[2]]])
+    take <- !nzchar(rejected_name) & nzchar(candidate)
+    rejected_name[take] <- candidate[take]
+  }
+  rejected_name <- unique(rejected_name[nzchar(rejected_name)])
+
+  first_word <- function(x) sub("\\s.*$", "", x)
+  rest <- function(x) sub("^\\S+\\s+", "", x)
+
+  rows <- rbind(
+    data.frame(
+      source_name_id = accepted$Binomial.1.2, scientific_name = current,
+      taxonomic_status = "Accepted", accepted_source_name_id = accepted$Binomial.1.2,
+      family = trimws(accepted$Family.1.2), order = trimws(accepted$Order.1.2),
+      genus = trimws(accepted$Genus.1.2), specific_epithet = trimws(accepted$Species.1.2),
+      stringsAsFactors = FALSE
+    ),
+    data.frame(
+      source_name_id = paste0("syn-", seq_len(nrow(synonyms))), scientific_name = synonyms$name,
+      taxonomic_status = "Synonym", accepted_source_name_id = synonyms$to,
+      # Classification comes from the accepted name, filled in after linking
+      family = "", order = "",
+      genus = first_word(synonyms$name), specific_epithet = rest(synonyms$name),
+      stringsAsFactors = FALSE
+    ),
+    data.frame(
+      source_name_id = paste0("rej-", seq_along(rejected_name)), scientific_name = rejected_name,
+      taxonomic_status = "Unplaced", accepted_source_name_id = "",
+      family = "", order = "",
+      genus = first_word(rejected_name), specific_epithet = rest(rejected_name),
+      stringsAsFactors = FALSE
+    )
+  )
+
+  out <- data.frame(
+    name_id = seq_len(nrow(rows)),
+    source = "phylacine",
+    source_name_id = rows$source_name_id,
+    scientific_name = rows$scientific_name,
+    authorship = "",
+    name_rank = "species",
+    taxonomic_status = rows$taxonomic_status,
+    family = rows$family,
+    genus = rows$genus,
+    specific_epithet = rows$specific_epithet,
+    rank_indicator = "",
+    infraspecific_epithet = "",
+    is_hybrid = FALSE,
+    url = "",
+    accepted_source_name_id = rows$accepted_source_name_id,
+    kingdom = "Animalia", phylum = "Chordata", class = "Mammalia",
+    order = rows$order,
+    stringsAsFactors = FALSE
+  )
+
+  if (!quiet) {
+    message(
+      "  ", format(sum(out$taxonomic_status == "Accepted"), big.mark = ","), " accepted species, ",
+      format(sum(out$taxonomic_status == "Synonym"), big.mark = ","), " names from other lists, ",
+      sum(out$taxonomic_status == "Unplaced"), " rejected"
+    )
+  }
+  out
+}
+
 #' Is a value both present and non-empty?
 #' @keywords internal
 #' @noRd

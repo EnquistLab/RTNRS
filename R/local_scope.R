@@ -130,6 +130,22 @@ tnrs_scope_mask <- function(backbone, within) {
   list(row = row, genus = genus, family = family, found = unique(found))
 }
 
+#' The rows, genera and families two scopes have in common
+#'
+#' Internal.  Used when a name carries its own higher-taxon prefix inside a
+#' \code{within}: the search is confined to both.  The genus and family
+#' masks are intersected too; that can leave a genus allowed whose every row
+#' is then refused by the row mask, which is harmless, since the row mask
+#' is what decides.
+#' @keywords internal
+#' @noRd
+tnrs_scope_intersect <- function(a, b) {
+  list(
+    row = a$row & b$row, genus = a$genus & b$genus, family = a$family & b$family,
+    found = intersect(a$found, b$found)
+  )
+}
+
 #' Keep only the name-table rows a scope allows
 #' @keywords internal
 #' @noRd

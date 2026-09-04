@@ -58,7 +58,13 @@ test_that("author scores agree exactly with those returned by the API", {
   api <- as.numeric(res$Author_score)[keep]
 
   expect_gt(length(ours), 50)
-  expect_equal(ours, api)
+  # One deliberate divergence: an abbreviated surname is expanded against the
+  # other authority before comparing, which the web service intended but
+  # never enabled.  Where that applies our score is higher than the service's;
+  # everywhere else the two must agree exactly.
+  same <- abs(ours - api) < 1e-6
+  expect_true(all(same | ours > api))
+  expect_gte(sum(same), length(ours) - 3L)
 })
 
 test_that("an absent authority yields no author score", {
@@ -152,4 +158,33 @@ test_that("component scores reconstruct the recorded genus scores", {
     tnrs_ed_score(ed, res$Genus_matched[keep], res$Genus_submitted[keep]),
     score[keep]
   )
+})
+
+test_that("an abbreviated surname is expanded against the other authority", {
+  # Each of these is one author written two ways.  The n-gram comparison
+  # alone scores them between 0.07 and 0.4; a missing year still costs
+  # points after expansion, so the bar is clearing 0.5, which is what the
+  # [Author] warning turns on
+  expect_gte(tnrs_compare_auth("Edw.", "Edwards, 1914"), 0.7)
+  expect_gte(tnrs_compare_auth("Edw.", "(Edwards, 1914)"), 0.55)
+  expect_gte(tnrs_compare_auth("Theob.", "Theobald, 1901"), 0.7)
+  expect_gte(tnrs_compare_auth("Dyar & Kn.", "Dyar & Knab, 1906"), 0.8)
+  # No stop at all, as GBIF strings often have it
+  expect_gte(tnrs_compare_auth("Th", "(Theobald, 1903)"), 0.55)
+  # It works in the other direction too
+  expect_gte(tnrs_compare_auth("Edwards, 1914", "Edw."), 0.7)
+  # A parenthesised abbreviation gains as much as an unparenthesised one
+  expect_gt(tnrs_compare_auth("(Sup.)", "Supino, 1897"), tnrs_compare_auth("(Xup.)", "Supino, 1897") + 0.2)
+
+  # A prefix of two surnames is ambiguous and left alone, so the score stays low
+  expect_lt(tnrs_compare_auth("Th.", "Theobald & Thomson, 1901"), 0.5)
+  # Not an abbreviation of anything on the other side: unchanged
+  expect_lt(tnrs_compare_auth("Marks No.", "Meigen, 1818"), 0.3)
+  # A one-letter initial is not expanded
+  expect_lt(tnrs_compare_auth("B.", "Bonne-Wepster, 1920"), 0.5)
+  # A second author that happens to open a hyphenated name is not an
+  # abbreviation of it, so this pair scores as it did before the expansion
+  expect_gte(tnrs_compare_auth("Bonne-Wepster", "Bonne-Wepster & Bonne, 1920"), 0.65)
+  # Whole words that already agree are not touched
+  expect_equal(tnrs_compare_auth("Neumann, 1901", "Neumann, 1901"), 1)
 })

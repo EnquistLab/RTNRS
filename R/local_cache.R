@@ -137,6 +137,41 @@ tnrs_builtin_registry <- function() {
       download_mb = 68,
       disk_mb = 30
     ),
+    phylacine = list(
+      source = "phylacine",
+      full_name = "PHYLACINE",
+      version = "1.2.1",
+      doi = "10.5281/zenodo.3690867",
+      url = "https://github.com/MegaPast2Future/PHYLACINE_1.2",
+      # The synonymy table of the tagged release: one row per species
+      # PHYLACINE accepts, with the name the same species carries in IUCN
+      # 2016-3, EltonTraits 1.0 and PHYLACINE 1.0 and 1.1, plus the names those
+      # lists have that PHYLACINE rejects.  A crosswalk to PHYLACINE's own
+      # binomials, which is what a user of its traits and phylogenies needs,
+      # rather than a synonymy of mammals; "mdd" is that.
+      files = list(
+        names = list(
+          url = paste0(
+            "https://raw.githubusercontent.com/MegaPast2Future/PHYLACINE_1.2/",
+            "v1.2.1/Data/Taxonomy/Synonymy_table_with_unaccepted_species.csv"
+          )
+        )
+      ),
+      taxonomic_scope = "Mammalia",
+      license = "CC0 1.0",
+      publisher = "MegaPast2Future",
+      citation = paste(
+        "Faurby, S., Davis, M., Pedersen, R. O., Schowanek, S. D., Antonelli, A.",
+        "& Svenning, J.-C. (2018). PHYLACINE 1.2: The Phylogenetic Atlas of Mammal",
+        "Macroecology. Ecology 99, 2626. https://doi.org/10.1002/ecy.2443;",
+        "Faurby, S., Pedersen, R. O., Davis, M., Schowanek, S. D., Jarvie, S.,",
+        "Antonelli, A. & Svenning, J.-C. (2020). PHYLACINE 1.2.1: An update to the",
+        "Phylogenetic Atlas of Mammal Macroecology. https://doi.org/10.5281/zenodo.3690867"
+      ),
+      nomenclature = "zoological",
+      download_mb = 2,
+      disk_mb = 1
+    ),
     col = list(
       source = "col",
       full_name = "Catalogue of Life",

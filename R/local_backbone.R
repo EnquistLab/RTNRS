@@ -114,12 +114,30 @@ tnrs_backbone <- function(sources = c("wcvp", "wfo"), dir = tnrs_cache_dir(),
       saveRDS(index, index_file, compress = "gzip")
     }
 
-    loaded <- list(source = source, names = names, index = index)
+    loaded <- list(
+      source = source, names = names, index = index,
+      higher = tnrs_higher_taxa(names)
+    )
     tnrs_backbone_cache[[key]] <- loaded
     out[[source]] <- loaded
   }
 
   out
+}
+
+#' The taxa above family rank a name table knows
+#'
+#' Internal.  The distinct kingdom, phylum, class and order values, upper
+#' cased, so that a submitted name opening with one of them can be
+#' recognised.  A source built before the classification columns existed
+#' knows none, and a plant source knows only what its publisher gives.
+#' @keywords internal
+#' @noRd
+tnrs_higher_taxa <- function(names) {
+  ranks <- setdiff(tnrs_classification_ranks(), "family")
+  values <- unlist(lapply(intersect(ranks, colnames(names)), function(r) unique(names[[r]])))
+  values <- values[!is.na(values) & nzchar(values)]
+  unique(tnrs_toupper_ascii(values))
 }
 
 #' Forget any backbone held in memory

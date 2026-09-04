@@ -318,3 +318,71 @@ test_that("an author written into the name is separated back out", {
   expect_identical(out$authorship, c("(Linnaeus, 1758)", "L.", "Cohn 1872"))
   expect_false(any(endsWith(out$scientific_name, out$authorship)))
 })
+
+phylacine_fixture <- function(path) {
+  gone <- "000 Species not accepted"
+  utils::write.csv(
+    data.frame(
+      Binomial.1.2 = c("Vulpes_lagopus", "Alces_alces", "Panthera_leo", gone),
+      Order.1.2 = c("Carnivora", "Artiodactyla", "Carnivora", gone),
+      Family.1.2 = c("Canidae", "Cervidae", "Felidae", gone),
+      Genus.1.2 = c("Vulpes", "Alces", "Panthera", gone),
+      Species.1.2 = c("lagopus", "alces", "leo", gone),
+      # 1.1 wrote the fox under its old genus; 1.0 split the moose
+      Genus.1.1 = c("Alopex", "Alces", "Panthera", gone),
+      Species.1.1 = c("lagopus", "alces", "leo", gone),
+      Genus.1.0 = c("Alopex", "Alces", "Panthera", gone),
+      Species.1.0 = c("lagopus", "americanus", "leo", gone),
+      # EltonTraits has a name PHYLACINE rejects, and lacks the lion
+      EltonTraits.1.0.Genus = c("Alopex", "Alces", "", "Cavia"),
+      EltonTraits.1.0.Species = c("lagopus", "alces", "", "porcellus"),
+      IUCN.2016.3.Genus = c("Vulpes", "Alces", "Panthera", gone),
+      IUCN.2016.3.Species = c("lagopus", "alces", "leo", gone),
+      stringsAsFactors = FALSE
+    ),
+    path,
+    row.names = FALSE
+  )
+}
+
+test_that("the PHYLACINE table imports as accepted names, crosswalk synonyms and rejects", {
+  path <- file.path(tempdir(), "phylacine-fixture.csv")
+  phylacine_fixture(path)
+  on.exit(unlink(path), add = TRUE)
+
+  names <- tnrs_import_phylacine(path, quiet = TRUE)
+  expect_setequal(names(names), tnrs_name_columns())
+
+  accepted <- names[names$taxonomic_status == "Accepted", ]
+  expect_identical(accepted$scientific_name, c("Vulpes lagopus", "Alces alces", "Panthera leo"))
+  expect_identical(accepted$order, c("Carnivora", "Artiodactyla", "Carnivora"))
+  expect_true(all(names$class == "Mammalia"))
+
+  # Each differing alternative once, pointing at the PHYLACINE name
+  synonyms <- names[names$taxonomic_status == "Synonym", ]
+  expect_setequal(synonyms$scientific_name, c("Alopex lagopus", "Alces americanus"))
+  expect_identical(
+    synonyms$accepted_source_name_id[synonyms$scientific_name == "Alopex lagopus"],
+    "Vulpes_lagopus"
+  )
+  expect_identical(synonyms$genus[synonyms$scientific_name == "Alopex lagopus"], "Alopex")
+
+  rejected <- names[names$taxonomic_status == "Unplaced", ]
+  expect_identical(rejected$scientific_name, "Cavia porcellus")
+  expect_identical(rejected$accepted_source_name_id, "")
+
+  # Linked and inherited as the build does it, a synonym carries the
+  # accepted name's family and order
+  linked <- tnrs_inherit_classification(tnrs_link_accepted(names))
+  fox <- linked[linked$scientific_name == "Alopex lagopus", ]
+  expect_identical(fox$family, "Canidae")
+  expect_identical(fox$order, "Carnivora")
+  expect_identical(linked$scientific_name[fox$accepted_name_id], "Vulpes lagopus")
+})
+
+test_that("a changed PHYLACINE layout is refused with the missing column named", {
+  path <- file.path(tempdir(), "phylacine-bad.csv")
+  utils::write.csv(data.frame(Binomial.1.2 = "Vulpes_lagopus"), path, row.names = FALSE)
+  on.exit(unlink(path), add = TRUE)
+  expect_error(tnrs_import_phylacine(path, quiet = TRUE), "Order.1.2")
+})

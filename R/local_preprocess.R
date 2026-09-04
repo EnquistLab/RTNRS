@@ -50,16 +50,29 @@ tnrs_family_pattern <- function(codes = "botanical") {
 #' leaving a bare name for the parser to split.
 #'
 #' @param x Character vector of submitted names.
+#' @param codes Nomenclatural codes in play; see \code{tnrs_family_pattern()}.
+#' @param higher Optional character vector of taxon names above family rank
+#'   that the sources being searched know (orders, classes, phyla,
+#'   kingdoms), upper-cased ASCII. A name opening with one of them, followed
+#'   by at least one more word, has it removed and reported in \code{higher},
+#'   for the caller to confine the search with. Nothing in the web service
+#'   does this: it reads "Carnivora Vulpes vulpes" as a genus "Carnivora"
+#'   and matches whatever resembles it.
+#' @param families Optional character vector of family names the sources
+#'   know, upper-cased ASCII. A leading word among them is treated as a
+#'   family prefix whatever its ending, so a zoological family is recognised
+#'   under the botanical code and vice versa.
 #' @return A data.frame with one row per input and the columns
 #'   \code{start_string} (leading non-alphabetic characters),
 #'   \code{annotations} (cf./aff./? markers),
 #'   \code{family} (title cased family name, or ""),
 #'   \code{family_unmatched} (junk attached to the family token),
+#'   \code{higher} (a leading order, class, phylum or kingdom, or ""),
 #'   \code{preprocessed} (text before the indeterminate markers were removed),
 #'   and \code{cleaned} (what should be handed to the parser).
 #' @keywords internal
 #' @noRd
-tnrs_preprocess <- function(x, codes = "botanical") {
+tnrs_preprocess <- function(x, codes = "botanical", higher = NULL, families = NULL) {
   codes <- tnrs_nomenclature_codes(codes)
   x <- as.character(x)
   n <- length(x)
@@ -67,6 +80,7 @@ tnrs_preprocess <- function(x, codes = "botanical") {
   out <- data.frame(
     start_string = character(n), annotations = character(n),
     family = character(n), family_unmatched = character(n),
+    higher = character(n),
     preprocessed = character(n), cleaned = character(n),
     stringsAsFactors = FALSE
   )
@@ -150,6 +164,31 @@ tnrs_preprocess <- function(x, codes = "botanical") {
     out$family[i] <- family
     out$family_unmatched[i] <- family_junk
     txt[i] <- trimws(sub(groups[1], "", txt[i], fixed = TRUE))
+  }
+
+  # A leading word the sources know as a taxon above genus, where the family
+  # pattern did not already take it.  A family by name goes down the family
+  # path, so that it is scored as the web service scores one; anything higher
+  # is reported separately, for the caller to confine the search with.  At
+  # least one more word must follow: a bare "Fagales" is a name to match, not
+  # a prefix.
+  if (length(higher) > 0 || length(families) > 0) {
+    first <- sub("\\s.*$", "", txt)
+    rest <- ifelse(grepl("\\s", txt), sub("^\\S+\\s+", "", txt), "")
+    key <- tnrs_toupper_ascii(first)
+    open <- !nzchar(out$family) & nzchar(rest) & grepl("^[[:alpha:]]+$", first)
+
+    as_family <- open & key %in% families
+    out$family[as_family] <- paste0(
+      tnrs_toupper_ascii(substr(first[as_family], 1, 1)), tolower(substring(first[as_family], 2))
+    )
+    txt[as_family] <- rest[as_family]
+
+    as_higher <- open & !as_family & key %in% higher
+    out$higher[as_higher] <- paste0(
+      tnrs_toupper_ascii(substr(first[as_higher], 1, 1)), tolower(substring(first[as_higher], 2))
+    )
+    txt[as_higher] <- rest[as_higher]
   }
 
   out$cleaned <- tnrs_reduce_spaces(txt)

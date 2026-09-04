@@ -12,7 +12,11 @@
 #'   Defaults to "wfo" alone. Supplying more than one blends them, which is what
 #'   the web service does, but the sources do not always agree; see the note
 #'   below and the \code{Source_conflict} column. "wcvp" and "wfo" cover
-#'   plants; "mdd" is the Mammal Diversity Database and "col" the Catalogue of
+#'   plants; "mdd" is the Mammal Diversity Database, "phylacine" the
+#'   PHYLACINE 1.2.1 mammal list with the names its species carry in IUCN
+#'   2016-3, EltonTraits and earlier PHYLACINE versions (a crosswalk to
+#'   PHYLACINE's own names, for joining to its traits and phylogenies, rather
+#'   than a synonymy of mammals), and "col" the Catalogue of
 #'   Life, which covers all life. A checklist registered with
 #'   \code{TNRS_local_add_source()} can be named here like any other source.
 #'   \code{TNRS_local_status()} lists what is available and what is built.
@@ -62,6 +66,17 @@
 #' @return Dataframe of results, with the same core columns as \code{TNRS()},
 #'   plus \code{Source} naming the source the match came from and
 #'   \code{Source_conflict} flagging names the requested sources disagreed about.
+#'   \code{Warnings} carries the web service's four flags and one more of its
+#'   own, \code{[Author]} (bit 16): the name matched only approximately and
+#'   the authority it was submitted with contradicts the authority of the
+#'   match. That combination usually means a name the source lacks has been
+#'   matched to its nearest neighbour, and is worth a look before the
+#'   accepted name is trusted. An author disagreement on an exact name match
+#'   is not flagged, since sources often cite a later combination. Before
+#'   authors are compared, an abbreviated surname on either side ("Theob.",
+#'   "Edw.", "C.A.Mey.") is expanded against the other where it is a prefix
+#'   of exactly one surname there, so an abbreviation alone does not count as
+#'   a disagreement.
 #' @note \strong{This is a new implementation and should be treated as beta.}
 #'   It is a port of the published TNRS algorithm. Measured against the web
 #'   service over the 100 name benchmark in \code{tnrs_testfile}, it returns the
@@ -98,8 +113,12 @@
 #' @note A submitted family prefix does not confine the search. As in the web
 #'   service, the family is matched separately and only competes with what
 #'   was found below it, so \code{"Ixodidae Ixodes inopinatus"} against "col"
-#'   still reaches a bird. \code{within} is what narrows the search; a prefix
-#'   only scores it.
+#'   still reaches a bird. \code{within} is what narrows the search; a
+#'   family prefix only scores it. A prefix above family rank is different:
+#'   a name opening with an order, class, phylum or kingdom the source knows,
+#'   "Carnivora Vulpes vulpes" or "Plantae Oenanthe", has it taken off and
+#'   the search for that one name confined to it, exactly as \code{within}
+#'   would. The web service reads such a prefix as the genus.
 #' @note \code{accuracy} means the same here as in \code{TNRS()}, and the
 #'   default is the same 0.53. The rule is more permissive than it looks:
 #'   the web service discards a match only when \emph{every} score is below
@@ -226,10 +245,36 @@ TNRS_local <- function(taxonomic_names,
 
   # Preprocess and parse the whole batch at once; the phonetic keys in
   # particular are far cheaper computed in bulk than one name at a time
-  pre <- tnrs_preprocess(submitted, codes = codes)
+  # A leading order, class, phylum or kingdom that a source knows is taken
+  # off the name and confines its search, as within does; a leading family
+  # the sources know goes down the family path whatever its ending
+  known_higher <- unique(unlist(lapply(backbone, function(b) b$higher)))
+  known_families <- unique(unlist(lapply(backbone, function(b) {
+    tnrs_toupper_ascii(b$index$family$name)
+  })))
+  pre <- tnrs_preprocess(submitted, codes = codes, higher = known_higher, families = known_families)
   parsed <- tnrs_parse(pre$cleaned, codes = codes)
   parsed$family <- pre$family
+  parsed$higher <- pre$higher
   parsed$annotations <- pre$annotations
+
+  # One mask per source per distinct prefix, built on first use and combined
+  # with any within the caller gave
+  prefix_scopes <- new.env(parent = emptyenv())
+  scope_for <- function(s, higher) {
+    if (!nzchar(higher)) {
+      return(scopes[[s]])
+    }
+    key <- paste(s, higher, sep = "|")
+    if (is.null(prefix_scopes[[key]])) {
+      mask <- tnrs_scope_mask(backbone[[s]], higher)
+      if (!is.null(scopes)) {
+        mask <- tnrs_scope_intersect(mask, scopes[[s]])
+      }
+      prefix_scopes[[key]] <- mask
+    }
+    prefix_scopes[[key]]
+  }
   # Kept for the Unmatched_terms calculation, which works by subtracting the
   # matched components from the pre-processed text
   parsed$preprocessed <- pre$preprocessed
@@ -320,7 +365,7 @@ TNRS_local <- function(taxonomic_names,
           query, backbone[[sources[s]]],
           exact = exact_hits[[sources[s]]][[j]],
           exact_full = exact_full_hits[[sources[s]]][[j]],
-          scope = scopes[[sources[s]]]
+          scope = scope_for(sources[s], query$higher)
         )
         if (nrow(candidates) == 0) {
           return(NULL)
@@ -534,12 +579,28 @@ tnrs_build_output <- function(selected, ids, submitted, parsed, backbone) {
   overall_order <- pull("overall_order")
   highertaxa_order <- pull("highertaxa_order")
 
+  # Author: the name matched only approximately and the authority the name
+  # came with contradicts the authority of what it matched.  Not an upstream
+  # flag.  Measured on GBIF's mosquito and tick names against the Catalogue
+  # of Life, this combination is almost exclusively a name the source lacks
+  # matched to its nearest neighbour, "Ixodes barkeri Barker 2019" landing on
+  # "Ixodes bakeri Arthur & Clifford, 1961" at 0.8.  The author alone is not
+  # evidence: on an exact name match a disagreeing author is usually the
+  # source citing a later combination, and the name is right.
+  name_score <- pull("name_score")
+  author_score_raw <- pull("author_score")
+  author_disagrees <- matched & !partial &
+    !is.na(name_score) & name_score < 1 &
+    nzchar(parsed$authorship[query_index]) & nzchar(from_names("authorship")) &
+    !is.na(author_score_raw) & author_score_raw < 0.5
+
   warnings <- flags[["Partial"]] * partial +
     flags[["Ambiguous"]] * (pull("ambiguous") %in% TRUE) +
     flags[["HigherTaxa"]] *
       (!is.na(overall_order) & highertaxa_order > overall_order) +
     flags[["Overall"]] *
-      (!is.na(overall_order) & highertaxa_order < overall_order)
+      (!is.na(overall_order) & highertaxa_order < overall_order) +
+    flags[["Author"]] * author_disagrees
   warnings <- as.integer(warnings)
 
   family_matched_name <- from_names("family")
@@ -620,11 +681,13 @@ tnrs_build_output <- function(selected, ids, submitted, parsed, backbone) {
 
 #' Warning flags, as a bit field
 #'
-#' Internal.  From \code{TnrsAggregator::$flag_def}.
+#' Internal.  The first four are \code{TnrsAggregator::$flag_def}; Author is
+#' local to this implementation and uses the next free bit, so the four the
+#' web service sets keep their values.
 #' @keywords internal
 #' @noRd
 tnrs_warning_flags <- function() {
-  c(Partial = 1L, Ambiguous = 2L, HigherTaxa = 4L, Overall = 8L)
+  c(Partial = 1L, Ambiguous = 2L, HigherTaxa = 4L, Overall = 8L, Author = 16L)
 }
 
 #' Render a warning bit field in words
@@ -692,6 +755,8 @@ tnrs_unmatched_terms <- function(preprocessed, query, matched_rank,
 
     parts <- c(
       if (family_matched) query$family,
+      # A higher-taxon prefix confined the search, so it was used
+      if (!is.null(query$higher)) query$higher,
       query$genus,
       if (depth >= 2) query$species,
       if (depth >= 3) c(query$rank1, query$infra1),

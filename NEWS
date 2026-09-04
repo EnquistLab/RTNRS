@@ -20,6 +20,53 @@
   registered with "TNRS_local_add_source" can supply the ranks as Darwin Core
   columns.
 
+* New dataset "gbif_triage_sample": a few hundred raw mosquito and tick
+  name strings from GBIF occurrence downloads, with the number of records
+  carrying each and GBIF's own reading of it, chosen to cover every kind of
+  agreement and disagreement with "TNRS_local".  The "TNRS_triage" help
+  page walks through using it, and through doing the same with a download
+  of your own.
+
+* New function "TNRS_triage" compares two resolutions of the same names,
+  from two sources, two services or two settings, and sorts each name into
+  one of seven tiers from "both agree at species" to "both placed it and
+  they contradict each other", with a suggested reading where one side is
+  clearly the fuller.  On 16,600 raw GBIF names the last tier, the review
+  queue, held well under 1% of records.
+
+* New built-in source "phylacine": the PHYLACINE 1.2.1 mammal list (CC0),
+  with the name each of its 5,999 species carries in IUCN 2016-3,
+  EltonTraits 1.0 and PHYLACINE 1.0 and 1.1 (553 differ) and the 48 names
+  from those lists it rejects.  It is a crosswalk to PHYLACINE's own
+  binomials, for joining names to its traits and phylogenies, not a
+  synonymy of mammals; "mdd" remains the source for that.  Orders are
+  carried, so "within" and a leading order both work with it.  Two
+  megabytes to download.
+
+* "TNRS_local" now recognises a name that opens with an order, class,
+  phylum or kingdom the source knows, such as "Carnivora Vulpes vulpes" or
+  "Plantae Oenanthe": the prefix is taken off and the search for that name
+  confined to it, as "within" does for a whole call.  Before, and in the web
+  service still, the prefix was read as the genus and matched to whatever
+  resembled it.  A leading family the source knows is treated as a family
+  prefix whatever its ending, so a zoological family is recognised without
+  setting "nomenclature".
+
+* "TNRS_local" now recognises an abbreviated author.  A surname written
+  "Theob.", "Edw." or "Dön" is expanded against the authority it is being
+  compared with when it is a prefix of exactly one surname there, so
+  "Edw." against "(Edwards, 1914)" scores as the same author rather than
+  0.16.  The web service intended an abbreviation table for this and ships
+  with the lookup disabled; this needs no table.
+
+* "TNRS_local" sets a new warning, "[Author]" (bit 16 of "Warnings"), when a
+  name matched only approximately and the authority it was submitted with
+  contradicts the authority of the match.  Against a large source, a name
+  the source lacks is often matched confidently to a near neighbour, and the
+  author is what gives it away: "Ixodes barkeri Barker 2019" lands on
+  "Ixodes bakeri Arthur & Clifford, 1961" at 0.8.  The web service's four
+  flags keep their values.
+
 * "TNRS_local" now applies an accuracy threshold by default, 0.53, the web
   service's default, and applies it by the web service's rule: a match is
   dropped only when its overall score and every component score fall below

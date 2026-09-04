@@ -13,10 +13,12 @@ TNRS_local_build(
 )
 }
 \arguments{
-\item{sources}{Character vector of sources to build. Options are "wcvp" and
-"wfo". Only "wfo" is built by default, matching the default of
-\code{TNRS_local()}; build both to reproduce the web service, which
-consults them together.}
+\item{sources}{Character vector of sources to build. Options are "wfo" and
+"wcvp" for plants, "mdd" and "phylacine" for mammals, and "col" for all
+life; \code{TNRS_local_status()} lists them with their sizes. Only "wfo"
+is built by default, matching the default of \code{TNRS_local()}; build
+"wcvp" as well to reproduce the web service, which consults the two
+together.}
 
 \item{dir}{Cache directory. Defaults to the standard user cache location.}
 

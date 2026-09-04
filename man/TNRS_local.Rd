@@ -26,7 +26,11 @@ names can be supplied.}
 Defaults to "wfo" alone. Supplying more than one blends them, which is what
 the web service does, but the sources do not always agree; see the note
 below and the \code{Source_conflict} column. "wcvp" and "wfo" cover
-plants; "mdd" is the Mammal Diversity Database and "col" the Catalogue of
+plants; "mdd" is the Mammal Diversity Database, "phylacine" the
+PHYLACINE 1.2.1 mammal list with the names its species carry in IUCN
+2016-3, EltonTraits and earlier PHYLACINE versions (a crosswalk to
+PHYLACINE's own names, for joining to its traits and phylogenies, rather
+than a synonymy of mammals), and "col" the Catalogue of
 Life, which covers all life. A checklist registered with
 \code{TNRS_local_add_source()} can be named here like any other source.
 \code{TNRS_local_status()} lists what is available and what is built.}
@@ -86,6 +90,17 @@ large enough to need more than one batch.}
 Dataframe of results, with the same core columns as \code{TNRS()},
   plus \code{Source} naming the source the match came from and
   \code{Source_conflict} flagging names the requested sources disagreed about.
+  \code{Warnings} carries the web service's four flags and one more of its
+  own, \code{[Author]} (bit 16): the name matched only approximately and
+  the authority it was submitted with contradicts the authority of the
+  match. That combination usually means a name the source lacks has been
+  matched to its nearest neighbour, and is worth a look before the
+  accepted name is trusted. An author disagreement on an exact name match
+  is not flagged, since sources often cite a later combination. Before
+  authors are compared, an abbreviated surname on either side ("Theob.",
+  "Edw.", "C.A.Mey.") is expanded against the other where it is a prefix
+  of exactly one surname there, so an abbreviation alone does not count as
+  a disagreement.
 }
 \description{
 Resolves names against a locally cached copy of the taxonomic sources, using
@@ -135,8 +150,12 @@ Results are not guaranteed to be identical to \code{TNRS()}. The local
 A submitted family prefix does not confine the search. As in the web
   service, the family is matched separately and only competes with what
   was found below it, so \code{"Ixodidae Ixodes inopinatus"} against "col"
-  still reaches a bird. \code{within} is what narrows the search; a prefix
-  only scores it.
+  still reaches a bird. \code{within} is what narrows the search; a
+  family prefix only scores it. A prefix above family rank is different:
+  a name opening with an order, class, phylum or kingdom the source knows,
+  "Carnivora Vulpes vulpes" or "Plantae Oenanthe", has it taken off and
+  the search for that one name confined to it, exactly as \code{within}
+  would. The web service reads such a prefix as the genus.
 
 \code{accuracy} means the same here as in \code{TNRS()}, and the
   default is the same 0.53. The rule is more permissive than it looks:

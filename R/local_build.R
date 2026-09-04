@@ -16,10 +16,12 @@
 #' results from the web service.  Use \code{TNRS_local_status()} to see what has
 #' been built.
 #'
-#' @param sources Character vector of sources to build. Options are "wcvp" and
-#'   "wfo". Only "wfo" is built by default, matching the default of
-#'   \code{TNRS_local()}; build both to reproduce the web service, which
-#'   consults them together.
+#' @param sources Character vector of sources to build. Options are "wfo" and
+#'   "wcvp" for plants, "mdd" and "phylacine" for mammals, and "col" for all
+#'   life; \code{TNRS_local_status()} lists them with their sizes. Only "wfo"
+#'   is built by default, matching the default of \code{TNRS_local()}; build
+#'   "wcvp" as well to reproduce the web service, which consults the two
+#'   together.
 #' @param dir Cache directory. Defaults to the standard user cache location.
 #' @param overwrite Re-download and rebuild even if the data is already present?
 #' @param keep_archive Keep the downloaded archive after building? It is not
@@ -99,7 +101,8 @@ Use TNRS_local_add_source() to register the data again."
         extracted[["species"]], extracted[["synonyms"]],
         quiet = quiet
       ),
-      col = tnrs_import_col(extracted[["names"]], quiet = quiet)
+      col = tnrs_import_col(extracted[["names"]], quiet = quiet),
+      phylacine = tnrs_import_phylacine(extracted[["names"]], quiet = quiet)
     )
     names <- tnrs_link_accepted(names)
     names <- tnrs_inherit_classification(names)
